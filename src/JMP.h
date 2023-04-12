@@ -7,7 +7,7 @@ using std::ostream;
 class JMP
 {
     private:
-        bool is_valid(const string &number)
+        bool is_valid(const string &number) const
         {
             if (number.empty())
                 return false;
@@ -42,6 +42,9 @@ class JMP
             this->number = string(num);
         }
 
+        /// Destructor
+        ~JMP() {}
+
         /// Stream operators
         friend ostream &operator<<(ostream &k, JMP &j)
         {
@@ -49,13 +52,13 @@ class JMP
             return (k);
         }
 
-        JMP& operator=(const string& num)
+        /// Assignment operator
+        JMP& operator=(const string &num)
         {
             this->number = num;
             return *this;
         }
 
-        /// Assignment operator
         JMP& operator=(const char* num)
         {
             this->number = num;
@@ -63,13 +66,13 @@ class JMP
         }
 
         /// Shortcut operators
-        void operator++(int)
+        JMP& operator++(int)
         {
             // Check the validity of the number
             if (is_valid(number) == false)
             {
                 number = "0";
-                return;
+                return *this;
             }
 
             // Memorize the number symbol
@@ -124,5 +127,6 @@ class JMP
                 number.insert(number.begin(), '-');
             else if (number_has_plus_symbol)
                 number.insert(number.begin(), '+');
+            return *this;
         }
 };
