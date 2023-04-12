@@ -12,9 +12,25 @@ class JMP
         JMP(string num) { number = num; }
         JMP() {}
 
-        friend ostream & operator << (ostream &k, JMP &j)
+        friend ostream &operator<<(ostream &k, JMP &j)
         {
-            k << j.number;
+            k<<j.number;
             return (k);
+        }
+
+        JMP(const string& num)
+        {
+            this->number = num;
+        }
+
+        JMP(const char* num)
+        {
+            this->number = string(num);
+        }
+
+        JMP& operator=(const string& num)
+        {
+            this->number = num;
+            return *this;
         }
 };
