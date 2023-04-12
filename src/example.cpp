@@ -1,10 +1,19 @@
 #include <iostream>
 #include "JMP.h"
-using namespace std;
+using std::endl;
+using std::cout;
 
 int main()
 {
-    JMP j = "12345";
-    cout<<j;
+    JMP j = "1000";
+    cout<<j<<endl;
+
+    j = "80090";
+    cout<<j<<endl;
+
+    string str="900000000";
+    j = str;
+    cout<<j<<endl;
+
     return 0;
 }

@@ -33,4 +33,10 @@ class JMP
             this->number = num;
             return *this;
         }
+
+        JMP& operator=(const char* num)
+        {
+            this->number = num;
+            return *this;
+        }        
 };
