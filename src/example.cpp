@@ -4,6 +4,7 @@ using namespace std;
 
 int main()
 {
-    JMP a;
+    JMP a("123");
+    cout<<a;
     return 0;
 }
