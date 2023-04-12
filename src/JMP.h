@@ -6,17 +6,31 @@ using std::ostream;
 
 class JMP
 {
+    private:
+        bool is_valid(const string &number)
+        {
+            if (number.empty())
+                return false;
+
+            bool valid = true;
+            for (int i=1; i<number.length(); i++)
+            {
+                if (number[i] < '0' || number[i] > '9')
+                    valid = false;
+            }
+
+            if ((number[0]  < '0' || number[0]  > '9') &&
+                (number[0] != '-' && number[0] != '+') ||
+                number[0] == '0' || (number[1] == '0' && (number[0] == '-' || number[0] == '+')))
+                valid = false;
+
+            return valid;
+        }
+
     public:
         string number;
-        // Constructors
-        JMP(string num) { number = num; }
+        /// Constructors
         JMP() {}
-
-        friend ostream &operator<<(ostream &k, JMP &j)
-        {
-            k<<j.number;
-            return (k);
-        }
 
         JMP(const string& num)
         {
@@ -28,15 +42,87 @@ class JMP
             this->number = string(num);
         }
 
+        /// Stream operators
+        friend ostream &operator<<(ostream &k, JMP &j)
+        {
+            k<<j.number;
+            return (k);
+        }
+
         JMP& operator=(const string& num)
         {
             this->number = num;
             return *this;
         }
 
+        /// Assignment operator
         JMP& operator=(const char* num)
         {
             this->number = num;
             return *this;
-        }        
+        }
+
+        /// Shortcut operators
+        void operator++(int)
+        {
+            // Check the validity of the number
+            if (is_valid(number) == false)
+            {
+                number = "0";
+                return;
+            }
+
+            // Memorize the number symbol
+            bool number_has_minus_symbol = false, number_has_plus_symbol = false;
+            if (number[0] == '+')
+            {
+                number.erase(number.begin());
+                number_has_plus_symbol = true;
+            } else if (number[0] == '-') {
+                number.erase(number.begin());
+                number_has_minus_symbol = true;
+            }
+
+            // +1 the number
+            if (number_has_minus_symbol == false)
+            {
+                // +1 for a positive number
+                this->number[number.length() - 1]++;
+                for (int i=number.length() - 1; i>=0; i--)
+                {
+                    if (number[i] > '9' && i != 0)
+                    {
+                        number[i] = '0';
+                        number[i - 1]++;
+                    } else if (number[i] > '9' && i == 0) {
+                        number[i] = '0';
+                        number.insert(number.begin(), '1');
+                    }
+                }
+            } else {
+                // +1 for a negative number
+                this->number[number.length() - 1]--;
+                for (int i=number.length() - 1; i>=0; i--)
+                {
+                    if (number[i] < '0' && i != 0)
+                    {
+                        number[i] = '9';
+                        number[i - 1]--;
+                    } else if (number[i] < '0' && i == 0) {
+                        number.clear();
+                        number.push_back('1');
+                        number_has_minus_symbol = false;
+                        number_has_plus_symbol = true;
+                    } else if (number[i] == '0' && i == 0) {
+                        number.erase(number.begin());
+                    }
+                }
+            }
+
+            // Add the memorized symbol to the beginning of the number
+            if (number_has_minus_symbol)
+                number.insert(number.begin(), '-');
+            else if (number_has_plus_symbol)
+                number.insert(number.begin(), '+');
+        }
 };

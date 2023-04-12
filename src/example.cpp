@@ -8,11 +8,12 @@ int main()
     JMP j = "1000";
     cout<<j<<endl;
 
-    j = "80090";
+    j = "+80090";
     cout<<j<<endl;
 
-    string str="900000000";
+    string str="-990";
     j = str;
+    j++;
     cout<<j<<endl;
 
     return 0;
