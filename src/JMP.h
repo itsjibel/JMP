@@ -1,6 +1,4 @@
-#include <vector>
 #include <string.h>
-#include <algorithm>
 using std::string;
 using std::ostream;
 
