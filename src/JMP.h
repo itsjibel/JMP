@@ -43,7 +43,7 @@ class JMP
         }
 
         /// Destructor
-        ~JMP() {}
+        virtual ~JMP() {}
 
         /// Stream operators
         friend ostream &operator<<(ostream &k, JMP &j)
