@@ -22,6 +22,8 @@ class JMP
                 number[0] == '0' || (number[1] == '0' && (number[0] == '-' || number[0] == '+')))
                 valid = false;
 
+            valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
+
             return valid;
         }
 
@@ -30,7 +32,7 @@ class JMP
         /// Constructors
         JMP() {}
 
-        JMP(const string& num)
+        JMP(const string &num)
         {
             this->number = num;
         }
@@ -53,13 +55,13 @@ class JMP
         /// Assignment operator
         JMP& operator=(const string &num)
         {
-            this->number = num;
+            number = num;
             return *this;
         }
 
         JMP& operator=(const char* num)
         {
-            this->number = num;
+            number = num;
             return *this;
         }
 
@@ -88,7 +90,7 @@ class JMP
             if (number_has_minus_symbol == false)
             {
                 // +1 for a positive number
-                this->number[number.length() - 1]++;
+                number[number.length() - 1]++;
                 for (int i=number.length() - 1; i>=0; i--)
                 {
                     if (number[i] > '9' && i != 0)
@@ -102,7 +104,7 @@ class JMP
                 }
             } else {
                 // +1 for a negative number
-                this->number[number.length() - 1]--;
+                number[number.length() - 1]--;
                 for (int i=number.length() - 1; i>=0; i--)
                 {
                     if (number[i] < '0' && i != 0)
@@ -116,6 +118,68 @@ class JMP
                         number_has_plus_symbol = true;
                     } else if (number[i] == '0' && i == 0) {
                         number.erase(number.begin());
+                    }
+                }
+            }
+
+            // Add the memorized symbol to the beginning of the number
+            if (number_has_minus_symbol)
+                number.insert(number.begin(), '-');
+            else if (number_has_plus_symbol)
+                number.insert(number.begin(), '+');
+            return *this;
+        }
+
+        JMP& operator--(int)
+        {
+            // Check the validity of the number
+            if (is_valid(number) == false)
+            {
+                number = "0";
+                return *this;
+            }
+
+            // Memorize the number symbol
+            bool number_has_minus_symbol = false, number_has_plus_symbol = false;
+            if (number[0] == '+')
+            {
+                number.erase(number.begin());
+                number_has_plus_symbol = true;
+            } else if (number[0] == '-') {
+                number.erase(number.begin());
+                number_has_minus_symbol = true;
+            }
+
+            // -1 the number
+            if (number_has_minus_symbol == false)
+            {
+                // -1 for a positive number
+                number[number.length() - 1]--;
+                for (int i=number.length() - 1; i>=0; i--)
+                {
+                    if (number[i] < '0' && i != 0)
+                    {
+                        number[i] = '9';
+                        number[i - 1]--;
+                    } else if (number[i] < '0' && i == 0) {
+                        number.clear();
+                        number.push_back('1');
+                        number_has_minus_symbol = true;
+                        number_has_plus_symbol = false;
+                    }
+                }
+            } else {
+                // -1 for a negative number
+                number[number.length() - 1]++;
+                for (int i=number.length() - 1; i>=0; i--)
+                {
+                    if (number[i] > '9' && i != 0)
+                    {
+                        number[i] = '0';
+                        number[i - 1]++;
+                    } else if (number[i] > '9' && i == 0) {
+                        number[i] = '0';
+                        number.insert(number.begin(), '1');
                     }
                 }
             }
