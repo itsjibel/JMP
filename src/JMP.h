@@ -1,4 +1,7 @@
 #include <string.h>
+#include <iostream>
+using std::endl;
+using std::cout;
 using std::string;
 using std::ostream;
 
@@ -32,12 +35,12 @@ class JMP
         /// Constructors
         JMP() {}
 
-        JMP(const string &num)
+        JMP (const string &num)
         {
             this->number = num;
         }
 
-        JMP(const char* num)
+        JMP (const char* num)
         {
             this->number = string(num);
         }
@@ -53,20 +56,20 @@ class JMP
         }
 
         /// Assignment operator
-        JMP& operator=(const string &num)
+        JMP &operator=(const string &num)
         {
             number = num;
             return *this;
         }
 
-        JMP& operator=(const char* num)
+        JMP &operator=(const char* num)
         {
             number = num;
             return *this;
         }
 
         /// Shortcut operators
-        JMP& operator++(int)
+        JMP &operator++(int)
         {
             // Check the validity of the number
             if (is_valid(number) == false)
@@ -130,7 +133,7 @@ class JMP
             return *this;
         }
 
-        JMP& operator--(int)
+        JMP &operator--(int)
         {
             // Check the validity of the number
             if (is_valid(number) == false)
@@ -190,5 +193,89 @@ class JMP
             else if (number_has_plus_symbol)
                 number.insert(number.begin(), '+');
             return *this;
+        }
+
+        JMP &operator+(JMP &j)
+        {
+            JMP* sum_obj = new JMP;
+
+            // Check the validity of the number and the passed number
+            if (is_valid(number) == false)
+            {
+                number = "0";
+                return *this;
+            }
+            if (is_valid(j.number) == false)
+            {
+                j.number = "0";
+                return *this;
+            }
+
+            // Memorize the number and the passed number symbol
+            bool number_has_minus_symbol = false, number_has_plus_symbol = false, passed_number_has_minus_symbol = false, passed_number_has_plus_symbol = false;
+            if (number[0] == '+')
+            {
+                number.erase(number.begin());
+                number_has_plus_symbol = true;
+            } else if (number[0] == '-') {
+                number.erase(number.begin());
+                number_has_minus_symbol = true;
+            }
+
+            if (j.number[0] == '+')
+            {
+                j.number.erase(number.begin());
+                number_has_plus_symbol = true;
+            } else if (j.number[0] == '-') {
+                j.number.erase(number.begin());
+                number_has_minus_symbol = true;
+            }
+
+            bool number_is_bigger = false, second_number_is_bigger = false;
+            if (j.number.length() > number.length())
+            {
+                second_number_is_bigger = true;
+                sum_obj->number = j.number;
+            } else {
+                number_is_bigger = true;
+                sum_obj->number = number;
+            }
+
+            // Adding positive numbers together
+            if (!number_has_minus_symbol && !passed_number_has_minus_symbol)
+            {
+                int range = second_number_is_bigger ? j.number.length() : number.length();
+                for (int i=range - 1; i>=0; i--)
+                {
+
+                    if (second_number_is_bigger)
+                    {
+                        if (i >= j.number.length() - number.length())
+                        {
+                            sum_obj->number[i] += number[i - (j.number.length() - number.length())] - '0';
+                        }
+                    } else {
+                        if (i >= number.length() - j.number.length())
+                        {
+                            sum_obj->number[i] += j.number[i - (number.length() - j.number.length())] - '0';
+                        }
+                    }
+
+                    if (sum_obj->number[i] > '9')
+                    {
+                        if (i != 0)
+                        {
+                            sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
+                            sum_obj->number[i] = '0' + (sum_obj->number[i] - '0') % 10;
+                        } else {
+                            sum_obj->number.insert(sum_obj->number.begin(), '0');
+                            sum_obj->number[0] += (sum_obj->number[1] - '0') / 10;
+                            sum_obj->number[1] = '0' + (sum_obj->number[1] - '0') % 10;
+                        }
+                    }
+                }
+            }
+
+            return *sum_obj;
         }
 };
