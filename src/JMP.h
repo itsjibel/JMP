@@ -1,7 +1,4 @@
 #include <string.h>
-#include <iostream>
-using std::endl;
-using std::cout;
 using std::string;
 using std::ostream;
 
@@ -247,19 +244,12 @@ class JMP
                 int range = second_number_is_bigger ? j.number.length() : number.length();
                 for (int i=range - 1; i>=0; i--)
                 {
-
                     if (second_number_is_bigger)
                     {
                         if (i >= j.number.length() - number.length())
-                        {
                             sum_obj->number[i] += number[i - (j.number.length() - number.length())] - '0';
-                        }
-                    } else {
-                        if (i >= number.length() - j.number.length())
-                        {
-                            sum_obj->number[i] += j.number[i - (number.length() - j.number.length())] - '0';
-                        }
-                    }
+                    } else if (i >= number.length() - j.number.length())
+                        sum_obj->number[i] += j.number[i - (number.length() - j.number.length())] - '0';
 
                     if (sum_obj->number[i] > '9')
                     {
