@@ -209,7 +209,8 @@ class JMP
             }
 
             // Memorize the number and the passed number symbol
-            bool number_has_minus_symbol = false, number_has_plus_symbol = false, passed_number_has_minus_symbol = false, passed_number_has_plus_symbol = false;
+            bool number_has_minus_symbol = false, number_has_plus_symbol = false,
+                 passed_number_has_minus_symbol = false, passed_number_has_plus_symbol = false;
             if (number[0] == '+')
             {
                 number.erase(number.begin());
@@ -221,11 +222,11 @@ class JMP
 
             if (j.number[0] == '+')
             {
-                j.number.erase(number.begin());
-                number_has_plus_symbol = true;
+                j.number.erase(j.number.begin());
+                passed_number_has_plus_symbol = true;
             } else if (j.number[0] == '-') {
-                j.number.erase(number.begin());
-                number_has_minus_symbol = true;
+                j.number.erase(j.number.begin());
+                passed_number_has_minus_symbol = true;
             }
 
             bool number_is_bigger = false, second_number_is_bigger = false;
@@ -239,7 +240,8 @@ class JMP
             }
 
             // Adding positive numbers together
-            if (!number_has_minus_symbol && !passed_number_has_minus_symbol)
+            if ((!number_has_minus_symbol && !passed_number_has_minus_symbol) ||
+                (number_has_minus_symbol && passed_number_has_minus_symbol))
             {
                 int range = second_number_is_bigger ? j.number.length() : number.length();
                 for (int i=range - 1; i>=0; i--)
@@ -264,6 +266,9 @@ class JMP
                         }
                     }
                 }
+
+                if (number_has_minus_symbol && passed_number_has_minus_symbol)
+                    sum_obj->number.insert(sum_obj->number.begin(), '-');
             }
 
             return *sum_obj;
