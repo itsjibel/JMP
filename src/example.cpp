@@ -39,5 +39,10 @@ int main()
     // Cout the sum of the two numbers -> 1000000000000000000009999999999999999998
     cout<<second_number + my_number<<endl;
 
+    // Cout the sum of the two negative numbers -9999999 and -99999999 -> 1000000000000000000009999999999999999998
+    second_number = "-99999999";
+    my_number = "-9999999";
+    cout<<my_number + second_number<<endl;
+
     return 0;
 }
