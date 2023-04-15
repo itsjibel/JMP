@@ -270,7 +270,6 @@ class JMP
                 if (number_has_minus_symbol && passed_number_has_minus_symbol)
                     sum_obj->number.insert(sum_obj->number.begin(), '-');
             }
-
             return *sum_obj;
         }
 };
