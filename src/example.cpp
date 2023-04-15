@@ -1,5 +1,5 @@
 #include <iostream>
-#include "JMP.h"
+#include "JMP.hpp"
 using std::endl;
 using std::cout;
 
