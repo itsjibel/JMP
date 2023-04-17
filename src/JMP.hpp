@@ -1,6 +1,7 @@
 #include <string.h>
 using std::string;
 using std::ostream;
+using std::istream;
 
 class JMP
 {
@@ -74,6 +75,12 @@ class JMP
         friend ostream &operator<<(ostream &k, JMP &j)
         {
             k<<j.number;
+            return (k);
+        }
+
+        friend istream &operator>>(istream &k, JMP &j)
+        {
+            k>>j.number;
             return (k);
         }
 
