@@ -27,6 +27,28 @@ class JMP
             return valid;
         }
 
+        int8_t which_is_bigger(string num1, string num2)
+        {
+            if (num1.length() > num2.length())
+                return 0;
+            else if (num2.length() > num1.length())
+                return 1;
+            else if (num2.length() == num1.length())
+                return 1;
+            else
+            {
+                int counter = num1.length();
+                while (num1[counter] == num2[counter])
+                    counter--;
+                if (num1[counter] > num2[counter])
+                    return 0;
+                else if (num2[counter] > num2[counter])
+                    return 1;
+            }
+
+            return 0;
+        }
+
     public:
         string number;
         /// Constructors
@@ -229,24 +251,26 @@ class JMP
                 passed_number_has_minus_symbol = true;
             }
 
-            bool number_is_bigger = false, second_number_is_bigger = false;
-            if (j.number.length() > number.length())
+            // Check the bigger number with the length
+            int8_t which_number_is_bigger = which_is_bigger(j.number, number);
+            bool number_is_bigger = false, passed_number_is_bigger = false;
+            if (which_number_is_bigger == 0)
             {
-                second_number_is_bigger = true;
+                passed_number_is_bigger = true;
                 sum_obj->number = j.number;
             } else {
                 number_is_bigger = true;
                 sum_obj->number = number;
             }
 
-            // Adding positive numbers together
             if ((!number_has_minus_symbol && !passed_number_has_minus_symbol) ||
                 (number_has_minus_symbol && passed_number_has_minus_symbol))
             {
-                int range = second_number_is_bigger ? j.number.length() : number.length();
+                // Adding two positive numbers together or negative numbers together
+                int range = passed_number_is_bigger ? j.number.length() : number.length();
                 for (int i=range - 1; i>=0; i--)
                 {
-                    if (second_number_is_bigger)
+                    if (passed_number_is_bigger)
                     {
                         if (i >= j.number.length() - number.length())
                             sum_obj->number[i] += number[i - (j.number.length() - number.length())] - '0';
@@ -269,7 +293,52 @@ class JMP
 
                 if (number_has_minus_symbol && passed_number_has_minus_symbol)
                     sum_obj->number.insert(sum_obj->number.begin(), '-');
+            } else {
+                // Adding two positive and negative numbers together
+                if (number_is_bigger)
+                {
+                    sum_obj->number = this->number;
+                    int passed_number_index = j.number.size() - 1;
+                    for (int i=sum_obj->number.size()-1; i>=0; i--)
+                    {
+                        if (passed_number_index >= 0)
+                            sum_obj->number[i] -= j.number[passed_number_index] - '0';
+
+                        if (sum_obj->number[i] < '0')
+                        {
+                            sum_obj->number[i] += 10;
+                            sum_obj->number[i - 1] -= 1;
+                        }
+
+                        passed_number_index--;
+                    }
+                } else if (passed_number_is_bigger) {
+                    sum_obj->number = j.number;
+                    int number_index = number.size() - 1;
+                    for (int i=sum_obj->number.size()-1; i>=0; i--)
+                    {
+                        if (number_index >= 0)
+                            sum_obj->number[i] -= number[number_index] - '0';
+
+                        if (sum_obj->number[i] < '0')
+                        {
+                            sum_obj->number[i] += 10;
+                            sum_obj->number[i - 1] -= 1;
+                        }
+
+                        number_index--;
+                    }
+                }
+
+                while (sum_obj->number[0] == '0' && sum_obj->number.size() != 1)
+                    sum_obj->number.erase(sum_obj->number.begin());
+
+                if (((number_has_minus_symbol && number_is_bigger) ||
+                    (passed_number_has_minus_symbol && passed_number_is_bigger)) &&
+                    !(sum_obj->number.size() == 1 && sum_obj->number[0] == '0'))
+                    sum_obj->number.insert(sum_obj->number.begin(), '-');
             }
+
             return *sum_obj;
         }
 };
