@@ -65,7 +65,10 @@ class JMP
         }
 
         /// Destructor
-        virtual ~JMP() {}
+        virtual ~JMP()
+        {
+            number.clear();
+        }
 
         /// Stream operators
         friend ostream &operator<<(ostream &k, JMP &j)
