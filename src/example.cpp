@@ -36,12 +36,18 @@ int main()
     JMP second_number = sec_str;
     cout<<second_number<<endl;
 
-    // Cout the sum of the two numbers -> 1000000000000000000009999999999999999998
+    // Cout the sum of the two positive numbers -> 1000000000000000000009999999999999999998
     cout<<second_number + my_number<<endl;
 
     // Cout the sum of the two negative numbers -9999999 and -99999999 -> -109999998
-    second_number = "999999998";
-    my_number = "-999999999";
+    second_number = "-99999999";
+    my_number = "-9999999";
+    cout<<my_number + second_number<<endl;
+
+
+    // Cout sum of the positive and negative numbers -99999999 and 100000000 -> 1
+    second_number = "-99999999";
+    my_number = "100000000";
     cout<<my_number + second_number<<endl;
 
     return 0;
