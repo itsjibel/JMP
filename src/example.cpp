@@ -50,5 +50,8 @@ int main()
     my_number = "100000000";
     cout<<my_number + second_number<<endl;
 
+    // Cout sum of the JMP variable and int variables 100000000 and 15 and -98 -> 99999917
+    int a = -98;
+    cout<<my_number + a + 15<<endl;
     return 0;
 }
