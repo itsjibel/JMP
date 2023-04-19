@@ -13,15 +13,19 @@ class JMP
                 return false;
 
             bool valid = true;
+            int number_of_dots = 0;
             for (int i=1; i<number.length(); i++)
             {
                 if (number[i] < '0' || number[i] > '9')
-                    valid = false;
+                    if (number[i] != '.')
+                        valid = false;
+                if (number[i] == '.')
+                    number_of_dots++;
             }
 
-            if ((number[0]  < '0' || number[0]  > '9') &&
-                (number[0] != '-' && number[0] != '+') ||
-                number[0] == '0' || (number[1] == '0' && (number[0] == '-' || number[0] == '+')))
+            if ((number[0]  < '0' ||  number[0]  > '9') && (number[0] != '-' && number[0] != '+')  ||
+                 number[0] == '0' || (number[1] == '0'  && (number[0] == '-' || number[0] == '+')) ||
+                (number.back() == '.' || number.front() == '.' || number_of_dots > 1))
                 valid = false;
 
             valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
@@ -58,12 +62,20 @@ class JMP
 
         JMP (const string &num)
         {
-            this->number = num;
+            // Check the validity of the number
+            if (is_valid(num))
+                this->number = num;
+            else
+                this->number = "0";
         }
 
         JMP (const char* num)
         {
-            this->number = string(num);
+            // Check the validity of the number
+            if (is_valid(num))
+                this->number = num;
+            else
+                this->number = "0";
         }
 
         /// Destructor
