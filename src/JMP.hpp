@@ -100,13 +100,21 @@ class JMP
         /// Assignment operator
         JMP &operator=(const string &num)
         {
-            number = num;
+            // Check the validity of the number
+            if (is_valid(num))
+                this->number = num;
+            else
+                this->number = "0";
             return *this;
         }
 
         JMP &operator=(const char* num)
         {
-            number = num;
+            // Check the validity of the number
+            if (is_valid(num))
+                this->number = num;
+            else
+                this->number = "0";
             return *this;
         }
 
@@ -121,13 +129,6 @@ class JMP
 
 JMP &JMP::operator++(int)
 {
-    // Check the validity of the number
-    if (is_valid(number) == false)
-    {
-        number = "0";
-        return *this;
-    }
-
     // Memorize the number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false;
     if (number[0] == '+')
@@ -185,13 +186,6 @@ JMP &JMP::operator++(int)
 
 JMP &JMP::operator--(int)
 {
-    // Check the validity of the number
-    if (is_valid(number) == false)
-    {
-        number = "0";
-        return *this;
-    }
-
     // Memorize the number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false;
     if (number[0] == '+')
@@ -248,18 +242,6 @@ JMP &JMP::operator--(int)
 JMP &JMP::operator+(JMP &j)
 {
     JMP* sum_obj = new JMP("0");
-
-    // Check the validity of the number and the passed number
-    if (is_valid(this->number) == false)
-    {
-        this->number = "0";
-        return *sum_obj;
-    }
-    if (is_valid(j.number) == false)
-    {
-        j.number = "0";
-        return *sum_obj;
-    }
 
     // Memorize the number and the passed number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false,
@@ -380,13 +362,6 @@ JMP &JMP::operator+(const long long int &j)
 {
     string second_number = to_string(j);
     JMP* sum_obj = new JMP("0");
-
-    // Check the validity of the number and the passed number
-    if (is_valid(this->number) == false)
-    {
-        this->number = "0";
-        return *sum_obj;
-    }
 
     // Memorize the number and the passed number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false,
