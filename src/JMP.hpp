@@ -6,8 +6,11 @@ using std::to_string;
 
 class JMP
 {
+    protected:
+        int float_point_index = 0;
+
     private:
-        bool is_valid(const string &number) const
+        bool is_valid(const string &number)
         {
             if (number.empty())
                 return false;
@@ -20,7 +23,10 @@ class JMP
                     if (number[i] != '.')
                         valid = false;
                 if (number[i] == '.')
+                {
                     number_of_dots++;
+                    this->float_point_index = i;
+                }
             }
 
             if ((number[0]  < '0' ||  number[0]  > '9') && (number[0] != '-' && number[0] != '+')  ||
@@ -141,11 +147,12 @@ JMP &JMP::operator++(int)
     }
 
     // +1 the number
+    int last_integer_index = float_point_index != 0 ? float_point_index - 1 : number.length() - 1;
     if (number_has_minus_symbol == false)
     {
         // +1 for a positive number
-        number[number.length() - 1]++;
-        for (int i=number.length() - 1; i>=0; i--)
+        number[last_integer_index]++;
+        for (int i=last_integer_index; i>=0; i--)
         {
             if (number[i] > '9' && i != 0)
             {
@@ -157,9 +164,10 @@ JMP &JMP::operator++(int)
             }
         }
     } else {
+        last_integer_index--;
         // +1 for a negative number
-        number[number.length() - 1]--;
-        for (int i=number.length() - 1; i>=0; i--)
+        number[last_integer_index]--;
+        for (int i=last_integer_index; i>=0; i--)
         {
             if (number[i] < '0' && i != 0)
             {
@@ -198,11 +206,12 @@ JMP &JMP::operator--(int)
     }
 
     // -1 the number
+    int last_integer_index = float_point_index != 0 ? float_point_index - 1 : number.length() - 1;
     if (number_has_minus_symbol == false)
     {
         // -1 for a positive number
-        number[number.length() - 1]--;
-        for (int i=number.length() - 1; i>=0; i--)
+        number[last_integer_index]--;
+        for (int i=last_integer_index; i>=0; i--)
         {
             if (number[i] < '0' && i != 0)
             {
@@ -216,9 +225,10 @@ JMP &JMP::operator--(int)
             }
         }
     } else {
+        last_integer_index--;
         // -1 for a negative number
-        number[number.length() - 1]++;
-        for (int i=number.length() - 1; i>=0; i--)
+        number[last_integer_index]++;
+        for (int i=last_integer_index; i>=0; i--)
         {
             if (number[i] > '9' && i != 0)
             {

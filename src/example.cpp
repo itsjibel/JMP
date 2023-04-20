@@ -54,8 +54,13 @@ int main()
     int a = -98;
     cout<<my_number + a + 15<<endl;
 
-    JMP c = "-542.21442";
-    cout<<c<<endl;
+    // ++ the float JMP variable 542.21442 -> 541.21442
+    JMP c = "542.21442";
+    cout<<c--<<endl;
+
+    // -- the float JMP variable 2.141592653589793238462643 -> 3.141592653589793238462643
+    c = "2.141592653589793238462643";
+    cout<<c++<<endl;
 
     return 0;
 }
