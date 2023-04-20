@@ -35,6 +35,7 @@ class JMP
                 valid = false;
 
             valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
+            float_point_index = valid ? float_point_index : 0;
 
             return valid;
         }
