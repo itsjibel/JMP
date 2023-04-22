@@ -12,6 +12,7 @@ class JMP
     private:
         bool is_valid(const string &number)
         {
+            // If number is empty so is not valid
             if (number.empty())
                 return false;
 
@@ -19,9 +20,14 @@ class JMP
             int number_of_dots = 0;
             for (int i=1; i<number.length(); i++)
             {
-                if (number[i] < '0' || number[i] > '9')
-                    if (number[i] != '.')
-                        valid = false;
+                // If the number character is not in the range 0-9 and the number character is not '.'-
+                // then this character is invalid
+                if ((number[i] < '0' || number[i] > '9') && number[i] != '.')
+                    valid = false;
+                
+                // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
+                // the number characters, then update the float_point_index to know-
+                // where is the point index in the number
                 if (number[i] == '.')
                 {
                     number_of_dots++;
@@ -29,12 +35,18 @@ class JMP
                 }
             }
 
+            // "If conditions" for falsing the validity of the number string
             if ((number[0]  < '0' ||  number[0]  > '9') && (number[0] != '-' && number[0] != '+')  ||
                  number[0] == '0' || (number[1] == '0'  && (number[0] == '-' || number[0] == '+')) ||
                 (number.back() == '.' || number.front() == '.' || number_of_dots > 1))
                 valid = false;
-
+            
+            // "If conditions" for truing the validity of the number string
             valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
+
+            // We set the float_point_index to zero when the number is invalid.
+            // Because if the next value is an integer number, and we have a specific float_point_index, some-
+            // calculations will fail and give wrong answers.
             float_point_index = valid ? float_point_index : 0;
 
             return valid;
