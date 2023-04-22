@@ -86,7 +86,7 @@ class JMP
 
         JMP (const string &num)
         {
-            // Check the validity of the number
+            // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
             else
@@ -95,7 +95,7 @@ class JMP
 
         JMP (const char* num)
         {
-            // Check the validity of the number
+            // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
             else
@@ -111,12 +111,14 @@ class JMP
         /// Stream operators
         friend ostream &operator<<(ostream &k, JMP &j)
         {
+            // Print the JMP object
             k<<j.number;
             return (k);
         }
 
         friend istream &operator>>(istream &k, JMP &j)
         {
+            // Get the JMP object
             k>>j.number;
             return (k);
         }
@@ -124,7 +126,7 @@ class JMP
         /// Assignment operator
         JMP &operator=(const string &num)
         {
-            // Check the validity of the number
+            // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
             else
@@ -134,7 +136,7 @@ class JMP
 
         JMP &operator=(const char* num)
         {
-            // Check the validity of the number
+            // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
             else
