@@ -54,21 +54,26 @@ class JMP
 
         int8_t which_is_bigger(const string &num1, const string &num2) const
         {
+            // This function takes two strings that number and compares them in terms of size
+            // First of all, we check the simple things make the number bigger than other
+            // It's clear if the number string has a bigger length when is bigger than other
             if (num1.length() > num2.length())
                 return 0;
             else if (num2.length() > num1.length())
                 return 1;
-            else if (num2.length() == num1.length())
-                return 0;
             else
             {
+                // If the two string numbers have the same length then we should check digit by digit to-
+                // understand which number is bigger
                 int counter = num1.length();
                 while (num1[counter] == num2[counter])
+                {
                     counter--;
-                if (num1[counter] > num2[counter])
-                    return 0;
-                else if (num2[counter] > num2[counter])
-                    return 1;
+                    if (num1[counter] > num2[counter])
+                        return 0;
+                    else if (num2[counter] > num2[counter])
+                        return 1;
+                }
             }
 
             return 0;
