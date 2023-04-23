@@ -52,19 +52,18 @@ int main()
 
     // Cout sum of the JMP variable and int variables 100000000 and 15 and -98 -> 99999917
     int a = -98;
-    cout<<my_number + a + 15<<endl;
 
     // ++ the float JMP variable 542.21442 -> 541.21442
     JMP c = "542.21442";
     cout<<c--<<endl;
 
     // -- the float JMP variable 2.141592653589793238462643 -> 3.141592653589793238462643
-    c = "2.1415";
+    c = "23";
     cout<<c++<<endl;
 
     // Cout the sum of two float JMP variables 3.1415 + 1.16 -> 4.3015
-    JMP e = "1.16";
-    cout<<e + c<<endl;
+    JMP e = "1.2";
+    cout<<e + c;
 
     return 0;
 }

@@ -126,6 +126,7 @@ class JMP
         /// Assignment operator
         JMP &operator=(const string &num)
         {
+            float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
@@ -136,6 +137,7 @@ class JMP
 
         JMP &operator=(const char* num)
         {
+            float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
                 this->number = num;
@@ -272,238 +274,29 @@ JMP &JMP::operator--(int)
 JMP &JMP::operator+(JMP &j)
 {
     JMP* sum_obj = new JMP("0");
+    string additional_decimals;
 
-    // Memorize the number and the passed number symbol
-    bool number_has_minus_symbol = false, number_has_plus_symbol = false,
-            passed_number_has_minus_symbol = false, passed_number_has_plus_symbol = false;
-    if (this->number[0] == '+')
+    // We need to remove the extra signs from the number so that we don't have a problem finding a specific index
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+    if (j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.float_point_index);
+
+    // If two numbers do not have the same decimals, we store the additional decimals of the number-
+    // that has more decimals in a string and append them to the first number at the end.
+    if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) > (j.number.size() - j.float_point_index))
     {
-        this->number.erase(number.begin());
-        number_has_plus_symbol = true;
-    } else if (this->number[0] == '-') {
-        this->number.erase(this->number.begin());
-        number_has_minus_symbol = true;
+        // It means this object number has more decimals than second number
+        // The (this->number.size() - float_point_index) - (j.number.size() - j.float_point_index)
+        // means we have how many additional decimals.
+        // So if we subtract it from the size of the number that has the largest number of decimals,
+        // we will find out from which index the additional decimal numbers start.
+        additional_decimals = this->number.substr (number.size() - ((this->number.size() - float_point_index) - (j.number.size() - j.float_point_index)));
+    } else if (j.float_point_index != 0 && float_point_index == 0) {
+        additional_decimals = j.number.substr (j.float_point_index);
+    } else if (j.float_point_index == 0 && float_point_index != 0) {
+        additional_decimals = this->number.substr (float_point_index);
     }
-
-    if (j.number[0] == '+')
-    {
-        j.number.erase(j.number.begin());
-        passed_number_has_plus_symbol = true;
-    } else if (j.number[0] == '-') {
-        j.number.erase(j.number.begin());
-        passed_number_has_minus_symbol = true;
-    }
-
-    // Check the bigger number with the length
-    int8_t which_number_is_bigger = which_is_bigger(j.number, this->number);
-    bool number_is_bigger = false, passed_number_is_bigger = false;
-    if (which_number_is_bigger == 0)
-    {
-        passed_number_is_bigger = true;
-        sum_obj->number = j.number;
-    } else {
-        number_is_bigger = true;
-        sum_obj->number = this->number;
-    }
-
-    if ((!number_has_minus_symbol && !passed_number_has_minus_symbol) ||
-        (number_has_minus_symbol && passed_number_has_minus_symbol))
-    {
-        // Adding two positive numbers together or negative numbers together
-        int range = passed_number_is_bigger ? j.number.length() : this->number.length();
-        for (int i=range - 1; i>=0; i--)
-        {
-            if (passed_number_is_bigger)
-            {
-                if (i >= j.number.length() - this->number.length())
-                {
-                    sum_obj->number[i] += this->number[i - (j.number.length() - this->number.length())] - '0';
-                }
-            } else if (i >= number.length() - j.number.length()) {
-                sum_obj->number[i] += j.number[i - (this->number.length() - j.number.length())] - '0';
-            }
-
-            if (sum_obj->number[i] > '9')
-            {
-                if (i != 0)
-                {
-                    sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                    sum_obj->number[i] = '0' + (sum_obj->number[i] - '0') % 10;
-                } else {
-                    sum_obj->number.insert(sum_obj->number.begin(), '0');
-                    sum_obj->number[0] += (sum_obj->number[1] - '0') / 10;
-                    sum_obj->number[1] = '0' + (sum_obj->number[1] - '0') % 10;
-                }
-            }
-        }
-
-        if (number_has_minus_symbol && passed_number_has_minus_symbol)
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
-    } else {
-        // Adding two positive and negative numbers together
-        if (number_is_bigger)
-        {
-            sum_obj->number = this->number;
-            int passed_number_index = j.number.size() - 1;
-            for (int i=sum_obj->number.size()-1; i>=0; i--)
-            {
-                if (passed_number_index >= 0)
-                    sum_obj->number[i] -= j.number[passed_number_index] - '0';
-
-                if (sum_obj->number[i] < '0')
-                {
-                    sum_obj->number[i] += 10;
-                    sum_obj->number[i - 1] -= 1;
-                }
-
-                passed_number_index--;
-            }
-        } else if (passed_number_is_bigger) {
-            sum_obj->number = j.number;
-            int number_index = this->number.size() - 1;
-            for (int i=sum_obj->number.size()-1; i>=0; i--)
-            {
-                if (number_index >= 0)
-                    sum_obj->number[i] -= this->number[number_index] - '0';
-
-                if (sum_obj->number[i] < '0')
-                {
-                    sum_obj->number[i] += 10;
-                    sum_obj->number[i - 1] -= 1;
-                }
-
-                number_index--;
-            }
-        }
-
-        while (sum_obj->number[0] == '0' && sum_obj->number.size() != 1)
-            sum_obj->number.erase(sum_obj->number.begin());
-
-        if (((number_has_minus_symbol && number_is_bigger) ||
-            (passed_number_has_minus_symbol && passed_number_is_bigger)) &&
-            !(sum_obj->number.size() == 1 && sum_obj->number[0] == '0'))
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
-    }
-
-    return *sum_obj;
-}
-
-JMP &JMP::operator+(const long long int &j)
-{
-    string second_number = to_string(j);
-    JMP* sum_obj = new JMP("0");
-
-    // Memorize the number and the passed number symbol
-    bool number_has_minus_symbol = false, number_has_plus_symbol = false,
-            passed_number_has_minus_symbol = false, passed_number_has_plus_symbol = false;
-    if (this->number[0] == '+')
-    {
-        this->number.erase(number.begin());
-        number_has_plus_symbol = true;
-    } else if (this->number[0] == '-') {
-        this->number.erase(this->number.begin());
-        number_has_minus_symbol = true;
-    }
-
-    if (second_number[0] == '+')
-    {
-        second_number.erase(second_number.begin());
-        passed_number_has_plus_symbol = true;
-    } else if (second_number[0] == '-') {
-        second_number.erase(second_number.begin());
-        passed_number_has_minus_symbol = true;
-    }
-
-    // Check the bigger number with the length
-    int8_t which_number_is_bigger = which_is_bigger(second_number, this->number);
-    bool number_is_bigger = false, passed_number_is_bigger = false;
-    if (which_number_is_bigger == 0)
-    {
-        passed_number_is_bigger = true;
-        sum_obj->number = second_number;
-    } else {
-        number_is_bigger = true;
-        sum_obj->number = this->number;
-    }
-
-    if ((!number_has_minus_symbol && !passed_number_has_minus_symbol) ||
-        (number_has_minus_symbol && passed_number_has_minus_symbol))
-    {
-        // Adding two positive numbers together or negative numbers together
-        int range = passed_number_is_bigger ? second_number.length() : this->number.length();
-        for (int i=range - 1; i>=0; i--)
-        {
-            if (passed_number_is_bigger)
-            {
-                if (i >= second_number.length() - this->number.length())
-                {
-                    sum_obj->number[i] += this->number[i - (second_number.length() - this->number.length())] - '0';
-                }
-            } else if (i >= number.length() - second_number.length()) {
-                sum_obj->number[i] += second_number[i - (this->number.length() - second_number.length())] - '0';
-            }
-
-            if (sum_obj->number[i] > '9')
-            {
-                if (i != 0)
-                {
-                    sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                    sum_obj->number[i] = '0' + (sum_obj->number[i] - '0') % 10;
-                } else {
-                    sum_obj->number.insert(sum_obj->number.begin(), '0');
-                    sum_obj->number[0] += (sum_obj->number[1] - '0') / 10;
-                    sum_obj->number[1] = '0' + (sum_obj->number[1] - '0') % 10;
-                }
-            }
-        }
-
-        if (number_has_minus_symbol && passed_number_has_minus_symbol)
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
-    } else {
-        // Adding two positive and negative numbers together
-        if (number_is_bigger)
-        {
-            sum_obj->number = this->number;
-            int passed_number_index = second_number.size() - 1;
-            for (int i=sum_obj->number.size()-1; i>=0; i--)
-            {
-                if (passed_number_index >= 0)
-                    sum_obj->number[i] -= second_number[passed_number_index] - '0';
-
-                if (sum_obj->number[i] < '0')
-                {
-                    sum_obj->number[i] += 10;
-                    sum_obj->number[i - 1] -= 1;
-                }
-
-                passed_number_index--;
-            }
-        } else if (passed_number_is_bigger) {
-            sum_obj->number = second_number;
-            int number_index = this->number.size() - 1;
-            for (int i=sum_obj->number.size()-1; i>=0; i--)
-            {
-                if (number_index >= 0)
-                    sum_obj->number[i] -= this->number[number_index] - '0';
-
-                if (sum_obj->number[i] < '0')
-                {
-                    sum_obj->number[i] += 10;
-                    sum_obj->number[i - 1] -= 1;
-                }
-
-                number_index--;
-            }
-        }
-
-        while (sum_obj->number[0] == '0' && sum_obj->number.size() != 1)
-            sum_obj->number.erase(sum_obj->number.begin());
-
-        if (((number_has_minus_symbol && number_is_bigger) ||
-            (passed_number_has_minus_symbol && passed_number_is_bigger)) &&
-            !(sum_obj->number.size() == 1 && sum_obj->number[0] == '0'))
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
-    }
-
+    sum_obj->number = additional_decimals;
     return *sum_obj;
 }
