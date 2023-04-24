@@ -275,7 +275,7 @@ JMP &JMP::operator+(JMP &j)
 {
     JMP* sum_obj = new JMP("0");
 
-    // We need to remove the extra signs from the number so that we don't have a problem finding a specific index
+    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
     if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
     if (j.float_point_index != 0)
@@ -299,8 +299,50 @@ JMP &JMP::operator+(JMP &j)
         for (int i=0; i<this->number.size() - float_point_index; i++)
             j.number.push_back('0');
     }
-    printf("This: %s\n", number.c_str());
-    printf("Second: %s\n", j.number.c_str());
-    sum_obj->number = "";
+
+    // Check which number is bigger, and we equal the sum object number to the biggest number
+    bool this_number_is_bigger = false, second_number_is_bigger = false;
+    if (which_is_bigger(this->number, j.number) == 0)
+    {
+        sum_obj->number = this->number;
+        this_number_is_bigger = true;
+    } else {
+        sum_obj->number = j.number;
+        second_number_is_bigger = true;
+    }
+
+    // Check symbol of the number
+    bool this_number_is_negative = false, second_number_is_negative = false;
+    if (this->number[0] == '-')
+        this_number_is_negative = true;
+    else if (j.number[0] == '-')
+        second_number_is_negative = true;
+
+    // Remove number symbol
+    if (this->number[0] == '-' || this->number[0] == '+')
+        this->number.erase(this->number.begin());
+    if (j.number[0] == '-' || j.number[0] == '+')
+        j.number.erase(j.number.begin());
+
+    // Now we ready to add two numbers together
+    if (this_number_is_bigger && (this_number_is_negative && second_number_is_negative))
+    {
+        for (int i=j.number.size() - 1; i>=0; i--)
+        {
+        }
+    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
+        for (int i=this->number.size() - 1; i>=0; i--)
+        {
+        }
+    } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
+        for (int i=j.number.size() - 1; i>=0; i--)
+        {
+        }
+    } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
+        for (int i=this->number.size() - 1; i>=0; i--)
+        {
+        }
+    }
+
     return *sum_obj;
 }
