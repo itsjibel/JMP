@@ -274,7 +274,6 @@ JMP &JMP::operator--(int)
 JMP &JMP::operator+(JMP &j)
 {
     JMP* sum_obj = new JMP("0");
-    string additional_decimals;
 
     // We need to remove the extra signs from the number so that we don't have a problem finding a specific index
     if (float_point_index != 0)
@@ -282,21 +281,26 @@ JMP &JMP::operator+(JMP &j)
     if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
 
-    // If two numbers do not have the same decimals, we store the additional decimals of the number-
-    // that has more decimals in a string and append them to the first number at the end.
+    // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
     if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) > (j.number.size() - j.float_point_index))
     {
         // It means this object number has more decimals than second number
-        // The (this->number.size() - float_point_index) - (j.number.size() - j.float_point_index)
-        // means we have how many additional decimals.
-        // So if we subtract it from the size of the number that has the largest number of decimals,
-        // we will find out from which index the additional decimal numbers start.
-        additional_decimals = this->number.substr (number.size() - ((this->number.size() - float_point_index) - (j.number.size() - j.float_point_index)));
+        // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
+        for (int i=0; i<(this->number.size() - float_point_index) - (j.number.size() - j.float_point_index); i++)
+            j.number.push_back('0');
+    } else if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+        // It means second number has more decimals than this object number
+        for (int i=0; i<(j.number.size() - j.float_point_index) - (this->number.size() - float_point_index); i++)
+            j.number.push_back('0');
     } else if (j.float_point_index != 0 && float_point_index == 0) {
-        additional_decimals = j.number.substr (j.float_point_index);
+        for (int i=0; i<j.number.size() - j.float_point_index; i++)
+            j.number.push_back('0');
     } else if (j.float_point_index == 0 && float_point_index != 0) {
-        additional_decimals = this->number.substr (float_point_index);
+        for (int i=0; i<this->number.size() - float_point_index; i++)
+            j.number.push_back('0');
     }
-    sum_obj->number = additional_decimals;
+    printf("This: %s\n", number.c_str());
+    printf("Second: %s\n", j.number.c_str());
+    sum_obj->number = "";
     return *sum_obj;
 }
