@@ -57,16 +57,16 @@ class JMP
             // This function takes two strings that number and compares them in terms of size
             // First of all, we check the simple things make the number bigger than other
             // It's clear if the number string has a bigger length when is bigger than other
-            if (num1.length() > num2.length())
+            if (num1.size() > num2.size())
                 return 0;
-            else if (num2.length() > num1.length())
+            else if (num2.size() > num1.size())
                 return 1;
             else
             {
                 // If the two string numbers have the same length then we should check digit by digit to-
                 // understand which number is bigger
-                int counter = num1.length();
-                while (num1[counter] == num2[counter])
+                int counter = num1.size();
+                while (counter > 1)
                 {
                     counter--;
                     if (num1[counter] > num2[counter])
@@ -273,7 +273,7 @@ JMP &JMP::operator--(int)
 
 JMP &JMP::operator+(JMP &j)
 {
-    JMP* sum_obj = new JMP("0");
+    JMP *sum_obj = new JMP("0");
 
     // We need to remove the float sign from the number so that we don't have a problem finding a specific index
     if (float_point_index != 0)
@@ -286,17 +286,21 @@ JMP &JMP::operator+(JMP &j)
     {
         // It means this object number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
-        for (int i=0; i<(this->number.size() - float_point_index) - (j.number.size() - j.float_point_index); i++)
+        int how_many_zeros = (this->number.size() - float_point_index) - (j.number.size() - j.float_point_index);
+        for (int i=0; i<how_many_zeros; i++)
             j.number.push_back('0');
     } else if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
         // It means second number has more decimals than this object number
-        for (int i=0; i<(j.number.size() - j.float_point_index) - (this->number.size() - float_point_index); i++)
-            j.number.push_back('0');
+        int how_many_zeros = (j.number.size() - j.float_point_index) - (this->number.size() - float_point_index);
+        for (int i=0; i<how_many_zeros; i++)
+            number.push_back('0');
     } else if (j.float_point_index != 0 && float_point_index == 0) {
-        for (int i=0; i<j.number.size() - j.float_point_index; i++)
-            j.number.push_back('0');
+        int how_many_zeros = j.number.size() - j.float_point_index;
+        for (int i=0; i<how_many_zeros; i++)
+            number.push_back('0');
     } else if (j.float_point_index == 0 && float_point_index != 0) {
-        for (int i=0; i<this->number.size() - float_point_index; i++)
+        int how_many_zeros = this->number.size() - float_point_index;
+        for (int i=0; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
 
@@ -305,9 +309,11 @@ JMP &JMP::operator+(JMP &j)
     if (which_is_bigger(this->number, j.number) == 0)
     {
         sum_obj->number = this->number;
+        sum_obj->float_point_index = this->float_point_index;
         this_number_is_bigger = true;
     } else {
         sum_obj->number = j.number;
+        sum_obj->float_point_index = j.float_point_index;
         second_number_is_bigger = true;
     }
 
@@ -325,24 +331,52 @@ JMP &JMP::operator+(JMP &j)
         j.number.erase(j.number.begin());
 
     // Now we ready to add two numbers together
-    if (this_number_is_bigger && (this_number_is_negative && second_number_is_negative))
+    if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
     {
-        for (int i=j.number.size() - 1; i>=0; i--)
-        {
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
         for (int i=this->number.size() - 1; i>=0; i--)
         {
+            if (i >= this->number.size() - j.number.size())
+                sum_obj->number[i] += j.number[i - (this->number.size() - j.number.size())] - '0';
+            if (i != 0 && sum_obj->number[i] > '9')
+            {
+                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
+                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj->number[i] > '9') {
+                sum_obj->number = '1' + sum_obj->number;
+                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
+                sum_obj->float_point_index++;
+            }
+        }
+    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
+        for (int i=j.number.size() - 1; i>=0; i--)
+        {
+            if (i >= j.number.size() - this->number.size())
+                sum_obj->number[i] += this->number[i - (j.number.size() - this->number.size())] - '0';
+            if (i != 0 && sum_obj->number[i] > '9')
+            {
+                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
+                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj->number[i] > '9') {
+                sum_obj->number = '1' + sum_obj->number;
+                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
+                sum_obj->float_point_index++;
+            }
         }
     } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        for (int i=j.number.size() - 1; i>=0; i--)
+        for (int i=this->number.size() - 1; i>=0; i--)
         {
         }
     } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        for (int i=this->number.size() - 1; i>=0; i--)
+        for (int i=j.number.size() - 1; i>=0; i--)
         {
         }
     }
+
+    if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
+        sum_obj->number.insert(sum_obj->number.begin(), '-');
+
+    if (sum_obj->float_point_index != 0)
+        sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
 
     return *sum_obj;
 }

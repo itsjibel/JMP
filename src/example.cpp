@@ -58,12 +58,12 @@ int main()
     cout<<c--<<endl;
 
     // -- the float JMP variable 2.141592653589793238462643 -> 3.141592653589793238462643
-    c = "23";
+    c = "23.8";
     cout<<c++<<endl;
 
     // Cout the sum of two float JMP variables 3.1415 + 1.16 -> 4.3015
-    JMP e = "1.2";
-    cout<<e + c;
+    JMP e = "75.2";
+    cout<<e + c<<endl;
 
     return 0;
 }
