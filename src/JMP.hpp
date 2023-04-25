@@ -344,7 +344,7 @@ JMP &JMP::operator+(JMP &j)
             } else if (i == 0 && sum_obj->number[i] > '9') {
                 sum_obj->number = '1' + sum_obj->number;
                 sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index++;
+                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
             }
         }
     } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
@@ -359,7 +359,7 @@ JMP &JMP::operator+(JMP &j)
             } else if (i == 0 && sum_obj->number[i] > '9') {
                 sum_obj->number = '1' + sum_obj->number;
                 sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index++;
+                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
             }
         }
     } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
