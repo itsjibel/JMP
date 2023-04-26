@@ -163,9 +163,11 @@ JMP &JMP::operator++(int)
     {
         number.erase(number.begin());
         number_has_plus_symbol = true;
+        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     } else if (number[0] == '-') {
         number.erase(number.begin());
         number_has_minus_symbol = true;
+        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     }
 
     // +1 the number
@@ -208,9 +210,13 @@ JMP &JMP::operator++(int)
 
     // Add the memorized symbol to the beginning of the number
     if (number_has_minus_symbol)
+    {
         number.insert(number.begin(), '-');
-    else if (number_has_plus_symbol)
+        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+    } else if (number_has_plus_symbol) {
         number.insert(number.begin(), '+');
+        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+    }
     return *this;
 }
 
@@ -218,17 +224,19 @@ JMP &JMP::operator--(int)
 {
     // Memorize the number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false;
-    if (number[0] == '+')
+    if (this->number[0] == '+')
     {
-        number.erase(number.begin());
+        this->number.erase(number.begin());
         number_has_plus_symbol = true;
+        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     } else if (number[0] == '-') {
-        number.erase(number.begin());
+        this->number.erase(number.begin());
         number_has_minus_symbol = true;
+        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     }
 
     // -1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index - 1 : number.length() - 1;
+    int last_integer_index = float_point_index != 0 ? float_point_index - 1: number.length() - 1;
     if (number_has_minus_symbol == false)
     {
         // -1 for a positive number
@@ -265,15 +273,40 @@ JMP &JMP::operator--(int)
 
     // Add the memorized symbol to the beginning of the number
     if (number_has_minus_symbol)
+    {
         number.insert(number.begin(), '-');
-    else if (number_has_plus_symbol)
+        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+    } else if (number_has_plus_symbol) {
         number.insert(number.begin(), '+');
+        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+    }
     return *this;
 }
 
 JMP &JMP::operator+(JMP &j)
 {
     JMP *sum_obj = new JMP("0");
+
+    // Check symbol of the number
+    bool this_number_is_negative = false, second_number_is_negative = false;
+    if (this->number[0] == '-')
+        this_number_is_negative = true;
+    else if (j.number[0] == '-')
+        second_number_is_negative = true;
+
+    // Remove number symbol
+    if (this->number[0] == '-' || this->number[0] == '+')
+    {
+        if (this->number[0] == '+')
+            this->float_point_index--;
+        this->number.erase(this->number.begin());
+    }
+    if (j.number[0] == '-' || j.number[0] == '+')
+    {
+        if (j.number[0] == '+')
+            j.float_point_index--;
+        j.number.erase(j.number.begin());
+    }
 
     // We need to remove the float sign from the number so that we don't have a problem finding a specific index
     if (float_point_index != 0)
@@ -317,18 +350,9 @@ JMP &JMP::operator+(JMP &j)
         second_number_is_bigger = true;
     }
 
-    // Check symbol of the number
-    bool this_number_is_negative = false, second_number_is_negative = false;
-    if (this->number[0] == '-')
-        this_number_is_negative = true;
-    else if (j.number[0] == '-')
-        second_number_is_negative = true;
-
-    // Remove number symbol
-    if (this->number[0] == '-' || this->number[0] == '+')
-        this->number.erase(this->number.begin());
-    if (j.number[0] == '-' || j.number[0] == '+')
-        j.number.erase(j.number.begin());
+    printf("\nThis number: %s\n", this->number.c_str());
+    printf("Second number: %s\n", j.number.c_str());
+    printf("Sum object number: %s\n", sum_obj->number.c_str());
 
     // Now we ready to add two numbers together
     if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
