@@ -88,18 +88,18 @@ class JMP
         {
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
-                this->number = num;
+                number = num;
             else
-                this->number = "0";
+                number = "0";
         }
 
         JMP (const char* num)
         {
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
-                this->number = num;
+                number = num;
             else
-                this->number = "0";
+                number = "0";
         }
 
         /// Destructor
@@ -129,9 +129,9 @@ class JMP
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
-                this->number = num;
+                number = num;
             else
-                this->number = "0";
+                number = "0";
             return *this;
         }
 
@@ -140,9 +140,9 @@ class JMP
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
             if (is_valid(num))
-                this->number = num;
+                number = num;
             else
-                this->number = "0";
+                number = "0";
             return *this;
         }
 
@@ -163,11 +163,9 @@ JMP &JMP::operator++(int)
     {
         number.erase(number.begin());
         number_has_plus_symbol = true;
-        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     } else if (number[0] == '-') {
         number.erase(number.begin());
         number_has_minus_symbol = true;
-        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     }
 
     // +1 the number
@@ -210,13 +208,10 @@ JMP &JMP::operator++(int)
 
     // Add the memorized symbol to the beginning of the number
     if (number_has_minus_symbol)
-    {
         number.insert(number.begin(), '-');
-        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-    } else if (number_has_plus_symbol) {
+    else if (number_has_plus_symbol)
         number.insert(number.begin(), '+');
-        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-    }
+
     return *this;
 }
 
@@ -224,15 +219,13 @@ JMP &JMP::operator--(int)
 {
     // Memorize the number symbol
     bool number_has_minus_symbol = false, number_has_plus_symbol = false;
-    if (this->number[0] == '+')
+    if (number[0] == '+')
     {
-        this->number.erase(number.begin());
+        number.erase(number.begin());
         number_has_plus_symbol = true;
-        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     } else if (number[0] == '-') {
-        this->number.erase(number.begin());
+        number.erase(number.begin());
         number_has_minus_symbol = true;
-        float_point_index = float_point_index != 0 ? float_point_index - 1 : 0;
     }
 
     // -1 the number
@@ -273,13 +266,9 @@ JMP &JMP::operator--(int)
 
     // Add the memorized symbol to the beginning of the number
     if (number_has_minus_symbol)
-    {
         number.insert(number.begin(), '-');
-        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-    } else if (number_has_plus_symbol) {
+    else if (number_has_plus_symbol)
         number.insert(number.begin(), '+');
-        float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-    }
     return *this;
 }
 
@@ -289,22 +278,20 @@ JMP &JMP::operator+(JMP &j)
 
     // Check symbol of the number
     bool this_number_is_negative = false, second_number_is_negative = false;
-    if (this->number[0] == '-')
+    if (number[0] == '-')
         this_number_is_negative = true;
     else if (j.number[0] == '-')
         second_number_is_negative = true;
 
     // Remove number symbol
-    if (this->number[0] == '-' || this->number[0] == '+')
+    if (number[0] == '-' || number[0] == '+')
     {
-        if (this->number[0] == '+')
-            this->float_point_index--;
-        this->number.erase(this->number.begin());
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        number.erase(number.begin());
     }
     if (j.number[0] == '-' || j.number[0] == '+')
     {
-        if (j.number[0] == '+')
-            j.float_point_index--;
+        j.float_point_index = j.float_point_index > 0 ? j.float_point_index - 1 : 0;
         j.number.erase(j.number.begin());
     }
 
@@ -315,16 +302,16 @@ JMP &JMP::operator+(JMP &j)
         j.number.erase(j.number.begin() + j.float_point_index);
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
-    if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) > (j.number.size() - j.float_point_index))
+    if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
     {
         // It means this object number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
-        int how_many_zeros = (this->number.size() - float_point_index) - (j.number.size() - j.float_point_index);
+        int how_many_zeros = (number.size() - float_point_index) - (j.number.size() - j.float_point_index);
         for (int i=0; i<how_many_zeros; i++)
             j.number.push_back('0');
-    } else if (j.float_point_index != 0 && float_point_index != 0 && (this->number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+    } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
         // It means second number has more decimals than this object number
-        int how_many_zeros = (j.number.size() - j.float_point_index) - (this->number.size() - float_point_index);
+        int how_many_zeros = (j.number.size() - j.float_point_index) - (number.size() - float_point_index);
         for (int i=0; i<how_many_zeros; i++)
             number.push_back('0');
     } else if (j.float_point_index != 0 && float_point_index == 0) {
@@ -332,17 +319,17 @@ JMP &JMP::operator+(JMP &j)
         for (int i=0; i<how_many_zeros; i++)
             number.push_back('0');
     } else if (j.float_point_index == 0 && float_point_index != 0) {
-        int how_many_zeros = this->number.size() - float_point_index;
+        int how_many_zeros = number.size() - float_point_index;
         for (int i=0; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
 
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (which_is_bigger(this->number, j.number) == 0)
+    if (which_is_bigger(number, j.number) == 0)
     {
-        sum_obj->number = this->number;
-        sum_obj->float_point_index = this->float_point_index;
+        sum_obj->number = number;
+        sum_obj->float_point_index = float_point_index;
         this_number_is_bigger = true;
     } else {
         sum_obj->number = j.number;
@@ -350,17 +337,16 @@ JMP &JMP::operator+(JMP &j)
         second_number_is_bigger = true;
     }
 
-    printf("\nThis number: %s\n", this->number.c_str());
-    printf("Second number: %s\n", j.number.c_str());
-    printf("Sum object number: %s\n", sum_obj->number.c_str());
+    printf("\nBigger number: %s, Smaller number: %s\n", sum_obj->number.c_str(), j.number.c_str());
 
     // Now we ready to add two numbers together
     if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
     {
-        for (int i=this->number.size() - 1; i>=0; i--)
+        int difference_of_two_numbers = number.size() - j.number.size();
+        for (int i=number.size() - 1; i>=0; i--)
         {
-            if (i >= this->number.size() - j.number.size())
-                sum_obj->number[i] += j.number[i - (this->number.size() - j.number.size())] - '0';
+            if (i >= difference_of_two_numbers)
+                sum_obj->number[i] += j.number[i - difference_of_two_numbers] - '0';
             if (i != 0 && sum_obj->number[i] > '9')
             {
                 sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
@@ -372,10 +358,12 @@ JMP &JMP::operator+(JMP &j)
             }
         }
     } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
+        int difference_of_two_numbers = j.number.size() - number.size();
         for (int i=j.number.size() - 1; i>=0; i--)
         {
-            if (i >= j.number.size() - this->number.size())
-                sum_obj->number[i] += this->number[i - (j.number.size() - this->number.size())] - '0';
+            if (i >= difference_of_two_numbers)
+                sum_obj->number[i] += number[i - (difference_of_two_numbers)] - '0';
+
             if (i != 0 && sum_obj->number[i] > '9')
             {
                 sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
@@ -387,20 +375,55 @@ JMP &JMP::operator+(JMP &j)
             }
         }
     } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        for (int i=this->number.size() - 1; i>=0; i--)
+        int difference_of_two_numbers = number.size() - j.number.size();
+        for (int i=number.size() - 1; i>=0; i--)
         {
+            if (i >= difference_of_two_numbers)
+                sum_obj->number[i] -= j.number[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj->number[i] < '0')
+            {
+                sum_obj->number[i] += 10;
+                sum_obj->number[i - 1]--;
+            }
         }
     } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
+        int difference_of_two_numbers = j.number.size() - number.size();
         for (int i=j.number.size() - 1; i>=0; i--)
         {
+            if (i >= difference_of_two_numbers)
+                sum_obj->number[i] -= number[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj->number[i] < '0')
+            {
+                sum_obj->number[i] += 10;
+                sum_obj->number[i - 1]--;
+            }
         }
     }
 
-    if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
-        sum_obj->number.insert(sum_obj->number.begin(), '-');
+    // Remove the beginning-unusable zeros
+    while (sum_obj->number[0] == '0')
+    {
+        sum_obj->number.erase(sum_obj->number.begin());
+        sum_obj->float_point_index = sum_obj->float_point_index > 1 ? sum_obj->float_point_index - 1 : 1;
+    }
 
-    if (sum_obj->float_point_index != 0)
-        sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+    if (sum_obj->number.empty())
+    {
+        if (sum_obj->float_point_index == 1)
+            sum_obj->number = "0.0";
+        else
+            sum_obj->number = "0";
+    } else {
+        if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
+        {
+            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
+            sum_obj->number.insert(sum_obj->number.begin(), '-');
+        }
 
+        if (sum_obj->float_point_index != 0)
+            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+    }
     return *sum_obj;
 }
