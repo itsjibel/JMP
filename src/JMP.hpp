@@ -71,7 +71,7 @@ class JMP
                     counter--;
                     if (num1[counter] > num2[counter])
                         return 0;
-                    else if (num2[counter] > num2[counter])
+                    else if (num2[counter] > num1[counter])
                         return 1;
                 }
             }
@@ -331,13 +331,14 @@ JMP &JMP::operator+(JMP &j)
         sum_obj->number = number;
         sum_obj->float_point_index = float_point_index;
         this_number_is_bigger = true;
+        printf("\nBigger number: %s, Smaller number: %s\n", number.c_str(), j.number.c_str());
     } else {
         sum_obj->number = j.number;
         sum_obj->float_point_index = j.float_point_index;
         second_number_is_bigger = true;
+        printf("\nBigger number: %s, Smaller number: %s\n", j.number.c_str(), number.c_str());
     }
 
-    printf("\nBigger number: %s, Smaller number: %s\n", sum_obj->number.c_str(), j.number.c_str());
 
     // Now we ready to add two numbers together
     if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
