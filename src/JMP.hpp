@@ -10,7 +10,7 @@ class JMP
         int float_point_index = 0;
 
     private:
-        bool is_valid(const string &number)
+        bool validation(const string &number)
         {
             // If number is empty so is not valid
             if (number.empty())
@@ -88,7 +88,7 @@ class JMP
         JMP (const string &num)
         {
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (is_valid(num))
+            if (validation(num))
                 number = num;
             else
                 number = "0";
@@ -97,7 +97,7 @@ class JMP
         JMP (const char* num)
         {
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (is_valid(num))
+            if (validation(num))
                 number = num;
             else
                 number = "0";
@@ -129,7 +129,7 @@ class JMP
         {
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (is_valid(num))
+            if (validation(num))
                 number = num;
             else
                 number = "0";
@@ -140,7 +140,7 @@ class JMP
         {
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (is_valid(num))
+            if (validation(num))
                 number = num;
             else
                 number = "0";
