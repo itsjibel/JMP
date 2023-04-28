@@ -65,14 +65,14 @@ class JMP
             {
                 // If the two string numbers have the same length then we should check digit by digit to-
                 // understand which number is bigger
-                int counter = num1.size();
-                while (counter > 1)
+                int counter = 0;
+                while (counter < num1.size())
                 {
-                    counter--;
                     if (num1[counter] > num2[counter])
                         return 0;
                     else if (num2[counter] > num1[counter])
                         return 1;
+                    counter++;
                 }
             }
 
@@ -229,7 +229,7 @@ JMP &JMP::operator--(int)
     }
 
     // -1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index - 1: number.length() - 1;
+    int last_integer_index = float_point_index != 0 ? float_point_index - 1: number.size();
     if (number_has_minus_symbol == false)
     {
         // -1 for a positive number
@@ -264,6 +264,9 @@ JMP &JMP::operator--(int)
         }
     }
 
+    if (number[float_point_index - 1] != '.' && float_point_index != 0)
+        number[float_point_index - 1] = '.';
+
     // Add the memorized symbol to the beginning of the number
     if (number_has_minus_symbol)
         number.insert(number.begin(), '-');
@@ -277,11 +280,13 @@ JMP &JMP::operator+(JMP &j)
     JMP *sum_obj = new JMP("0");
 
     // Check symbol of the number
-    bool this_number_is_negative = false, second_number_is_negative = false;
-    if (number[0] == '-')
-        this_number_is_negative = true;
-    else if (j.number[0] == '-')
-        second_number_is_negative = true;
+    bool this_number_is_negative = false, second_number_is_negative = false,
+         this_number_has_positive_symbol = false, second_number_has_positive_symbol = false;
+
+    this_number_is_negative = number[0] == '-' ? true : false;
+    second_number_is_negative = j.number[0] == '-' ? true : false;
+    this_number_has_positive_symbol = number[0] == '+' ? true : false;
+    second_number_has_positive_symbol = j.number[0] == '+' ? true : false;
 
     // Remove number symbol
     if (number[0] == '-' || number[0] == '+')
@@ -300,6 +305,8 @@ JMP &JMP::operator+(JMP &j)
         number.erase(number.begin() + float_point_index);
     if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
+
+    int temp_number_size = number.size(), temp_second_number_size = j.number.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
     if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
@@ -329,14 +336,24 @@ JMP &JMP::operator+(JMP &j)
     if (which_is_bigger(number, j.number) == 0)
     {
         sum_obj->number = number;
-        sum_obj->float_point_index = float_point_index;
+
+        if (float_point_index != 0)
+            sum_obj->float_point_index = float_point_index;
+        else if (float_point_index == 0 && j.float_point_index != 0)
+            sum_obj->float_point_index = temp_number_size;
+        else
+            sum_obj->float_point_index = 0;
         this_number_is_bigger = true;
-        printf("\nBigger number: %s, Smaller number: %s\n", number.c_str(), j.number.c_str());
     } else {
         sum_obj->number = j.number;
-        sum_obj->float_point_index = j.float_point_index;
+
+        if (j.float_point_index != 0)
+            sum_obj->float_point_index = j.float_point_index;
+        else if (j.float_point_index == 0 && float_point_index != 0)
+            sum_obj->float_point_index = temp_second_number_size;
+        else
+            sum_obj->float_point_index = 0;
         second_number_is_bigger = true;
-        printf("\nBigger number: %s, Smaller number: %s\n", j.number.c_str(), number.c_str());
     }
 
 
@@ -407,15 +424,27 @@ JMP &JMP::operator+(JMP &j)
     while (sum_obj->number[0] == '0')
     {
         sum_obj->number.erase(sum_obj->number.begin());
-        sum_obj->float_point_index = sum_obj->float_point_index > 1 ? sum_obj->float_point_index - 1 : 1;
+        if (sum_obj->float_point_index > 0)
+        {
+            sum_obj->float_point_index--;
+            if (sum_obj->float_point_index == 0)
+            {
+                sum_obj->float_point_index++;
+                sum_obj->number = "0" + sum_obj->number;
+                break;
+            }
+        }
+    }
+
+    // Remove the ending-unusable zeros
+    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
+    {
+        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
     }
 
     if (sum_obj->number.empty())
     {
-        if (sum_obj->float_point_index == 1)
-            sum_obj->number = "0.0";
-        else
-            sum_obj->number = "0";
+        sum_obj->number = "0";
     } else {
         if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
         {
@@ -426,5 +455,29 @@ JMP &JMP::operator+(JMP &j)
         if (sum_obj->float_point_index != 0)
             sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
     }
+
+    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
+        sum_obj->number.append("0");
+
+    /// Back the numbers to default
+
+    // Removing the zeros that are added to add two decimal numbers
+    if (number.size() != temp_number_size)
+        number = number.substr(0, temp_number_size);
+    if (j.number.size() != temp_second_number_size)
+        j.number = j.number.substr(0, temp_second_number_size);
+
+    // Add float point symbol to the number who had float point
+    if (float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (j.float_point_index != 0)
+        j.number.insert(j.number.begin() + j.float_point_index, '.');
+
+    // Add number symbols to themselves
+    if (this_number_is_negative)
+        number = '-' + number;
+    if (second_number_is_negative)
+        j.number = '-' + j.number;
+
     return *sum_obj;
 }
