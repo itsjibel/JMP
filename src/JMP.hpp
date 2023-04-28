@@ -1,8 +1,5 @@
 #include <string.h>
 using std::string;
-using std::ostream;
-using std::istream;
-using std::to_string;
 
 class JMP
 {
@@ -76,14 +73,17 @@ class JMP
                     counter++;
                 }
             }
-
             return 0;
         }
 
     public:
         string number;
+
         /// Constructors
-        JMP() {}
+        JMP()
+        {
+            number = "0";
+        }
 
         JMP (const string &num)
         {
@@ -103,6 +103,12 @@ class JMP
                 number = "0";
         }
 
+        JMP (const JMP &j)
+        {
+            this->number = j.number;
+            float_point_index = j.float_point_index;
+        }
+
         /// Destructor
         virtual ~JMP()
         {
@@ -110,14 +116,14 @@ class JMP
         }
 
         /// Stream operators
-        friend ostream &operator<<(ostream &k, JMP &j)
+        friend std::ostream &operator<<(std::ostream &k, JMP &j)
         {
             // Print the JMP object
             k<<j.number;
             return (k);
         }
 
-        friend istream &operator>>(istream &k, JMP &j)
+        friend std::istream &operator>>(std::istream &k, JMP &j)
         {
             // Get the JMP object
             k>>j.number;
