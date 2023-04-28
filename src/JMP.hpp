@@ -37,8 +37,9 @@ class JMP
 
             // "If conditions" for falsing the validity of the number string
             if ((number[0]  < '0' ||  number[0]  > '9') && (number[0] != '-' && number[0] != '+')  ||
-                 number[0] == '0' || (number[1] == '0'  && (number[0] == '-' || number[0] == '+')) ||
-                (number.back() == '.' || number.front() == '.' || number_of_dots > 1))
+                 (number[0] == '0' && !(number[1] == '.' && (number[2] >= '0' && number[2] <= '9'))) ||
+                 (number[1] == '0'  && (number[0] == '-' || number[0] == '+')) ||
+                (number.back() == '.' || number_of_dots > 1))
                 valid = false;
             
             // "If conditions" for truing the validity of the number string
