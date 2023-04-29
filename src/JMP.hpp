@@ -157,7 +157,7 @@ class JMP
         JMP &operator++(int);
         JMP &operator--(int);
         JMP &operator+(JMP &j);
-        JMP &operator+(const long long int &j);
+        JMP &operator+(const long double &j);
 };
 
 
@@ -482,9 +482,28 @@ JMP &JMP::operator+(JMP &j)
 
     // Add number symbols to themselves
     if (this_number_is_negative)
+    {
         number = '-' + number;
+        float_point_index++;
+    }
+
     if (second_number_is_negative)
+    {
         j.number = '-' + j.number;
+        j.float_point_index++;
+    }
+    
+    if (this_number_has_positive_symbol)
+    {
+        number = '+' + number;
+        float_point_index++;
+    }
+
+    if (second_number_has_positive_symbol)
+    {
+        j.number = '+' + j.number;
+        j.float_point_index++;
+    }
 
     return *sum_obj;
 }
