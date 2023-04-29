@@ -64,6 +64,6 @@ int main()
     // Cout the sum of two float JMP variables -24.8653 + -3.141592653589793238462643 -> -28.006892653589793238462643
     JMP e = "-24.8653";
     cout<<"Result one: "<<c + e<<endl;
-    cout<<"Result two: "<<c + e<<endl;
+    cout<<"Result two: "<<c + -24.8653<<endl;
     return 0;
 }
