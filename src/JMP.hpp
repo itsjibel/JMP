@@ -5,9 +5,6 @@ using std::string;
 
 class JMP
 {
-    protected:
-        int float_point_index = 0;
-
     private:
         bool validation(const string &number)
         {
@@ -79,6 +76,7 @@ class JMP
         }
 
     public:
+        int float_point_index = 0;
         string number;
 
         /// Constructors
@@ -176,6 +174,12 @@ class JMP
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
                 number.append(num);
+        }
+
+        void clear()
+        {
+            number.clear();
+            float_point_index = 0;
         }
 
         /// Shortcut operators

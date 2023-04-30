@@ -82,5 +82,9 @@ int main()
     c.append("12345454");
     cout<<c<<endl;
 
+    // Clear the 'c' number data
+    c.clear();
+    cout<<c<<endl;
+
     return 0;
 }
