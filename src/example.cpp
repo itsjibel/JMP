@@ -65,5 +65,10 @@ int main()
     JMP e = "-24.8653";
     cout<<"Result one: "<<c + e<<endl;
     cout<<"Result two: "<<c + -24.8653<<endl;
+
+    // Put number into a integer variable
+    long long int my_int = c.to_int();
+    cout<<"Int number: "<<my_int<<endl;
+
     return 0;
 }

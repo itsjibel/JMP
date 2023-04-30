@@ -154,6 +154,12 @@ class JMP
             return *this;
         }
 
+        /// Optional functions
+        long long int to_int()
+        {
+            return atoi(number.c_str());
+        }
+
         /// Shortcut operators
         JMP &operator++(int);
         JMP &operator--(int);
