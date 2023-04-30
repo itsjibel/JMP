@@ -86,5 +86,9 @@ int main()
     c.clear();
     cout<<c<<endl;
 
+    // Sumition this time the first number is an double
+    c = "123221398173981738917382130812931037999";
+    cout<<465512 + c<<endl;
+
     return 0;
 }
