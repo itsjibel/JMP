@@ -1,4 +1,5 @@
 #include <string.h>
+#include <algorithm>
 #include <math.h>
 using std::string;
 
@@ -168,6 +169,13 @@ class JMP
         void internal_conversion_to_int()
         {
             number = number.substr(0, number.find('.'));
+        }
+
+        void append (const string &num)
+        {
+            if (!num.empty() && std::find_if(num.begin(), 
+                 num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
+                number.append(num);
         }
 
         /// Shortcut operators

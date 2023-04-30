@@ -78,5 +78,9 @@ int main()
     c.internal_conversion_to_int();
     cout<<c<<endl;
 
+    // Append number to the 'c' number
+    c.append("12345454");
+    cout<<c<<endl;
+
     return 0;
 }
