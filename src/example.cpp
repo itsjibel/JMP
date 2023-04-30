@@ -70,5 +70,9 @@ int main()
     long long int my_int = c.to_int();
     cout<<"Int number: "<<my_int<<endl;
 
+    // Put number into a float variable
+    long double my_double = c.to_double();
+    cout<<"Double number: "<<my_double<<endl;
+
     return 0;
 }

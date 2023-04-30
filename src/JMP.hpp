@@ -160,6 +160,11 @@ class JMP
             return atoi(number.c_str());
         }
 
+        long double to_double()
+        {
+            return std::stod(number);
+        }
+
         /// Shortcut operators
         JMP &operator++(int);
         JMP &operator--(int);
