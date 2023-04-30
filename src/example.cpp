@@ -74,5 +74,9 @@ int main()
     long double my_double = c.to_double();
     cout<<"Double number: "<<my_double<<endl;
 
+    // Convert the 'c' number from decimal to integer
+    c.internal_conversion_to_int();
+    cout<<c<<endl;
+
     return 0;
 }
