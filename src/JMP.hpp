@@ -187,6 +187,7 @@ class JMP
         JMP &operator--(int);
         JMP &operator+(JMP &j);
         JMP &operator+(const long double &j);
+        void operator+=(const long double &j);
         friend JMP &operator+(const long double &j, JMP &this_obj);
 };
 
@@ -641,7 +642,7 @@ JMP &JMP::operator+(const long double &j)
             } else if (i == 0 && sum_obj->number[i] > '9') {
                 sum_obj->number = '1' + sum_obj->number;
                 sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
             }
         }
     } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
@@ -658,7 +659,7 @@ JMP &JMP::operator+(const long double &j)
             } else if (i == 0 && sum_obj->number[i] > '9') {
                 sum_obj->number = '1' + sum_obj->number;
                 sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
             }
         }
     } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
@@ -752,6 +753,185 @@ JMP &JMP::operator+(const long double &j)
     }
 
     return *sum_obj;
+}
+
+void JMP::operator+=(const long double &j)
+{
+    double check;
+    string num2_str = std::to_string(j);
+    int num2_float_point_index = num2_str.find('.');
+    if (modf(j, &check) == 0.0)
+    {
+        num2_str = num2_str.substr(0, num2_float_point_index);
+        num2_float_point_index = 0;
+    } else
+        num2_str.erase(num2_str.begin() + num2_float_point_index);
+
+    // Check symbol of the number
+    bool this_number_is_negative = false, second_number_is_negative = false,
+         this_number_has_positive_symbol = false;
+
+    this_number_is_negative = number[0] == '-' ? true : false;
+    second_number_is_negative = num2_str[0] == '-' ? true : false;
+    this_number_has_positive_symbol = number[0] == '+' ? true : false;
+
+    // Remove number symbol
+    if (number[0] == '-' || number[0] == '+')
+    {
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        number.erase(number.begin());
+    }
+    if (num2_str[0] == '-' || num2_str[0] == '+')
+    {
+        num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
+        num2_str.erase(num2_str.begin());
+    }
+
+    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+
+    int temp_number_size = number.size(), temp_second_number_size = num2_str.size();
+
+    // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
+    if (num2_float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (num2_str.size() - num2_float_point_index))
+    {
+        // It means this object number has more decimals than second number
+        // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
+        int how_many_zeros = (number.size() - float_point_index) - (num2_str.size() - num2_float_point_index);
+        for (int i=0; i<how_many_zeros; i++)
+            num2_str.push_back('0');
+    } else if (num2_float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (num2_str.size() - num2_float_point_index)) {
+        // It means second number has more decimals than this object number
+        int how_many_zeros = (num2_str.size() - num2_float_point_index) - (number.size() - float_point_index);
+        for (int i=0; i<how_many_zeros; i++)
+            number.push_back('0');
+    } else if (num2_float_point_index != 0 && float_point_index == 0) {
+        int how_many_zeros = num2_str.size() - num2_float_point_index;
+        for (int i=0; i<how_many_zeros; i++)
+            number.push_back('0');
+    } else if (num2_float_point_index == 0 && float_point_index != 0) {
+        int how_many_zeros = number.size() - float_point_index;
+        for (int i=0; i<how_many_zeros; i++)
+            num2_str.push_back('0');
+    }
+
+    // Check which number is bigger, and we equal the sum object number to the biggest number
+    bool this_number_is_bigger = false, second_number_is_bigger = false;
+    if (which_is_bigger(number, num2_str) == 0)
+    {
+        this_number_is_bigger = true;
+    } else {
+        second_number_is_bigger = true;
+    }
+
+
+    // Now we ready to add two numbers together
+    if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
+    {
+        int difference_of_two_numbers = number.size() - num2_str.size();
+        for (int i=number.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                number[i] += num2_str[i - difference_of_two_numbers] - '0';
+            if (i != 0 && number[i] > '9')
+            {
+                number[i - 1] += (number[i] - '0') / 10;
+                number[i] -= (number[i] - '0') / 10 * 10;
+            } else if (i == 0 && number[i] > '9') {
+                number = '1' + number;
+                number[1] -= (number[1] - '0') / 10 * 10;
+                float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
+        int difference_of_two_numbers = num2_str.size() - number.size();
+        for (int i=num2_str.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                num2_str[i] += number[i - (difference_of_two_numbers)] - '0';
+
+            if (i != 0 && num2_str[i] > '9')
+            {
+                num2_str[i - 1] += (num2_str[i] - '0') / 10;
+                num2_str[i] -= (num2_str[i] - '0') / 10 * 10;
+            } else if (i == 0 && num2_str[i] > '9') {
+                num2_str = '1' + num2_str;
+                num2_str[1] -= (num2_str[1] - '0') / 10 * 10;
+                num2_float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
+        int difference_of_two_numbers = number.size() - num2_str.size();
+        for (int i=number.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                number[i] -= num2_str[i - difference_of_two_numbers] - '0';
+
+            if (number[i] < '0')
+            {
+                number[i] += 10;
+                number[i - 1]--;
+            }
+        }
+    } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
+        int difference_of_two_numbers = num2_str.size() - number.size();
+        for (int i=num2_str.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                number[i] -= number[i - difference_of_two_numbers] - '0';
+
+            if (number[i] < '0')
+            {
+                number[i] += 10;
+                number[i - 1]--;
+            }
+        }
+    }
+
+    number = second_number_is_bigger ? std::move(num2_str) : number;
+
+    // Remove the beginning-unusable zeros
+    while (number[0] == '0' && this_number_is_bigger)
+    {
+        number.erase(number.begin());
+        if (float_point_index > 0)
+        {
+            float_point_index--;
+            if (float_point_index == 0)
+            {
+                float_point_index++;
+                number = "0" + number;
+                break;
+            }
+        }
+    }
+
+    // Remove the ending-unusable zeros
+    float_point_index = float_point_index == 0 && num2_float_point_index != 0 ? num2_float_point_index : float_point_index;
+    while (number[number.size() - 1] == '0' && float_point_index != 0)
+        number.erase(number.begin() + number.size() - 1);
+
+    /// Back the number to default
+    // Add float point symbol to the number who had float point
+    if (this_number_is_bigger && float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+
+    if (second_number_is_bigger && num2_float_point_index != 0)
+        number.insert(number.begin() + num2_float_point_index, '.');
+
+    // Add number symbols to themselves
+    if (this_number_is_negative)
+    {
+        number = '-' + number;
+        float_point_index++;
+    }
+
+    if (this_number_has_positive_symbol)
+    {
+        number = '+' + number;
+        float_point_index++;
+    }
 }
 
 JMP &operator+(const long double &j, JMP &this_obj)
