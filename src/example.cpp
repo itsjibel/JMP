@@ -94,5 +94,15 @@ int main()
     c += 120.1;
     cout<<c<<endl;
 
+    // Add string to JMP object
+    string string_number = "+210.6";
+    c = "-400.4";
+    cout<<c + string_number<<endl;
+    cout<<string_number + c<<endl;
+
+    // Add const char* to JMP object
+    cout<<c + "-120"<<endl;
+    cout<<"-120" + c<<endl;
+
     return 0;
 }
