@@ -890,6 +890,18 @@ void JMP::operator+=(const long double &j)
     }
 
     number = second_number_is_bigger ? std::move(num2_str) : number;
+    float_point_index = float_point_index == 0 && num2_float_point_index != 0 ? num2_float_point_index + abs((int)(num2_str.size() - number.size())) : float_point_index;
+
+    /// Back the number to default
+    // Add float point symbol to the number who had float point
+    if (this_number_is_bigger && float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (second_number_is_bigger && num2_float_point_index != 0)
+        number.insert(number.begin() + num2_float_point_index, '.');
+
+    // Remove the ending-unusable zeros
+    while (number[number.size() - 1] == '0' && float_point_index != 0)
+        number.erase(number.begin() + number.size() - 1);
 
     // Remove the beginning-unusable zeros
     while (number[0] == '0' && this_number_is_bigger)
@@ -906,19 +918,6 @@ void JMP::operator+=(const long double &j)
             }
         }
     }
-
-    // Remove the ending-unusable zeros
-    float_point_index = float_point_index == 0 && num2_float_point_index != 0 ? num2_float_point_index : float_point_index;
-    while (number[number.size() - 1] == '0' && float_point_index != 0)
-        number.erase(number.begin() + number.size() - 1);
-
-    /// Back the number to default
-    // Add float point symbol to the number who had float point
-    if (this_number_is_bigger && float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
-
-    if (second_number_is_bigger && num2_float_point_index != 0)
-        number.insert(number.begin() + num2_float_point_index, '.');
 
     // Add number symbols to themselves
     if (this_number_is_negative)
