@@ -7,7 +7,75 @@ class JMP
 {
     public: bool has_negative_sign = false, has_positive_sign = false;
     private:
-        bool validation(const string &number)
+        void summation (JMP &sum_obj, const string &num1, const string &num2,
+                        bool &first_number_is_bigger, bool &second_number_is_bigger,
+                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign)
+        {
+            // Now we ready to add two numbers together
+            if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+            {
+                int difference_of_two_numbers = num1.size() - num2.size();
+                for (int i=num1.size() - 1; i>=0; i--)
+                {
+                    if (i >= difference_of_two_numbers)
+                        sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
+                    if (i != 0 && sum_obj.number[i] > '9')
+                    {
+                        sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                        sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+                    } else if (i == 0 && sum_obj.number[i] > '9') {
+                        sum_obj.number = '1' + sum_obj.number;
+                        sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                        sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                    }
+                }
+            } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
+                int difference_of_two_numbers = num2.size() - num1.size();
+                for (int i=num2.size() - 1; i>=0; i--)
+                {
+                    if (i >= difference_of_two_numbers)
+                        sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
+
+                    if (i != 0 && sum_obj.number[i] > '9')
+                    {
+                        sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                        sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+                    } else if (i == 0 && sum_obj.number[i] > '9') {
+                        sum_obj.number = '1' + sum_obj.number;
+                        sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                        sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                    }
+                }
+            } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
+                int difference_of_two_numbers = num1.size() - num2.size();
+                for (int i=num1.size() - 1; i>=0; i--)
+                {
+                    if (i >= difference_of_two_numbers)
+                        sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
+
+                    if (sum_obj.number[i] < '0')
+                    {
+                        sum_obj.number[i] += 10;
+                        sum_obj.number[i - 1]--;
+                    }
+                }
+            } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
+                int difference_of_two_numbers = num2.size() - num1.size();
+                for (int i=num2.size() - 1; i>=0; i--)
+                {
+                    if (i >= difference_of_two_numbers)
+                        sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
+
+                    if (sum_obj.number[i] < '0')
+                    {
+                        sum_obj.number[i] += 10;
+                        sum_obj.number[i - 1]--;
+                    }
+                }
+            }
+        }
+
+        bool validation (const string &number)
         {
             // If number is empty so is not valid
             if (number.empty())
@@ -28,7 +96,7 @@ class JMP
                 if (number[i] == '.')
                 {
                     number_of_dots++;
-                    this->float_point_index = i;
+                    float_point_index = i;
                 }
             }
 
@@ -95,7 +163,7 @@ class JMP
         JMP (const char* num) : number(validation(num) ? num : "0") {}
         JMP (const JMP &j)
         {
-            this->number = j.number;
+            number = j.number;
             float_point_index = j.float_point_index;
         }
 
@@ -103,11 +171,11 @@ class JMP
         virtual ~JMP() {}
 
         /// Stream operators
-        friend std::ostream &operator<<(std::ostream &k, JMP &j)
+        friend std::ostream &operator<<(std::ostream &k, const JMP &j)
         {
             // Print the JMP object
             k<<j.number;
-            return (k);
+            return k;
         }
 
         friend std::istream &operator>>(std::istream &k, JMP &j)
@@ -172,20 +240,20 @@ class JMP
         }
 
         /// Shortcut operators
-        JMP &operator++(int);
-        JMP &operator--(int);
-        JMP &operator+(JMP &j);
-        JMP &operator+(const long double &j);
-        JMP &operator+(string &num2_str);
-        JMP &operator+(const char* num2_str);
-        friend JMP &operator+(const long double &j, JMP &this_obj);
-        friend JMP &operator+(string &num2_str, JMP &this_obj);
-        friend JMP &operator+(const char* num2_str, JMP &this_obj);
+        JMP operator++(int);
+        JMP operator--(int);
+        JMP operator+(JMP &j);
+        JMP operator+(const long double &j);
+        JMP operator+(string &num2_str);
+        JMP operator+(const char* num2_str);
+        friend JMP operator+(const long double &j, JMP &this_obj);
+        friend JMP operator+(string &num2_str, JMP &this_obj);
+        friend JMP operator+(const char* num2_str, JMP &this_obj);
         void operator+=(const long double &j);
 };
 
 
-JMP &JMP::operator++(int)
+JMP JMP::operator++(int)
 {
     // Memorize the number symbol
     if (has_positive_sign)
@@ -240,7 +308,7 @@ JMP &JMP::operator++(int)
     return *this;
 }
 
-JMP &JMP::operator--(int)
+JMP JMP::operator--(int)
 {
     // Memorize the number symbol
     if (has_positive_sign)
@@ -296,9 +364,9 @@ JMP &JMP::operator--(int)
     return *this;
 }
 
-JMP &JMP::operator+(JMP &j)
+JMP JMP::operator+(JMP &j)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
 
     // Remove number sign
     if (has_negative_sign || has_positive_sign)
@@ -347,129 +415,68 @@ JMP &JMP::operator+(JMP &j)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, j.number) == 0)
     {
-        sum_obj->number = number;
+        sum_obj.number = number;
 
         if (float_point_index != 0)
-            sum_obj->float_point_index = float_point_index;
+            sum_obj.float_point_index = float_point_index;
         else if (float_point_index == 0 && j.float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = j.number;
+        sum_obj.number = j.number;
 
         if (j.float_point_index != 0)
-            sum_obj->float_point_index = j.float_point_index;
+            sum_obj.float_point_index = j.float_point_index;
         else if (j.float_point_index == 0 && float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (has_negative_sign == j.has_negative_sign))
-    {
-        int difference_of_two_numbers = number.size() - j.number.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += j.number[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign == j.has_negative_sign)) {
-        int difference_of_two_numbers = j.number.size() - number.size();
-        for (int i=j.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (has_negative_sign != j.has_negative_sign)) {
-        int difference_of_two_numbers = number.size() - j.number.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= j.number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != j.has_negative_sign)) {
-        int difference_of_two_numbers = j.number.size() - number.size();
-        for (int i=j.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    summation(sum_obj, number, j.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, j.has_negative_sign);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
     {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
     }
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the numbers to default
 
@@ -505,12 +512,12 @@ JMP &JMP::operator+(JMP &j)
         j.float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &JMP::operator+(const long double &j)
+JMP JMP::operator+(const long double &j)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
 
     string num2_str = std::to_string(j);
@@ -572,129 +579,68 @@ JMP &JMP::operator+(const long double &j)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2_str) == 0)
     {
-        sum_obj->number = number;
+        sum_obj.number = number;
 
         if (float_point_index != 0)
-            sum_obj->float_point_index = float_point_index;
+            sum_obj.float_point_index = float_point_index;
         else if (float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (has_negative_sign == second_number_is_negative))
-    {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    summation(sum_obj, number, num2_str, this_number_is_bigger, second_number_is_bigger, has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
     {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
     }
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -719,12 +665,12 @@ JMP &JMP::operator+(const long double &j)
         float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &JMP::operator+(string &num2_str)
+JMP JMP::operator+(string &num2_str)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
@@ -782,129 +728,66 @@ JMP &JMP::operator+(string &num2_str)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2_str) == 0)
     {
-        sum_obj->number = number;
+        sum_obj.number = number;
 
         if (float_point_index != 0)
-            sum_obj->float_point_index = float_point_index;
+            sum_obj.float_point_index = float_point_index;
         else if (float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (has_negative_sign == second_number_is_negative))
-    {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    summation(sum_obj, number, num2_str, this_number_is_bigger, second_number_is_bigger, has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
-    {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
-    }
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -944,12 +827,12 @@ JMP &JMP::operator+(string &num2_str)
         num2_float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &JMP::operator+(const char* num_str)
+JMP JMP::operator+(const char* num_str)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
     string num2_str(std::move(num_str));
 
@@ -1007,129 +890,67 @@ JMP &JMP::operator+(const char* num_str)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2_str) == 0)
     {
-        sum_obj->number = number;
+        sum_obj.number = number;
 
         if (float_point_index != 0)
-            sum_obj->float_point_index = float_point_index;
+            sum_obj.float_point_index = float_point_index;
         else if (float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
 
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (has_negative_sign == second_number_is_negative))
-    {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = sum_obj->float_point_index != 0 ? sum_obj->float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    summation(sum_obj, number, num2_str, this_number_is_bigger, second_number_is_bigger, has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
-    {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
-    }
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -1154,12 +975,12 @@ JMP &JMP::operator+(const char* num_str)
         float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &operator+(const long double &j, JMP &this_obj)
+JMP operator+(const long double &j, JMP &this_obj)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
 
     string num2_str = std::to_string(j);
@@ -1224,129 +1045,66 @@ JMP &operator+(const long double &j, JMP &this_obj)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2_str) == 0)
     {
-        sum_obj->number = this_obj.number;
+        sum_obj.number = this_obj.number;
 
         if (this_obj.float_point_index != 0)
-            sum_obj->float_point_index = this_obj.float_point_index;
+            sum_obj.float_point_index = this_obj.float_point_index;
         else if (this_obj.float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
-    {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += this_obj.number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= this_obj.number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    this_obj.summation(sum_obj, this_obj.number, num2_str, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
-    {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
-    }
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -1371,12 +1129,12 @@ JMP &operator+(const long double &j, JMP &this_obj)
         this_obj.float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &operator+(string &num2_str, JMP &this_obj)
+JMP operator+(string &num2_str, JMP &this_obj)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
@@ -1436,129 +1194,68 @@ JMP &operator+(string &num2_str, JMP &this_obj)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2_str) == 0)
     {
-        sum_obj->number = this_obj.number;
+        sum_obj.number = this_obj.number;
 
         if (this_obj.float_point_index != 0)
-            sum_obj->float_point_index = this_obj.float_point_index;
+            sum_obj.float_point_index = this_obj.float_point_index;
         else if (this_obj.float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
-    {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += this_obj.number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= this_obj.number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    this_obj.summation(sum_obj, this_obj.number, num2_str, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
     {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
     }
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -1583,12 +1280,12 @@ JMP &operator+(string &num2_str, JMP &this_obj)
         this_obj.float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
-JMP &operator+(const char* num_str, JMP &this_obj)
+JMP operator+(const char* num_str, JMP &this_obj)
 {
-    JMP *sum_obj = new JMP("0");
+    JMP sum_obj = JMP("0");
     double check;
     string num2_str(num_str);
 
@@ -1649,129 +1346,69 @@ JMP &operator+(const char* num_str, JMP &this_obj)
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2_str) == 0)
     {
-        sum_obj->number = this_obj.number;
+        sum_obj.number = this_obj.number;
 
         if (this_obj.float_point_index != 0)
-            sum_obj->float_point_index = this_obj.float_point_index;
+            sum_obj.float_point_index = this_obj.float_point_index;
         else if (this_obj.float_point_index == 0 && num2_float_point_index != 0)
-            sum_obj->float_point_index = temp_number_size;
+            sum_obj.float_point_index = temp_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
-        sum_obj->number = num2_str;
+        sum_obj.number = num2_str;
 
         if (num2_float_point_index != 0)
-            sum_obj->float_point_index = num2_float_point_index;
+            sum_obj.float_point_index = num2_float_point_index;
         else if (num2_float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj->float_point_index = temp_second_number_size;
+            sum_obj.float_point_index = temp_second_number_size;
         else
-            sum_obj->float_point_index = 0;
+            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
 
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (this_number_is_negative == second_number_is_negative))
-    {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] += this_obj.number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && sum_obj->number[i] > '9')
-            {
-                sum_obj->number[i - 1] += (sum_obj->number[i] - '0') / 10;
-                sum_obj->number[i] -= (sum_obj->number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj->number[i] > '9') {
-                sum_obj->number = '1' + sum_obj->number;
-                sum_obj->number[1] -= (sum_obj->number[1] - '0') / 10 * 10;
-                sum_obj->float_point_index = this_obj.float_point_index != 0 ? this_obj.float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = this_obj.number.size() - num2_str.size();
-        for (int i=this_obj.number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (this_number_is_negative != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - this_obj.number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj->number[i] -= this_obj.number[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj->number[i] < '0')
-            {
-                sum_obj->number[i] += 10;
-                sum_obj->number[i - 1]--;
-            }
-        }
-    }
+    // Get sum of the two filtered strings
+    this_obj.summation(sum_obj, this_obj.number, num2_str, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, second_number_is_negative);
 
     // Remove the beginning-unusable zeros
-    while (sum_obj->number[0] == '0')
+    while (sum_obj.number[0] == '0')
     {
-        sum_obj->number.erase(sum_obj->number.begin());
-        if (sum_obj->float_point_index > 0)
+        sum_obj.number.erase(sum_obj.number.begin());
+        if (sum_obj.float_point_index > 0)
         {
-            sum_obj->float_point_index--;
-            if (sum_obj->float_point_index == 0)
+            sum_obj.float_point_index--;
+            if (sum_obj.float_point_index == 0)
             {
-                sum_obj->float_point_index++;
-                sum_obj->number = "0" + sum_obj->number;
+                sum_obj.float_point_index++;
+                sum_obj.number = "0" + sum_obj.number;
                 break;
             }
         }
     }
 
     // Remove the ending-unusable zeros
-    while (sum_obj->number[sum_obj->number.size() - 1] == '0' && sum_obj->float_point_index != 0)
+    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
     {
-        sum_obj->number.erase(sum_obj->number.begin() + sum_obj->number.size() - 1);
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
     }
 
-    if (sum_obj->number.empty())
+    if (sum_obj.number.empty())
     {
-        sum_obj->number = "0";
+        sum_obj.number = "0";
     } else {
         if ((this_number_is_bigger && this_number_is_negative) || (second_number_is_bigger && second_number_is_negative))
         {
-            sum_obj->float_point_index = sum_obj->float_point_index > 0 ? sum_obj->float_point_index + 1 : 0;
-            sum_obj->number.insert(sum_obj->number.begin(), '-');
+            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
+            sum_obj.number.insert(sum_obj.number.begin(), '-');
         }
 
-        if (sum_obj->float_point_index != 0)
-            sum_obj->number.insert(sum_obj->number.begin() + sum_obj->float_point_index, '.');
+        if (sum_obj.float_point_index != 0)
+            sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     }
 
-    if (sum_obj->float_point_index != 0 && sum_obj->float_point_index == sum_obj->number.size() - 1)
-        sum_obj->number.append("0");
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size() - 1)
+        sum_obj.number.append("0");
 
     /// Back the number to default
 
@@ -1796,7 +1433,7 @@ JMP &operator+(const char* num_str, JMP &this_obj)
         this_obj.float_point_index++;
     }
 
-    return *sum_obj;
+    return sum_obj;
 }
 
 void JMP::operator+=(const long double &j)
@@ -1860,77 +1497,15 @@ void JMP::operator+=(const long double &j)
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2_str) == 0)
-    {
         this_number_is_bigger = true;
-    } else {
+    else
         second_number_is_bigger = true;
-    }
-
-
-    // Now we ready to add two numbers together
-    if (this_number_is_bigger && (has_negative_sign == second_number_is_negative))
-    {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                number[i] += num2_str[i - difference_of_two_numbers] - '0';
-            if (i != 0 && number[i] > '9')
-            {
-                number[i - 1] += (number[i] - '0') / 10;
-                number[i] -= (number[i] - '0') / 10 * 10;
-            } else if (i == 0 && number[i] > '9') {
-                number = '1' + number;
-                number[1] -= (number[1] - '0') / 10 * 10;
-                float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign == second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                num2_str[i] += number[i - (difference_of_two_numbers)] - '0';
-
-            if (i != 0 && num2_str[i] > '9')
-            {
-                num2_str[i - 1] += (num2_str[i] - '0') / 10;
-                num2_str[i] -= (num2_str[i] - '0') / 10 * 10;
-            } else if (i == 0 && num2_str[i] > '9') {
-                num2_str = '1' + num2_str;
-                num2_str[1] -= (num2_str[1] - '0') / 10 * 10;
-                num2_float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
-        }
-    } else if (this_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = number.size() - num2_str.size();
-        for (int i=number.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                number[i] -= num2_str[i - difference_of_two_numbers] - '0';
-
-            if (number[i] < '0')
-            {
-                number[i] += 10;
-                number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_is_negative)) {
-        int difference_of_two_numbers = num2_str.size() - number.size();
-        for (int i=num2_str.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                number[i] -= number[i - difference_of_two_numbers] - '0';
-
-            if (number[i] < '0')
-            {
-                number[i] += 10;
-                number[i - 1]--;
-            }
-        }
-    }
 
     number = second_number_is_bigger ? std::move(num2_str) : number;
+
+    // Get sum of the two filtered strings
+    summation(*this, number, num2_str, this_number_is_bigger, second_number_is_bigger, has_negative_sign, second_number_is_negative);
+
     float_point_index = float_point_index == 0 && num2_float_point_index != 0 ? num2_float_point_index + abs((int)(num2_str.size() - number.size())) : float_point_index;
 
     /// Back the number to default
