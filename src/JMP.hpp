@@ -31,28 +31,40 @@ class JMP
         virtual ~JMP() {}
 
         /// Stream operators
-        friend std::ostream &operator<<(std::ostream &k, const JMP &j)
+        friend std::ostream &operator<<(std::ostream &o, const JMP &j)
         {
-            // Print the JMP object
-            if (j.has_negative_sign && j.number.at(0) != '-')
-                k<<'-';
-            else if (j.has_positive_sign && j.number.at(0) != '+')
-                k<<'+';
-            k<<j.number;
-            return k;
+            o<<(j.has_negative_sign ? '-' : j.has_positive_sign ? '+' : '\b');
+            o<<j.number;
+            return o;
         }
 
-        friend std::istream &operator>>(std::istream &k, JMP &j)
+        friend std::ostream &operator<<(std::ostream &o, JMP &j)
+        {
+            if (j.float_point_index > 0)
+                j.number.insert(j.number.begin() + j.float_point_index, '.');
+            return o<<static_cast<const JMP&>(j);
+        }
+
+
+        friend std::istream &operator>>(std::istream &i, JMP &j)
         {
             // Get the JMP object
-            k>>j.number;
-            return (k);
+            i>>j.number;
+            return (i);
+        }
+
+        void clear()
+        {
+            number.clear();
+            has_negative_sign = false;
+            has_positive_sign = false;
+            float_point_index = 0;
         }
 
         /// Assignment operator
         JMP &operator=(const string &num)
         {
-            float_point_index = 0;
+            clear();
             // Check the validity of the number, if the number is invalid, so equal it to zero
             validation(num);
             return *this;
@@ -60,7 +72,7 @@ class JMP
 
         JMP &operator=(const char* num)
         {
-            float_point_index = 0;
+            clear();
             // Check the validity of the number, if the number is invalid, so equal it to zero
             validation(num);
             return *this;
@@ -88,14 +100,6 @@ class JMP
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
                 number.append(num);
-        }
-
-        void clear()
-        {
-            number.clear();
-            has_negative_sign = false;
-            has_positive_sign = false;
-            float_point_index = 0;
         }
 
         bool is_empty()
@@ -243,17 +247,23 @@ void JMP::validation (const string &num)
     number = valid ? num : "0";
 
     // Set the number sing
-    if (valid && number[0] == '-')
+    if (valid)
     {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-        has_negative_sign = true;
-    } else if (valid && number[0] == '+') {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-        has_positive_sign = true;
-    } else {
-        has_negative_sign = has_positive_sign = false;
+        if (number[0] == '-')
+        {
+            float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+            number.erase(number.begin());
+            has_negative_sign = true;
+        } else if (number[0] == '+') {
+            float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+            number.erase(number.begin());
+            has_positive_sign = true;
+        } else
+            has_negative_sign = has_positive_sign = false;
+
+        // We need to remove the float sign from the number so that we don't have a problem finding a specific index
+        if (float_point_index != 0)
+            number.erase(number.begin() + float_point_index);
     }
 }
 
@@ -370,13 +380,6 @@ JMP JMP::operator--(int)
 JMP JMP::operator+(JMP &j)
 {
     JMP sum_obj = JMP("0");
-
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (float_point_index != 0)
-        number.erase(number.begin() + float_point_index);
-    if (j.float_point_index != 0)
-        j.number.erase(j.number.begin() + j.float_point_index);
-
     int temp_number_size = number.size(), temp_second_number_size = j.number.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -477,12 +480,6 @@ JMP JMP::operator+(JMP &j)
     if (j.number.size() != temp_second_number_size)
         j.number = j.number.substr(0, temp_second_number_size);
 
-    // Add float point symbol to the number who had float point
-    if (float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
-    if (j.float_point_index != 0)
-        j.number.insert(j.number.begin() + j.float_point_index, '.');
-
     return sum_obj;
 }
 
@@ -512,10 +509,6 @@ JMP JMP::operator+(const long double &j)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (float_point_index != 0)
-        number.erase(number.begin() + float_point_index);
-
     int temp_number_size = number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -613,10 +606,6 @@ JMP JMP::operator+(const long double &j)
     // Removing the zeros that are added to add two decimal numbers
     if (number.size() != temp_number_size)
         number = number.substr(0, temp_number_size);
-
-    // Add float point symbol to the number who had float point
-    if (float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
 
     return sum_obj;
 }
@@ -642,10 +631,6 @@ JMP JMP::operator+(string &num2_str)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (float_point_index != 0)
-        number.erase(number.begin() + float_point_index);
-
     int temp_number_size = number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -743,9 +728,6 @@ JMP JMP::operator+(string &num2_str)
         number = number.substr(0, temp_number_size);
 
     // Add float point symbol to the number who had float point
-    if (float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
-
     if (num2_float_point_index != 0)
         num2_str.insert(num2_str.begin() + num2_float_point_index, '.');
 
@@ -786,10 +768,6 @@ JMP JMP::operator+(const char* num_str)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (float_point_index != 0)
-        number.erase(number.begin() + float_point_index);
-
     int temp_number_size = number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -887,10 +865,6 @@ JMP JMP::operator+(const char* num_str)
     if (number.size() != temp_number_size)
         number = number.substr(0, temp_number_size);
 
-    // Add float point symbol to the number who had float point
-    if (float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
-
     return sum_obj;
 }
 
@@ -923,10 +897,6 @@ JMP operator+(const long double &j, JMP &this_obj)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (this_obj.float_point_index != 0)
-        this_obj.number.erase(this_obj.number.begin() + this_obj.float_point_index);
-
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -1022,10 +992,6 @@ JMP operator+(const long double &j, JMP &this_obj)
     // Removing the zeros that are added to add two decimal numbers
     if (this_obj.number.size() != temp_number_size)
         this_obj.number = this_obj.number.substr(0, temp_number_size);
-
-    // Add float point symbol to the number who had float point
-    if (this_obj.float_point_index != 0)
-        this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
 
     return sum_obj;
 }
@@ -1053,10 +1019,6 @@ JMP operator+(string &num2_str, JMP &this_obj)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (this_obj.float_point_index != 0)
-        this_obj.number.erase(this_obj.number.begin() + this_obj.float_point_index);
-
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -1154,10 +1116,6 @@ JMP operator+(string &num2_str, JMP &this_obj)
     // Removing the zeros that are added to add two decimal numbers
     if (this_obj.number.size() != temp_number_size)
         this_obj.number = this_obj.number.substr(0, temp_number_size);
-
-    // Add float point symbol to the number who had float point
-    if (this_obj.float_point_index != 0)
-        this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
 
     return sum_obj;
 }
@@ -1186,10 +1144,6 @@ JMP operator+(const char* num_str, JMP &this_obj)
         num2_str.erase(num2_str.begin());
     }
 
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (this_obj.float_point_index != 0)
-        this_obj.number.erase(this_obj.number.begin() + this_obj.float_point_index);
-
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2_str.size();
 
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
@@ -1289,10 +1243,6 @@ JMP operator+(const char* num_str, JMP &this_obj)
     if (this_obj.number.size() != temp_number_size)
         this_obj.number = this_obj.number.substr(0, temp_number_size);
 
-    // Add float point symbol to the number who had float point
-    if (this_obj.float_point_index != 0)
-        this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
-
     return sum_obj;
 }
 
@@ -1319,10 +1269,6 @@ void JMP::operator+=(const long double &j)
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
         num2_str.erase(num2_str.begin());
     }
-
-    // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-    if (float_point_index != 0)
-        number.erase(number.begin() + float_point_index);
 
     int temp_number_size = number.size(), temp_second_number_size = num2_str.size();
 
@@ -1364,11 +1310,6 @@ void JMP::operator+=(const long double &j)
     float_point_index = float_point_index == 0 && num2_float_point_index != 0 ? num2_float_point_index + abs((int)(num2_str.size() - number.size())) : float_point_index;
 
     /// Back the number to default
-    // Add float point symbol to the number who had float point
-    if (this_number_is_bigger && float_point_index != 0)
-        number.insert(number.begin() + float_point_index, '.');
-    if (second_number_is_bigger && num2_float_point_index != 0)
-        number.insert(number.begin() + num2_float_point_index, '.');
 
     // Remove the ending-unusable zeros
     while (number[number.size() - 1] == '0' && float_point_index != 0)
