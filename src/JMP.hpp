@@ -5,163 +5,15 @@ using std::string;
 
 class JMP
 {
-    public: bool has_negative_sign = false, has_positive_sign = false;
-
     private:
         void summation (JMP &sum_obj, const string &num1, const string &num2,
                         bool &first_number_is_bigger, bool &second_number_is_bigger,
-                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign)
-        {
-            // Now we ready to add two numbers together
-            if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
-            {
-                int difference_of_two_numbers = num1.size() - num2.size();
-                for (int i=num1.size() - 1; i>=0; i--)
-                {
-                    if (i >= difference_of_two_numbers)
-                        sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
-                    if (i != 0 && sum_obj.number[i] > '9')
-                    {
-                        sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                        sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-                    } else if (i == 0 && sum_obj.number[i] > '9') {
-                        sum_obj.number = '1' + sum_obj.number;
-                        sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                        sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-                    }
-                }
-            } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
-                int difference_of_two_numbers = num2.size() - num1.size();
-                for (int i=num2.size() - 1; i>=0; i--)
-                {
-                    if (i >= difference_of_two_numbers)
-                        sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
-
-                    if (i != 0 && sum_obj.number[i] > '9')
-                    {
-                        sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                        sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-                    } else if (i == 0 && sum_obj.number[i] > '9') {
-                        sum_obj.number = '1' + sum_obj.number;
-                        sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                        sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-                    }
-                }
-            } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
-                int difference_of_two_numbers = num1.size() - num2.size();
-                for (int i=num1.size() - 1; i>=0; i--)
-                {
-                    if (i >= difference_of_two_numbers)
-                        sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
-
-                    if (sum_obj.number[i] < '0')
-                    {
-                        sum_obj.number[i] += 10;
-                        sum_obj.number[i - 1]--;
-                    }
-                }
-            } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
-                int difference_of_two_numbers = num2.size() - num1.size();
-                for (int i=num2.size() - 1; i>=0; i--)
-                {
-                    if (i >= difference_of_two_numbers)
-                        sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
-
-                    if (sum_obj.number[i] < '0')
-                    {
-                        sum_obj.number[i] += 10;
-                        sum_obj.number[i - 1]--;
-                    }
-                }
-            }
-        }
-
-        void validation (const string &num)
-        {
-            // If number is empty so is not valid
-            if (num.empty())
-            {
-                number = "0";
-                return;
-            }
-
-            bool valid = true;
-            int number_of_dots = 0;
-            for (int i=1; i<num.length(); i++)
-            {
-                // If the number character is not in the range 0-9 and the number character is not '.'-
-                // then this character is invalid
-                if ((num[i] < '0' || num[i] > '9') && num[i] != '.')
-                    valid = false;
-                
-                // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
-                // the number characters, then update the float_point_index to know-
-                // where is the point index in the number
-                if (num[i] == '.')
-                {
-                    number_of_dots++;
-                    float_point_index = i;
-                }
-            }
-
-            // "If conditions" for falsing the validity of the number string
-            if ((num[0]  < '0' ||  num[0]  > '9') && (num[0] != '-' && num[0] != '+')  ||
-                 (num[0] == '0' && !(num[1] == '.' && (num[2] >= '0' && num[2] <= '9'))) ||
-                 (num[1] == '0'  && (num[0] == '-' || num[0] == '+')) ||
-                (num.back() == '.' || number_of_dots > 1))
-                valid = false;
-            
-            // "If conditions" for truing the validity of the number string
-            valid = num == "0" || num == "+0" || num == "-0" ? true : valid;
-
-            // We set the float_point_index to zero when the number is invalid.
-            // Because if the next value is an integer number, and we have a specific float_point_index, some-
-            // calculations will fail and give wrong answers.
-            float_point_index = valid ? float_point_index : 0;            
-            number = valid ? num : "0";
-
-            // Set the number sing
-            if (valid && number[0] == '-')
-            {
-                float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-                number.erase(number.begin());
-                has_negative_sign = true;
-            } else if (valid && number[0] == '+') {
-                float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-                number.erase(number.begin());
-                has_positive_sign = true;
-            } else {
-                has_negative_sign = has_positive_sign = false;
-            }
-        }
-
-        int8_t which_is_bigger(const string &num1, const string &num2) const
-        {
-            // This function takes two strings that number and compares them in terms of size
-            // First of all, we check the simple things make the number bigger than other
-            // It's clear if the number string has a bigger length when is bigger than other
-            if (num1.size() > num2.size())
-                return 0;
-            else if (num2.size() > num1.size())
-                return 1;
-            else
-            {
-                // If the two string numbers have the same length then we should check digit by digit to-
-                // understand which number is bigger
-                int counter = 0;
-                while (counter < num1.size())
-                {
-                    if (num1[counter] > num2[counter])
-                        return 0;
-                    else if (num2[counter] > num1[counter])
-                        return 1;
-                    counter++;
-                }
-            }
-            return 0;
-        }
+                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign);
+        void validation (const string &num);
+        bool which_is_bigger(const string &num1, const string &num2) const;
 
     public:
+        bool has_negative_sign = false, has_positive_sign = false;
         int float_point_index = 0;
         string number;
 
@@ -258,6 +110,159 @@ class JMP
         void operator+=(const long double &j);
 };
 
+
+void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
+                        bool &first_number_is_bigger, bool &second_number_is_bigger,
+                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign)
+{
+    // Now we ready to add two numbers together
+    if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    {
+        int difference_of_two_numbers = num1.size() - num2.size();
+        for (int i=num1.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
+            if (i != 0 && sum_obj.number[i] > '9')
+            {
+                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj.number[i] > '9') {
+                sum_obj.number = '1' + sum_obj.number;
+                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num2.size() - num1.size();
+        for (int i=num2.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
+
+            if (i != 0 && sum_obj.number[i] > '9')
+            {
+                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj.number[i] > '9') {
+                sum_obj.number = '1' + sum_obj.number;
+                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num1.size() - num2.size();
+        for (int i=num1.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj.number[i] < '0')
+            {
+                sum_obj.number[i] += 10;
+                sum_obj.number[i - 1]--;
+            }
+        }
+    } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num2.size() - num1.size();
+        for (int i=num2.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj.number[i] < '0')
+            {
+                sum_obj.number[i] += 10;
+                sum_obj.number[i - 1]--;
+            }
+        }
+    }
+}
+
+void JMP::validation (const string &num)
+{
+    // If number is empty so is not valid
+    if (num.empty())
+    {
+        number = "0";
+        return;
+    }
+
+    bool valid = true;
+    int number_of_dots = 0;
+    for (int i=1; i<num.length(); i++)
+    {
+        // If the number character is not in the range 0-9 and the number character is not '.'-
+        // then this character is invalid
+        if ((num[i] < '0' || num[i] > '9') && num[i] != '.')
+            valid = false;
+        
+        // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
+        // the number characters, then update the float_point_index to know-
+        // where is the point index in the number
+        if (num[i] == '.')
+        {
+            number_of_dots++;
+            float_point_index = i;
+        }
+    }
+
+    // "If conditions" for falsing the validity of the number string
+    if ((num[0]  < '0' ||  num[0]  > '9') && (num[0] != '-' && num[0] != '+')  ||
+            (num[0] == '0' && !(num[1] == '.' && (num[2] >= '0' && num[2] <= '9'))) ||
+            (num[1] == '0'  && (num[0] == '-' || num[0] == '+')) ||
+        (num.back() == '.' || number_of_dots > 1))
+        valid = false;
+    
+    // "If conditions" for truing the validity of the number string
+    valid = num == "0" || num == "+0" || num == "-0" ? true : valid;
+
+    // We set the float_point_index to zero when the number is invalid.
+    // Because if the next value is an integer number, and we have a specific float_point_index, some-
+    // calculations will fail and give wrong answers.
+    float_point_index = valid ? float_point_index : 0;            
+    number = valid ? num : "0";
+
+    // Set the number sing
+    if (valid && number[0] == '-')
+    {
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        number.erase(number.begin());
+        has_negative_sign = true;
+    } else if (valid && number[0] == '+') {
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        number.erase(number.begin());
+        has_positive_sign = true;
+    } else {
+        has_negative_sign = has_positive_sign = false;
+    }
+}
+
+bool JMP::which_is_bigger(const string &num1, const string &num2) const
+{
+    // This function takes two strings that number and compares them in terms of size
+    // First of all, we check the simple things make the number bigger than other
+    // It's clear if the number string has a bigger length when is bigger than other
+    if (num1.size() > num2.size())
+        return 0;
+    else if (num2.size() > num1.size())
+        return 1;
+    else
+    {
+        // If the two string numbers have the same length then we should check digit by digit to-
+        // understand which number is bigger
+        int counter = 0;
+        while (counter < num1.size())
+        {
+            if (num1[counter] > num2[counter])
+                return 0;
+            else if (num2[counter] > num1[counter])
+                return 1;
+            counter++;
+        }
+    }
+    return 0;
+}
 
 JMP JMP::operator++(int)
 {
