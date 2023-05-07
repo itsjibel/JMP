@@ -62,7 +62,7 @@ int main()
     cout<<c--<<endl;
 
     // Cout the sum of two float JMP variables -24.8653 + -3.141592653589793238462643 -> -28.006892653589793238462643
-    JMP e = "-24.8653";
+    JMP e = -24.8653;
     cout<<"Result one: "<<c + e<<endl;
     cout<<"Result two: "<<c + -24.8653<<endl;
 
@@ -90,7 +90,7 @@ int main()
 
     // Clear the 'c' number data and print the is_empty function
     c.clear();
-    cout<<(c.is_empty() ? "Yes\n" : "No\n")<<endl;
+    cout<<(c.is_empty() ? "Yes\n" : "No\n");
 
     // Sumition this time the first number is an double
     c = "123221398173981738917382130812931037999";
