@@ -82,9 +82,15 @@ int main()
     c.append("12345454");
     cout<<c<<endl;
 
-    // Clear the 'c' number data
+    // Print is 'c' number integer?
+    cout<<(c.is_integer() ? "Yes\n" : "No\n");
+
+    // Print is 'c' number decimal?
+    cout<<(c.is_decimal() ? "Yes\n" : "No\n");
+
+    // Clear the 'c' number data and print the is_empty function
     c.clear();
-    cout<<c<<endl;
+    cout<<(c.is_empty() ? "Yes\n" : "No\n")<<endl;
 
     // Sumition this time the first number is an double
     c = "123221398173981738917382130812931037999";

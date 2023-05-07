@@ -80,6 +80,7 @@ class JMP
         void internal_conversion_to_int()
         {
             number = number.substr(0, number.find('.'));
+            float_point_index = 0;
         }
 
         void append (const string &num)
@@ -97,6 +98,21 @@ class JMP
             float_point_index = 0;
         }
 
+        bool is_empty()
+        {
+            return number.empty();
+        }
+
+        bool is_decimal()
+        {
+            return float_point_index != 0;
+        }
+
+        bool is_integer()
+        {
+            return float_point_index == 0;
+        }
+
         /// Shortcut operators
         JMP operator++(int);
         JMP operator--(int);
@@ -109,6 +125,9 @@ class JMP
         friend JMP operator+(const char* num2_str, JMP &this_obj);
         void operator+=(const long double &j);
 };
+
+
+
 
 
 void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
