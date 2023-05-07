@@ -6,6 +6,7 @@ using std::string;
 class JMP
 {
     public: bool has_negative_sign = false, has_positive_sign = false;
+
     private:
         void summation (JMP &sum_obj, const string &num1, const string &num2,
                         bool &first_number_is_bigger, bool &second_number_is_bigger,
@@ -75,25 +76,28 @@ class JMP
             }
         }
 
-        bool validation (const string &number)
+        void validation (const string &num)
         {
             // If number is empty so is not valid
-            if (number.empty())
-                return false;
+            if (num.empty())
+            {
+                number = "0";
+                return;
+            }
 
             bool valid = true;
             int number_of_dots = 0;
-            for (int i=1; i<number.length(); i++)
+            for (int i=1; i<num.length(); i++)
             {
                 // If the number character is not in the range 0-9 and the number character is not '.'-
                 // then this character is invalid
-                if ((number[i] < '0' || number[i] > '9') && number[i] != '.')
+                if ((num[i] < '0' || num[i] > '9') && num[i] != '.')
                     valid = false;
                 
                 // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
                 // the number characters, then update the float_point_index to know-
                 // where is the point index in the number
-                if (number[i] == '.')
+                if (num[i] == '.')
                 {
                     number_of_dots++;
                     float_point_index = i;
@@ -101,30 +105,34 @@ class JMP
             }
 
             // "If conditions" for falsing the validity of the number string
-            if ((number[0]  < '0' ||  number[0]  > '9') && (number[0] != '-' && number[0] != '+')  ||
-                 (number[0] == '0' && !(number[1] == '.' && (number[2] >= '0' && number[2] <= '9'))) ||
-                 (number[1] == '0'  && (number[0] == '-' || number[0] == '+')) ||
-                (number.back() == '.' || number_of_dots > 1))
+            if ((num[0]  < '0' ||  num[0]  > '9') && (num[0] != '-' && num[0] != '+')  ||
+                 (num[0] == '0' && !(num[1] == '.' && (num[2] >= '0' && num[2] <= '9'))) ||
+                 (num[1] == '0'  && (num[0] == '-' || num[0] == '+')) ||
+                (num.back() == '.' || number_of_dots > 1))
                 valid = false;
             
             // "If conditions" for truing the validity of the number string
-            valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
+            valid = num == "0" || num == "+0" || num == "-0" ? true : valid;
 
             // We set the float_point_index to zero when the number is invalid.
             // Because if the next value is an integer number, and we have a specific float_point_index, some-
             // calculations will fail and give wrong answers.
-            float_point_index = valid ? float_point_index : 0;
+            float_point_index = valid ? float_point_index : 0;            
+            number = valid ? num : "0";
 
             // Set the number sing
             if (valid && number[0] == '-')
+            {
+                float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+                number.erase(number.begin());
                 has_negative_sign = true;
-            else if (valid && number[0] == '+')
+            } else if (valid && number[0] == '+') {
+                float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+                number.erase(number.begin());
                 has_positive_sign = true;
-            else {
+            } else {
                 has_negative_sign = has_positive_sign = false;
             }
-
-            return valid;
         }
 
         int8_t which_is_bigger(const string &num1, const string &num2) const
@@ -159,8 +167,8 @@ class JMP
 
         /// Constructors
         JMP() { number = "0"; }
-        JMP (const string &num) : number(validation(num) ? num : "0") {}
-        JMP (const char* num) : number(validation(num) ? num : "0") {}
+        JMP (const string &num) { validation(num); }
+        JMP (const char* num) { validation(num); }
         JMP (const JMP &j)
         {
             number = j.number;
@@ -174,6 +182,10 @@ class JMP
         friend std::ostream &operator<<(std::ostream &k, const JMP &j)
         {
             // Print the JMP object
+            if (j.has_negative_sign && j.number.at(0) != '-')
+                k<<'-';
+            else if (j.has_positive_sign && j.number.at(0) != '+')
+                k<<'+';
             k<<j.number;
             return k;
         }
@@ -190,10 +202,7 @@ class JMP
         {
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (validation(num))
-                number = num;
-            else
-                number = "0";
+            validation(num);
             return *this;
         }
 
@@ -201,10 +210,7 @@ class JMP
         {
             float_point_index = 0;
             // Check the validity of the number, if the number is invalid, so equal it to zero
-            if (validation(num))
-                number = num;
-            else
-                number = "0";
+            validation(num);
             return *this;
         }
 
@@ -255,14 +261,8 @@ class JMP
 
 JMP JMP::operator++(int)
 {
-    // Memorize the number symbol
-    if (has_positive_sign)
-        number.erase(number.begin());
-    else if (has_negative_sign)
-        number.erase(number.begin());
-
     // +1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index - 1 : number.length() - 1;
+    int last_integer_index = float_point_index != 0 ? float_point_index : number.length() - 1;
     if (has_negative_sign == false)
     {
         // +1 for a positive number
@@ -299,25 +299,13 @@ JMP JMP::operator++(int)
         }
     }
 
-    // Add the memorized symbol to the beginning of the number
-    if (has_negative_sign)
-        number.insert(number.begin(), '-');
-    else if (has_positive_sign)
-        number.insert(number.begin(), '+');
-
     return *this;
 }
 
 JMP JMP::operator--(int)
 {
-    // Memorize the number symbol
-    if (has_positive_sign)
-        number.erase(number.begin());
-    else if (has_negative_sign)
-        number.erase(number.begin());
-
     // -1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index - 1: number.size();
+    int last_integer_index = float_point_index != 0 ? float_point_index : number.size();
     if (has_negative_sign == false)
     {
         // -1 for a positive number
@@ -352,33 +340,12 @@ JMP JMP::operator--(int)
         }
     }
 
-    if (number[float_point_index - 1] != '.' && float_point_index != 0)
-        number[float_point_index - 1] = '.';
-
-    // Add the memorized symbol to the beginning of the number
-    if (has_negative_sign)
-        number.insert(number.begin(), '-');
-    else if (has_positive_sign)
-        number.insert(number.begin(), '+');
-
     return *this;
 }
 
 JMP JMP::operator+(JMP &j)
 {
     JMP sum_obj = JMP("0");
-
-    // Remove number sign
-    if (has_negative_sign || has_positive_sign)
-    {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-    }
-    if (j.has_negative_sign || j.has_positive_sign)
-    {
-        j.float_point_index = j.float_point_index > 0 ? j.float_point_index - 1 : 0;
-        j.number.erase(j.number.begin());
-    }
 
     // We need to remove the float sign from the number so that we don't have a problem finding a specific index
     if (float_point_index != 0)
@@ -492,26 +459,6 @@ JMP JMP::operator+(JMP &j)
     if (j.float_point_index != 0)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
 
-    // Add number symbols to themselves
-    if (has_negative_sign)
-    {
-        number = '-' + number;
-        float_point_index++;
-    } else if (has_positive_sign) {
-        number = '+' + number;
-        float_point_index++;
-    }
-
-    if (j.has_negative_sign)
-    {
-        j.number = '-' + j.number;
-        j.float_point_index++;
-    } else if (j.has_positive_sign)
-    {
-        j.number = '+' + j.number;
-        j.float_point_index++;
-    }
-
     return sum_obj;
 }
 
@@ -535,11 +482,6 @@ JMP JMP::operator+(const long double &j)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
 
     // Remove number symbol
-    if (has_negative_sign || has_positive_sign)
-    {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-    }
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -652,19 +594,6 @@ JMP JMP::operator+(const long double &j)
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
 
-    // Add number symbols to themselves
-    if (has_negative_sign)
-    {
-        number = '-' + number;
-        float_point_index++;
-    }
-
-    if (has_positive_sign)
-    {
-        number = '+' + number;
-        float_point_index++;
-    }
-
     return sum_obj;
 }
 
@@ -683,12 +612,7 @@ JMP JMP::operator+(string &num2_str)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
     second_number_has_positive_symbol = num2_str[0] == '+' ? true : false;
 
-    // Remove number symbol
-    if (has_negative_sign || has_positive_sign)
-    {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-    }
+    // Remove number sign
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -802,19 +726,7 @@ JMP JMP::operator+(string &num2_str)
     if (num2_float_point_index != 0)
         num2_str.insert(num2_str.begin() + num2_float_point_index, '.');
 
-    // Add number symbols to themselves
-    if (has_negative_sign)
-    {
-        number = '-' + number;
-        float_point_index++;
-    }
-
-    if (has_positive_sign)
-    {
-        number = '+' + number;
-        float_point_index++;
-    }
-
+    // Add number signs to themselves
     if (second_number_is_negative)
     {
         num2_str = '-' + num2_str;
@@ -846,11 +758,6 @@ JMP JMP::operator+(const char* num_str)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
 
     // Remove number symbol
-    if (has_negative_sign || has_positive_sign)
-    {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-    }
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -962,19 +869,6 @@ JMP JMP::operator+(const char* num_str)
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
 
-    // Add number symbols to themselves
-    if (has_negative_sign)
-    {
-        number = '-' + number;
-        float_point_index++;
-    }
-
-    if (has_positive_sign)
-    {
-        number = '+' + number;
-        float_point_index++;
-    }
-
     return sum_obj;
 }
 
@@ -1000,12 +894,7 @@ JMP operator+(const long double &j, JMP &this_obj)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
     this_number_has_positive_symbol = this_obj.number[0] == '+' ? true : false;
 
-    // Remove number symbol
-    if (this_obj.number[0] == '-' || this_obj.number[0] == '+')
-    {
-        this_obj.float_point_index = this_obj.float_point_index > 0 ? this_obj.float_point_index - 1 : 0;
-        this_obj.number.erase(this_obj.number.begin());
-    }
+    // Remove number signs
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -1115,19 +1004,6 @@ JMP operator+(const long double &j, JMP &this_obj)
     // Add float point symbol to the number who had float point
     if (this_obj.float_point_index != 0)
         this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
-
-    // Add number symbols to themselves
-    if (this_number_is_negative)
-    {
-        this_obj.number = '-' + this_obj.number;
-        this_obj.float_point_index++;
-    }
-
-    if (this_number_has_positive_symbol)
-    {
-        this_obj.number = '+' + this_obj.number;
-        this_obj.float_point_index++;
-    }
 
     return sum_obj;
 }
@@ -1149,12 +1025,7 @@ JMP operator+(string &num2_str, JMP &this_obj)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
     this_number_has_positive_symbol = this_obj.number[0] == '+' ? true : false;
 
-    // Remove number symbol
-    if (this_obj.number[0] == '-' || this_obj.number[0] == '+')
-    {
-        this_obj.float_point_index = this_obj.float_point_index > 0 ? this_obj.float_point_index - 1 : 0;
-        this_obj.number.erase(this_obj.number.begin());
-    }
+    // Remove number sign
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -1266,19 +1137,6 @@ JMP operator+(string &num2_str, JMP &this_obj)
     // Add float point symbol to the number who had float point
     if (this_obj.float_point_index != 0)
         this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
-
-    // Add number symbols to themselves
-    if (this_number_is_negative)
-    {
-        this_obj.number = '-' + this_obj.number;
-        this_obj.float_point_index++;
-    }
-
-    if (this_number_has_positive_symbol)
-    {
-        this_obj.number = '+' + this_obj.number;
-        this_obj.float_point_index++;
-    }
 
     return sum_obj;
 }
@@ -1301,12 +1159,7 @@ JMP operator+(const char* num_str, JMP &this_obj)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
     this_number_has_positive_symbol = this_obj.number[0] == '+' ? true : false;
 
-    // Remove number symbol
-    if (this_obj.number[0] == '-' || this_obj.number[0] == '+')
-    {
-        this_obj.float_point_index = this_obj.float_point_index > 0 ? this_obj.float_point_index - 1 : 0;
-        this_obj.number.erase(this_obj.number.begin());
-    }
+    // Remove number sign
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -1420,19 +1273,6 @@ JMP operator+(const char* num_str, JMP &this_obj)
     if (this_obj.float_point_index != 0)
         this_obj.number.insert(this_obj.number.begin() + this_obj.float_point_index, '.');
 
-    // Add number symbols to themselves
-    if (this_number_is_negative)
-    {
-        this_obj.number = '-' + this_obj.number;
-        this_obj.float_point_index++;
-    }
-
-    if (this_number_has_positive_symbol)
-    {
-        this_obj.number = '+' + this_obj.number;
-        this_obj.float_point_index++;
-    }
-
     return sum_obj;
 }
 
@@ -1454,11 +1294,6 @@ void JMP::operator+=(const long double &j)
     second_number_is_negative = num2_str[0] == '-' ? true : false;
 
     // Remove number symbol
-    if (has_negative_sign || has_positive_sign)
-    {
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        number.erase(number.begin());
-    }
     if (num2_str[0] == '-' || num2_str[0] == '+')
     {
         num2_float_point_index = num2_float_point_index > 0 ? num2_float_point_index - 1 : 0;
@@ -1533,18 +1368,5 @@ void JMP::operator+=(const long double &j)
                 break;
             }
         }
-    }
-
-    // Add number symbols to themselves
-    if (has_negative_sign)
-    {
-        number = '-' + number;
-        float_point_index++;
-    }
-
-    if (has_positive_sign)
-    {
-        number = '+' + number;
-        float_point_index++;
     }
 }
