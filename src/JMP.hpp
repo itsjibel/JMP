@@ -18,7 +18,7 @@ class JMP
         string number;
 
         /// Constructors
-        JMP() { number = "0"; }
+        JMP() : number("0") {}
         JMP (const string &num) { validation(num); }
         JMP (const char* num) { validation(num); }
         JMP (const JMP &j)
@@ -604,8 +604,7 @@ JMP JMP::operator+(const long double &j)
 
 JMP JMP::operator+(string &num2_str)
 {
-    JMP sum_obj = JMP("0");
-    double check;
+    JMP sum_obj("0");
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
     if (num2_float_point_index != 0)
@@ -749,8 +748,7 @@ JMP JMP::operator+(string &num2_str)
 
 JMP JMP::operator+(const char* num_str)
 {
-    JMP sum_obj = JMP("0");
-    double check;
+    JMP sum_obj("0");
     string num2_str(std::move(num_str));
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
@@ -879,7 +877,7 @@ JMP JMP::operator+(const char* num_str)
 
 JMP operator+(const long double &j, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0");
+    JMP sum_obj("0");
     double check;
 
     string num2_str = std::to_string(j);
@@ -1015,8 +1013,7 @@ JMP operator+(const long double &j, JMP &this_obj)
 
 JMP operator+(string &num2_str, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0");
-    double check;
+    JMP sum_obj("0");
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
     if (num2_float_point_index != 0)
@@ -1148,8 +1145,7 @@ JMP operator+(string &num2_str, JMP &this_obj)
 
 JMP operator+(const char* num_str, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0");
-    double check;
+    JMP sum_obj("0");
     string num2_str(num_str);
 
     int num2_float_point_index = num2_str.find('.') != -1 ? num2_str.find('.') : 0;
