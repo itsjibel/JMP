@@ -12,6 +12,7 @@ class JMP
         void validation (const string &num);
         bool which_is_bigger(const string &num1, const string &num2) const;
         void equalizing_figures(JMP &j);
+        void trim_the_number(JMP &j, bool bigger_number_is_negative);
 
         /// Arithmetic functions
         void summation (JMP &sum_obj, const string &num1, const string &num2,
@@ -406,7 +407,35 @@ void JMP::equalizing_figures(JMP &j)
     }
 }
 
+void JMP::trim_the_number(JMP &j, bool bigger_number_is_negative)
+{
+    while (j.number[0] == '0')
+    {
+        j.number.erase(j.number.begin());
+        if (j.float_point_index > 0)
+        {
+            j.float_point_index--;
+            if (j.float_point_index == 0)
+            {
+                j.float_point_index++;
+                j.number = "0" + j.number;
+                break;
+            }
+        }
+    }
 
+    // Remove the ending-unusable zeros
+    while (j.number[j.number.size() - 1] == '0' && j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.number.size() - 1);
+
+    if (j.number.empty())
+        j.number = "0";
+    else if (bigger_number_is_negative)
+        j.has_negative_sign = true;
+
+    if (j.float_point_index != 0 && j.float_point_index == j.number.size())
+        j.number.append("0");
+}
 
 JMP JMP::operator++(int)
 {
@@ -527,49 +556,12 @@ JMP JMP::operator+(JMP &j)
     // Get sum of the two filtered strings
     summation(sum_obj, number, j.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, j.has_negative_sign);
 
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-    {
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-    }
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
-
-    /// Back the numbers to default
-
-    // Removing the zeros that are added to add two decimal numbers
-    if (number.size() != temp_number_size)
-        number = number.substr(0, temp_number_size);
-    if (j.number.size() != temp_second_number_size)
-        j.number = j.number.substr(0, temp_second_number_size);
+    /* Trim the number means if we have a number such as '000012.32400' after the summation of two numbers, we trim the number to '12.324'
+     * (-999900 + 999912) = 000012  ---> 12
+     * (-0.2222 + 12.2222) = 12.0000 ---> 12
+     * (-9900.22 + 9912.22) = 0012.00 ---> 12
+     */
+    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
 
     return sum_obj;
 }
@@ -578,7 +570,6 @@ JMP JMP::operator+(const long double &j)
 {
     JMP sum_obj = JMP("0"), num2(std::to_string(j));
     int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-
     equalizing_figures(num2);
 
     // Check which number is bigger, and we equal the sum object number to the biggest number
@@ -604,42 +595,8 @@ JMP JMP::operator+(const long double &j)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
@@ -648,10 +605,8 @@ JMP JMP::operator+(string &num2_str)
 {
     JMP sum_obj = JMP("0"), num2(num2_str);
     int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-
     equalizing_figures(num2);
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2.number) == 0)
     {
@@ -674,42 +629,8 @@ JMP JMP::operator+(string &num2_str)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
@@ -718,10 +639,8 @@ JMP JMP::operator+(const char* num_str)
 {
     JMP sum_obj = JMP("0"), num2(num_str);
     int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-
     equalizing_figures(num2);
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, num2.number) == 0)
     {
@@ -744,42 +663,8 @@ JMP JMP::operator+(const char* num_str)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
@@ -796,10 +681,8 @@ JMP operator+(const long double &j, JMP &this_obj)
         num2.number.erase(num2.number.begin() + num2.float_point_index);
 
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-
     this_obj.equalizing_figures(num2);
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
     {
@@ -822,42 +705,8 @@ JMP operator+(const long double &j, JMP &this_obj)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
@@ -866,10 +715,8 @@ JMP operator+(string &num2_str, JMP &this_obj)
 {
     JMP sum_obj = JMP("0"), num2(num2_str);
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-
     this_obj.equalizing_figures(num2);
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
     {
@@ -892,42 +739,8 @@ JMP operator+(string &num2_str, JMP &this_obj)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
@@ -936,10 +749,8 @@ JMP operator+(const char* num2_str, JMP &this_obj)
 {
     JMP sum_obj = JMP("0"), num2(num2_str);
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-
     this_obj.equalizing_figures(num2);
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
     {
@@ -962,42 +773,8 @@ JMP operator+(const char* num2_str, JMP &this_obj)
         second_number_is_bigger = true;
     }
 
-    // Get sum of the two filtered strings
     this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-
-    // Remove the beginning-unusable zeros
-    while (sum_obj.number[0] == '0')
-    {
-        sum_obj.number.erase(sum_obj.number.begin());
-        if (sum_obj.float_point_index > 0)
-        {
-            sum_obj.float_point_index--;
-            if (sum_obj.float_point_index == 0)
-            {
-                sum_obj.float_point_index++;
-                sum_obj.number = "0" + sum_obj.number;
-                break;
-            }
-        }
-    }
-
-    // Remove the ending-unusable zeros
-    while (sum_obj.number[sum_obj.number.size() - 1] == '0' && sum_obj.float_point_index != 0)
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size() - 1);
-
-    if (sum_obj.number.empty())
-    {
-        sum_obj.number = "0";
-    } else {
-        if ((this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign))
-        {
-            sum_obj.float_point_index = sum_obj.float_point_index > 0 ? sum_obj.float_point_index + 1 : 0;
-            sum_obj.number.insert(sum_obj.number.begin(), '-');
-        }
-    }
-
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index == sum_obj.number.size())
-        sum_obj.number.append("0");
+    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
 
     return sum_obj;
 }
