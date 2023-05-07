@@ -1,16 +1,23 @@
 #include <string.h>
 #include <algorithm>
-#include <math.h>
+#include <complex>
+#include <memory>
 using std::string;
+using std::complex;
 
 class JMP
 {
     private:
+        typedef unsigned long long int ulli;
+        void validation (const string &num);
+        bool which_is_bigger(const string &num1, const string &num2) const;
+
+        /// Arithmetic functions
         void summation (JMP &sum_obj, const string &num1, const string &num2,
                         bool &first_number_is_bigger, bool &second_number_is_bigger,
                         bool &first_number_has_negative_sign, bool &second_number_has_negative_sign);
-        void validation (const string &num);
-        bool which_is_bigger(const string &num1, const string &num2) const;
+        void FFT (complex<double>* a, ulli n, bool invert);
+        string multiply(const string& num1, const string& num2);
 
     public:
         bool has_negative_sign = false, has_positive_sign = false;
@@ -121,6 +128,7 @@ class JMP
         JMP operator++(int);
         JMP operator--(int);
         JMP operator+(JMP &j);
+        JMP operator*(JMP &j);
         JMP operator+(const long double &j);
         JMP operator+(string &num2_str);
         JMP operator+(const char* num2_str);
@@ -130,77 +138,90 @@ class JMP
         void operator+=(const long double &j);
 };
 
-
-
-
-
-void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
-                        bool &first_number_is_bigger, bool &second_number_is_bigger,
-                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign)
+void JMP::FFT(complex<double>* a, unsigned long long int n, bool invert)
 {
-    // Now we ready to add two numbers together
-    if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    // Bit-reversal permutation
+    for (unsigned long long int i = 1, j = 0; i < n; ++i)
     {
-        int difference_of_two_numbers = num1.size() - num2.size();
-        for (int i=num1.size() - 1; i>=0; i--)
+        unsigned long long int bit = n >> 1;
+        while (j >= bit)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj.number[i] > '9')
-            {
-                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj.number[i] > '9') {
-                sum_obj.number = '1' + sum_obj.number;
-                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
+            j -= bit;
+            bit >>= 1;
         }
-    } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num2.size() - num1.size();
-        for (int i=num2.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
+        j += bit;
+        if (i < j)
+            swap(a[i], a[j]);
+    }
 
-            if (i != 0 && sum_obj.number[i] > '9')
-            {
-                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj.number[i] > '9') {
-                sum_obj.number = '1' + sum_obj.number;
-                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
-            }
-        }
-    } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num1.size() - num2.size();
-        for (int i=num1.size() - 1; i>=0; i--)
+    // Cooley-Tukey FFT algorithm
+    for (unsigned long long int len = 2; len <= n; len <<= 1)
+    {
+        double angle = 2 * M_PI / len * (invert ? -1 : 1);
+        complex<double> wlen(cos(angle), sin(angle));
+        for (unsigned long long int i = 0; i < n; i += len)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj.number[i] < '0')
+            complex<double> w(1);
+            for (unsigned long long int j = 0; j < len / 2; ++j)
             {
-                sum_obj.number[i] += 10;
-                sum_obj.number[i - 1]--;
-            }
-        }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num2.size() - num1.size();
-        for (int i=num2.size() - 1; i>=0; i--)
-        {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
-
-            if (sum_obj.number[i] < '0')
-            {
-                sum_obj.number[i] += 10;
-                sum_obj.number[i - 1]--;
+                // Butterfly operation
+                complex<double> u = a[i + j], v = a[i + j + len / 2] * w;
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+                w *= wlen;
             }
         }
     }
+
+    // Invert the FFT if specified
+    if (invert)
+        for (unsigned long long int i = 0; i < n; ++i)
+            a[i] /= n;  // Normalize the result by dividing each element by 'n'
 }
+
+string JMP::multiply(const string& num1, const string& num2)
+{
+    unsigned long long int n = 1;
+    while (n < num1.size() + num2.size())
+        n <<= 1;  // Find the smallest power of 2 that can hold the result of multiplication
+
+    auto a = std::make_unique<complex<double>[]>(n);  // Complex array for the first number
+    auto b = std::make_unique<complex<double>[]>(n);  // Complex array for the second number
+
+    // Convert the numbers to complex representation
+    for (unsigned long long int i = 0; i < num1.size(); ++i)
+        a[i] = num1[num1.size() - i - 1] - '0';  // Reverse the order and subtract ASCII offset to get the digit value
+    for (unsigned long long int i = 0; i < num2.size(); ++i)
+        b[i] = num2[num2.size() - i - 1] - '0';
+
+    // Perform FFT on the complex arrays
+    FFT(a.get(), n, false);  // Perform forward FFT on the first number
+    FFT(b.get(), n, false);  // Perform forward FFT on the second number
+
+    // Multiply the complex arrays element-wise
+    for (unsigned long long int i = 0; i < n; ++i)
+        a[i] *= b[i];
+
+    // Perform inverse FFT
+    FFT(a.get(), n, true);  // Perform inverse FFT on the multiplied result
+
+    unsigned long long int carry = 0;
+    string product;
+    for (unsigned long long int i = 0; i < n; ++i) {
+        // Retrieve the real part of each element and perform carry operation
+        unsigned long long int digit = static_cast<unsigned long long int>(round(a[i].real())) + carry;
+        product += '0' + (digit % 10);  // Convert the digit to ASCII character
+        carry = digit / 10;
+    }
+    // Remove leading zeros from the product
+    while (product.size() > 1 && product.back() == '0')
+        product.pop_back();
+
+    reverse(product.begin(), product.end());  // Reverse the product to correct the order
+    return product;
+}
+
+
 
 void JMP::validation (const string &num)
 {
@@ -292,6 +313,77 @@ bool JMP::which_is_bigger(const string &num1, const string &num2) const
     }
     return 0;
 }
+
+void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
+                        bool &first_number_is_bigger, bool &second_number_is_bigger,
+                        bool &first_number_has_negative_sign, bool &second_number_has_negative_sign)
+{
+    // Now we ready to add two numbers together
+    if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    {
+        int difference_of_two_numbers = num1.size() - num2.size();
+        for (int i=num1.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
+            if (i != 0 && sum_obj.number[i] > '9')
+            {
+                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj.number[i] > '9') {
+                sum_obj.number = '1' + sum_obj.number;
+                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num2.size() - num1.size();
+        for (int i=num2.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
+
+            if (i != 0 && sum_obj.number[i] > '9')
+            {
+                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
+                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+            } else if (i == 0 && sum_obj.number[i] > '9') {
+                sum_obj.number = '1' + sum_obj.number;
+                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+            }
+        }
+    } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num1.size() - num2.size();
+        for (int i=num1.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj.number[i] < '0')
+            {
+                sum_obj.number[i] += 10;
+                sum_obj.number[i - 1]--;
+            }
+        }
+    } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
+        int difference_of_two_numbers = num2.size() - num1.size();
+        for (int i=num2.size() - 1; i>=0; i--)
+        {
+            if (i >= difference_of_two_numbers)
+                sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
+
+            if (sum_obj.number[i] < '0')
+            {
+                sum_obj.number[i] += 10;
+                sum_obj.number[i - 1]--;
+            }
+        }
+    }
+}
+
+
+
 
 JMP JMP::operator++(int)
 {
