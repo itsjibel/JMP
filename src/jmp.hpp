@@ -48,11 +48,9 @@ class jmp
         virtual ~jmp() {}
 
         /// Stream operators
-        friend std::ostream &operator<<(std::ostream &o, jmp j)
+        friend std::ostream &operator<<(std::ostream &o, const jmp &j)
         {
             o<<(j.has_negative_sign ? '-' : j.has_positive_sign ? '+' : '\0');
-            if (j.float_point_index != 0)
-                j.number.insert(j.number.begin() + j.float_point_index, '.');
             o<<j.number;
             return o;
         }
@@ -75,26 +73,17 @@ class jmp
 
         long long int to_int()
         {
-            string copy_of_number = number;
-            if (float_point_index != 0)
-                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
-            return atoi(std::move(copy_of_number.c_str()));
+            return atoi(std::move(number.c_str()));
         }
 
         long double to_double()
         {
-            string copy_of_number = number;
-            if (float_point_index != 0)
-                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
-            return std::stod(copy_of_number);
+            return std::stod(number);
         }
 
         string to_string()
         {
-            string copy_of_number = number;
-            if (float_point_index != 0)
-                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
-            return copy_of_number;
+            return number;
         }
 
         void internal_conversion_to_int()
@@ -162,15 +151,27 @@ class jmp
         jmp operator+(const long double &j);
         jmp operator*(const long double &j);
         jmp operator+(string &num2_str);
+        jmp operator*(string &num2_str);
         jmp operator+(const char* num2_str);
+        jmp operator*(const char* num2_str);
         friend jmp operator+(const long double &j, jmp &this_obj);
+        friend jmp operator*(const long double &j, jmp &this_obj);
         friend jmp operator+(string &num2_str, jmp &this_obj);
+        friend jmp operator*(string &num2_str, jmp &this_obj);
         friend jmp operator+(const char* num2_str, jmp &this_obj);
+        friend jmp operator*(const char* num2_str, jmp &this_obj);
         void operator+=(const long double &j);
+        void operator*=(const long double &j);
         void operator+=(string &num2_str);
+        void operator*=(string &num2_str);
+        void operator+=(jmp &num2_str);
+        void operator*=(jmp &num2_str);
         void operator+=(const char* num2_str);
+        void operator*=(const char* num2_str);
         friend void operator+=(long double &j, jmp &this_obj);
+        friend void operator*=(long double &j, jmp &this_obj);
         friend void operator+=(string &num2_str, jmp &this_obj);
+        friend void operator*=(string &num2_str, jmp &this_obj);
 };
 
 void jmp::FFT(std::complex<double>* a, ulli n, bool invert)
@@ -314,12 +315,8 @@ void jmp::validation (const string &num)
     number = valid ? number : "0";
 
     // Set the number sing
-    if (valid)
-    {
-        // We need to remove the float sign from the number so that we don't have a problem finding a specific index
-        if (float_point_index != 0)
-            number.erase(number.begin() + float_point_index);
-    } else has_negative_sign = has_positive_sign = false;
+    if (valid == false)
+        has_negative_sign = has_positive_sign = false;
 }
 
 bool jmp::which_is_bigger(const string &num1, const string &num2) const
@@ -444,7 +441,7 @@ void jmp::equalizing_figures(jmp &j)
 
 void jmp::trim_the_number(jmp &j, bool bigger_number_is_negative)
 {
-    while (j.number[0] == '0' && j.float_point_index != 2)
+    while (j.number[0] == '0' && j.float_point_index != 1)
     {
         j.number.erase(j.number.begin());
         if (j.float_point_index > 0)
@@ -474,6 +471,11 @@ void jmp::trim_the_number(jmp &j, bool bigger_number_is_negative)
 
 jmp jmp::operator+(jmp &j)
 {
+    if (j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.float_point_index);
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+
     jmp sum_obj("0");
     int temp_number_size = number.size(), temp_second_number_size = j.number.size();
     equalizing_figures(j);
@@ -511,12 +513,23 @@ jmp jmp::operator+(jmp &j)
      * (-9900.22 + 9912.22) = 0012.00 ---> 12
      */
     trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
+    if (float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (j.float_point_index != 0)
+        j.number.insert(j.number.begin() + j.float_point_index, '.');
+    if (sum_obj.float_point_index != 0)
+        sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
 
     return sum_obj;
 }
 
 jmp jmp::operator*(jmp &j)
 {
+    if (j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.float_point_index);
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+
     jmp sum_obj("0");
     sum_obj.number = multiply(number, j.number);
     bool this_number_is_bigger = false, second_number_is_bigger = false;
@@ -533,7 +546,17 @@ jmp jmp::operator*(jmp &j)
         sum_obj.number = "0" + sum_obj.number;
     sum_obj.float_point_index = sum_obj.number.size() - sum_of_decimals_of_two_numbers;
 
-    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
+    if ((has_negative_sign == true && j.has_negative_sign == false) ||
+        (has_negative_sign == false && j.has_negative_sign == true))
+        sum_obj.has_negative_sign = true;
+
+    if (float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (j.float_point_index != 0)
+        j.number.insert(j.number.begin() + j.float_point_index, '.');
+    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index != sum_obj.number.size())
+        sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
+
     return sum_obj;
 }
 
@@ -579,10 +602,22 @@ jmp jmp::operator+(string &num2_str)
     return *this + num2;
 }
 
+jmp jmp::operator*(string &num2_str)
+{
+    jmp num2(num2_str);
+    return *this * num2;
+}
+
 jmp jmp::operator+(const char* num_str)
 {
     jmp num2(num_str);
     return *this + num2;
+}
+
+jmp jmp::operator*(const char* num_str)
+{
+    jmp num2(num_str);
+    return *this * num2;
 }
 
 jmp operator+(const long double &j, jmp &this_obj)
@@ -591,10 +626,22 @@ jmp operator+(const long double &j, jmp &this_obj)
     return this_obj + num2;
 }
 
+jmp operator*(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return this_obj * num2;
+}
+
 jmp operator+(string &num2_str, jmp &this_obj)
 {
     jmp num2(num2_str);
     return this_obj + num2;
+}
+
+jmp operator*(string &num2_str, jmp &this_obj)
+{
+    jmp num2(num2_str);
+    return this_obj * num2;
 }
 
 jmp operator+(const char* num2_str, jmp &this_obj)
@@ -603,9 +650,20 @@ jmp operator+(const char* num2_str, jmp &this_obj)
     return this_obj + num2;
 }
 
+jmp operator*(const char* num2_str, jmp &this_obj)
+{
+    jmp num2(num2_str);
+    return this_obj * num2;
+}
+
 void jmp::operator+=(const long double &j)
 {
     *this = *this + j;
+}
+
+void jmp::operator*=(const long double &j)
+{
+    *this = *this * j;
 }
 
 void jmp::operator+=(string &num2_str)
@@ -613,9 +671,29 @@ void jmp::operator+=(string &num2_str)
     *this = *this + num2_str;
 }
 
+void jmp::operator*=(string &num2_str)
+{
+    *this = *this * num2_str;
+}
+
+void jmp::operator+=(jmp &num2_str)
+{
+    *this = *this + num2_str;
+}
+
+void jmp::operator*=(jmp &num2_str)
+{
+    *this = *this * num2_str;
+}
+
 void jmp::operator+=(const char* num2_str)
 {
     *this = *this + num2_str;
+}
+
+void jmp::operator*=(const char* num2_str)
+{
+    *this = *this * num2_str;
 }
 
 void operator+=(long double &j, jmp &this_obj)
@@ -623,7 +701,17 @@ void operator+=(long double &j, jmp &this_obj)
     j = (j + this_obj).to_double();
 }
 
+void operator*=(long double &j, jmp &this_obj)
+{
+    j = (j * this_obj).to_double();
+}
+
 void operator+=(string &j, jmp &this_obj)
 {
     j = (j + this_obj).to_string();
+}
+
+void operator*=(string &j, jmp &this_obj)
+{
+    j = (j * this_obj).to_string();
 }

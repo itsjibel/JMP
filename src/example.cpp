@@ -117,8 +117,10 @@ int main()
     cout<<mul1 * mul2<<endl;
 
     // Multiply jmp number with double
-    mul1 = "12";
-    cout<<mul1 * 0.0001<<endl;
+    cout<<mul1 * -10000<<endl;
+    cout<<0.0001 * mul1<<endl;
+    mul1 *= "-9999443453452459534.3516515";
+    cout<<mul1<<endl;
 
     return 0;
 }
