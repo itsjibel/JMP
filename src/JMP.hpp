@@ -5,6 +5,13 @@
 using std::string;
 using std::complex;
 
+string double_to_string(const long double &num)
+{
+    std::ostringstream strs;
+    strs<<num;
+    return strs.str();
+}
+
 class JMP
 {
     private:
@@ -15,10 +22,10 @@ class JMP
         void trim_the_number(JMP &j, bool bigger_number_is_negative);
 
         /// Arithmetic functions
+        void FFT (complex<double>* a, ulli n, bool invert);
         void summation (JMP &sum_obj, const string &num1, const string &num2,
                         bool &first_number_is_bigger, bool &second_number_is_bigger,
                         bool &first_number_has_negative_sign, bool &second_number_has_negative_sign);
-        void FFT (complex<double>* a, ulli n, bool invert);
         string multiply(const string& num1, const string& num2);
 
     public:
@@ -30,7 +37,11 @@ class JMP
         JMP() : number("0") {}
         JMP (const string &num) { validation(num); }
         JMP (const char* num) { validation(num); }
-        JMP (const long double &num) { validation(std::to_string(num)); }
+        JMP (const double &num) { validation(double_to_string(num)); }
+        JMP (const long double &num) { validation(double_to_string(num)); }
+        JMP (const int &num) { validation(double_to_string(num)); }
+        JMP (const long int &num) { validation(double_to_string(num)); }
+        JMP (const long long int &num) { validation(double_to_string(num)); }
         JMP (const JMP &j)
         {
             number = j.number;
@@ -47,6 +58,8 @@ class JMP
             if (j.float_point_index != 0)
                 j.number.insert(j.number.begin() + j.float_point_index, '.');
             o<<j.number;
+            if (j.float_point_index != 0)
+                j.number.erase(j.number.begin() + j.float_point_index);
             return o;
         }
 
@@ -85,17 +98,31 @@ class JMP
         /// Optional functions
         long long int to_int()
         {
-            return atoi(number.c_str());
+            string copy_of_number = number;
+            if (float_point_index != 0)
+                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
+            return atoi(std::move(copy_of_number.c_str()));
         }
 
         long double to_double()
         {
-            return std::stod(number);
+            string copy_of_number = number;
+            if (float_point_index != 0)
+                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
+            return std::stod(copy_of_number);
+        }
+
+        string to_string()
+        {
+            string copy_of_number = number;
+            if (float_point_index != 0)
+                copy_of_number.insert(copy_of_number.begin() + float_point_index, '.');
+            return copy_of_number;
         }
 
         void internal_conversion_to_int()
         {
-            number = number.substr(0, number.find('.'));
+            number = number.substr(0, float_point_index);
             float_point_index = 0;
         }
 
@@ -135,6 +162,8 @@ class JMP
         void operator+=(const long double &j);
         void operator+=(string &num2_str);
         void operator+=(const char* num2_str);
+        friend void operator+=(long double &j, JMP &this_obj);
+        friend void operator+=(string &num2_str, JMP &this_obj);
 };
 
 void JMP::FFT(complex<double>* a, ulli n, bool invert)
@@ -332,7 +361,7 @@ void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
             } else if (i == 0 && sum_obj.number[i] > '9') {
                 sum_obj.number = '1' + sum_obj.number;
                 sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
             }
         }
     } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
@@ -349,7 +378,7 @@ void JMP::summation (JMP &sum_obj, const string &num1, const string &num2,
             } else if (i == 0 && sum_obj.number[i] > '9') {
                 sum_obj.number = '1' + sum_obj.number;
                 sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = float_point_index != 0 ? float_point_index + 1 : 0;
+                sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
             }
         }
     } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
@@ -568,7 +597,7 @@ JMP JMP::operator+(JMP &j)
 
 JMP JMP::operator+(const long double &j)
 {
-    JMP sum_obj = JMP("0"), num2(std::to_string(j));
+    JMP sum_obj = JMP("0"), num2(double_to_string(j));
     int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
     equalizing_figures(num2);
 
@@ -671,14 +700,13 @@ JMP JMP::operator+(const char* num_str)
 
 JMP operator+(const long double &j, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0"), num2(std::to_string(j));
+    JMP sum_obj = JMP(0), num2(double_to_string(j));
     double check;
     if (modf(j, &check) == 0.0)
     {
-        num2.number = num2.number.substr(0, num2.float_point_index);
+        num2.number = num2.number.substr(0, num2.float_point_index);    
         num2.float_point_index = 0;
-    } else
-        num2.number.erase(num2.number.begin() + num2.float_point_index);
+    }
 
     int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
     this_obj.equalizing_figures(num2);
@@ -792,4 +820,14 @@ void JMP::operator+=(string &num2_str)
 void JMP::operator+=(const char* num2_str)
 {
     *this = *this + num2_str;
+}
+
+void operator+=(long double &j, JMP &this_obj)
+{
+    j = (j + this_obj).to_double();
+}
+
+void operator+=(string &j, JMP &this_obj)
+{
+    j = (j + this_obj).to_string();
 }
