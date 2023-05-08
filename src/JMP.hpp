@@ -595,6 +595,28 @@ JMP JMP::operator+(JMP &j)
     return sum_obj;
 }
 
+JMP JMP::operator*(JMP &j)
+{
+    JMP sum_obj("0");
+    equalizing_figures(j);
+    sum_obj.number = multiply(number, j.number);
+
+    bool this_number_is_bigger = false, second_number_is_bigger = false;
+
+    if (which_is_bigger(number, j.number) == 0)
+        this_number_is_bigger = true;
+    else
+        second_number_is_bigger = true;
+
+    unsigned long long int sum_of_decimals_of_two_numbers =
+        (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
+        (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
+
+    sum_obj.float_point_index = sum_obj.number.size() - sum_of_decimals_of_two_numbers;
+    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
+    return sum_obj;
+}
+
 JMP JMP::operator+(const long double &j)
 {
     JMP sum_obj = JMP("0"), num2(double_to_string(j));

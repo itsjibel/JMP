@@ -93,11 +93,11 @@ int main()
     cout<<(c.is_empty() ? "Yes\n" : "No\n");
 
     // Sumition this time the first number is an double
-    c = "123221398173981738917382130812931037999";
+    c = "123221398173981738917382130812931037999.5699511455515322";
     cout<<465512 + c<<endl;
 
     // += the JMP object value with an integer number
-    c += 120.1;
+    c += 120.454;
     cout<<c<<endl;
 
     // Add string to JMP object
@@ -110,5 +110,8 @@ int main()
     cout<<c + "-120"<<endl;
     cout<<"-120" + c<<endl;
 
+    // Multiply two JMP numbers4
+    JMP mul1 = "195164524524524515.65156", mul2 = "9999443453452459534.3516515";
+    cout<<mul1 * mul2<<endl;
     return 0;
 }
