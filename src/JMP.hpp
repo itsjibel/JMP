@@ -1,9 +1,8 @@
-#include <string.h>
 #include <algorithm>
 #include <complex>
 #include <memory>
+#include <string.h>
 using std::string;
-using std::complex;
 
 string double_to_string(const long double &num)
 {
@@ -22,7 +21,7 @@ class JMP
         void trim_the_number(JMP &j, bool bigger_number_is_negative);
 
         /// Arithmetic functions
-        void FFT (complex<double>* a, ulli n, bool invert);
+        void FFT (std::complex<double>* a, ulli n, bool invert);
         void summation (JMP &sum_obj, const string &num1, const string &num2,
                         bool &first_number_is_bigger, bool &second_number_is_bigger,
                         bool &first_number_has_negative_sign, bool &second_number_has_negative_sign);
@@ -37,11 +36,8 @@ class JMP
         JMP() : number("0") {}
         JMP (const string &num) { validation(num); }
         JMP (const char* num) { validation(num); }
-        JMP (const double &num) { validation(double_to_string(num)); }
-        JMP (const long double &num) { validation(double_to_string(num)); }
-        JMP (const int &num) { validation(double_to_string(num)); }
-        JMP (const long int &num) { validation(double_to_string(num)); }
-        JMP (const long long int &num) { validation(double_to_string(num)); }
+        template <class T>
+        JMP (T num) { validation(double_to_string(num)); }
         JMP (const JMP &j)
         {
             number = j.number;
@@ -58,8 +54,6 @@ class JMP
             if (j.float_point_index != 0)
                 j.number.insert(j.number.begin() + j.float_point_index, '.');
             o<<j.number;
-            if (j.float_point_index != 0)
-                j.number.erase(j.number.begin() + j.float_point_index);
             return o;
         }
 
@@ -70,6 +64,7 @@ class JMP
             return (i);
         }
 
+        /// Optional functions
         void clear()
         {
             number.clear();
@@ -78,24 +73,6 @@ class JMP
             float_point_index = 0;
         }
 
-        /// Assignment operator
-        JMP &operator=(const string &num)
-        {
-            clear();
-            // Check the validity of the number, if the number is invalid, so equal it to zero
-            validation(num);
-            return *this;
-        }
-
-        JMP &operator=(const char* num)
-        {
-            clear();
-            // Check the validity of the number, if the number is invalid, so equal it to zero
-            validation(num);
-            return *this;
-        }
-
-        /// Optional functions
         long long int to_int()
         {
             string copy_of_number = number;
@@ -158,6 +135,23 @@ class JMP
             return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2;
         }
 
+        /// Assignment operator
+        JMP &operator=(const string &num)
+        {
+            clear();
+            // Check the validity of the number, if the number is invalid, so equal it to zero
+            validation(num);
+            return *this;
+        }
+
+        JMP &operator=(const char* num)
+        {
+            clear();
+            // Check the validity of the number, if the number is invalid, so equal it to zero
+            validation(num);
+            return *this;
+        }
+
         /// Shortcut operators
         JMP operator++(int);
         JMP operator--(int);
@@ -176,7 +170,7 @@ class JMP
         friend void operator+=(string &num2_str, JMP &this_obj);
 };
 
-void JMP::FFT(complex<double>* a, ulli n, bool invert)
+void JMP::FFT(std::complex<double>* a, ulli n, bool invert)
 {
     // Bit-reversal permutation
     for (ulli i = 1, j = 0; i < n; ++i)
@@ -196,14 +190,14 @@ void JMP::FFT(complex<double>* a, ulli n, bool invert)
     for (ulli len = 2; len <= n; len <<= 1)
     {
         double angle = 2 * M_PI / len * (invert ? -1 : 1);
-        complex<double> wlen(cos(angle), sin(angle));
+        std::complex<double> wlen(cos(angle), sin(angle));
         for (ulli i = 0; i < n; i += len)
         {
-            complex<double> w(1);
+            std::complex<double> w(1);
             for (ulli j = 0; j < len / 2; ++j)
             {
                 // Butterfly operation
-                complex<double> u = a[i + j], v = a[i + j + len / 2] * w;
+                std::complex<double> u = a[i + j], v = a[i + j + len / 2] * w;
                 a[i + j] = u + v;
                 a[i + j + len / 2] = u - v;
                 w *= wlen;
@@ -223,8 +217,8 @@ string JMP::multiply(const string& num1, const string& num2)
     while (n < num1.size() + num2.size())
         n <<= 1;  // Find the smallest power of 2 that can hold the result of multiplication
 
-    auto a = std::make_unique<complex<double>[]>(n);  // Complex array for the first number
-    auto b = std::make_unique<complex<double>[]>(n);  // Complex array for the second number
+    auto a = std::make_unique<std::complex<double>[]>(n);  // Complex array for the first number
+    auto b = std::make_unique<std::complex<double>[]>(n);  // Complex array for the second number
 
     // Convert the numbers to complex representation
     for (ulli i = 0; i < num1.size(); ++i)
@@ -618,7 +612,7 @@ JMP JMP::operator*(JMP &j)
     else
         second_number_is_bigger = true;
 
-    ulli sum_of_decimals_of_two_numbers =
+    unsigned long long int sum_of_decimals_of_two_numbers =
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
         (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
 
