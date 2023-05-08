@@ -126,5 +126,18 @@ int main()
     jmp sub1 = "-1234", sub2 = "-1235";
     cout<<sub2 - sub1<<endl;
 
+    // Conditional checking
+    jmp cond1 = "-1013.65";
+    if (cond1 == -1013.65 && -1013.65 == cond1)
+        cout<<"Yes\n";
+
+    jmp cond2 = "-1013.65";
+    if (cond1 == cond2)
+        cout<<"Yes\n";
+
+    cond2--;
+    if (cond2 < cond1)
+        cout<<"Yes cond2 < cond1, "<<cond2<<" < "<<cond1<<endl;
+
     return 0;
 }

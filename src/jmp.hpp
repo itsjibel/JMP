@@ -141,50 +141,69 @@ class jmp
             return *this;
         }
 
-        /// Shortcut operators
+        /// Arithmetic operators
         jmp operator+(jmp &j);
-        jmp operator*(jmp &j);
-        jmp operator-(jmp &j);
-        jmp operator++();
-        jmp operator--();
-        jmp operator++(int);
-        jmp operator--(int);
         jmp operator+(const long double &j);
-        jmp operator*(const long double &j);
-        jmp operator-(const long double &j);
         jmp operator+(string &num2_str);
-        jmp operator*(string &num2_str);
-        jmp operator-(string &num2_str);
         jmp operator+(const char* num2_str);
-        jmp operator*(const char* num2_str);
-        jmp operator-(const char* num2_str);
         friend jmp operator+(const long double &j, jmp &this_obj);
-        friend jmp operator*(const long double &j, jmp &this_obj);
-        friend jmp operator-(const long double &j, jmp &this_obj);
         friend jmp operator+(string &num2_str, jmp &this_obj);
-        friend jmp operator*(string &num2_str, jmp &this_obj);
-        friend jmp operator-(string &num2_str, jmp &this_obj);
         friend jmp operator+(const char* num2_str, jmp &this_obj);
-        friend jmp operator*(const char* num2_str, jmp &this_obj);
-        friend jmp operator-(const char* num2_str, jmp &this_obj);
-        void operator+=(const long double &j);
-        void operator*=(const long double &j);
-        void operator-=(const long double &j);
-        void operator+=(string &num2_str);
-        void operator*=(string &num2_str);
-        void operator-=(string &num2_str);
         void operator+=(jmp &num2_str);
-        void operator*=(jmp &num2_str);
-        void operator-=(jmp &num2_str);
+        void operator+=(const long double &j);
+        void operator+=(string &num2_str);
         void operator+=(const char* num2_str);
-        void operator*=(const char* num2_str);
-        void operator-=(const char* num2_str);
         friend void operator+=(long double &j, jmp &this_obj);
-        friend void operator*=(long double &j, jmp &this_obj);
-        friend void operator-=(long double &j, jmp &this_obj);
         friend void operator+=(string &num2_str, jmp &this_obj);
-        friend void operator*=(string &num2_str, jmp &this_obj);
+        jmp operator++();
+        jmp operator++(int);
+
+        jmp operator-(jmp &j);
+        jmp operator-(const long double &j);
+        jmp operator-(string &num2_str);
+        jmp operator-(const char* num2_str);
+        friend jmp operator-(const long double &j, jmp &this_obj);
+        friend jmp operator-(string &num2_str, jmp &this_obj);
+        friend jmp operator-(const char* num2_str, jmp &this_obj);
+        void operator-=(const long double &j);
+        void operator-=(string &num2_str);
+        void operator-=(jmp &num2_str);
+        void operator-=(const char* num2_str);
+        friend void operator-=(long double &j, jmp &this_obj);
         friend void operator-=(string &num2_str, jmp &this_obj);
+        jmp operator--(int);
+        jmp operator--();
+
+        jmp operator*(jmp &j);
+        jmp operator*(const long double &j);
+        jmp operator*(string &num2_str);
+        jmp operator*(const char* num2_str);
+        friend jmp operator*(const long double &j, jmp &this_obj);
+        friend jmp operator*(string &num2_str, jmp &this_obj);
+        friend jmp operator*(const char* num2_str, jmp &this_obj);
+        void operator*=(const long double &j);
+        void operator*=(string &num2_str);
+        void operator*=(jmp &num2_str);
+        void operator*=(const char* num2_str);
+        friend void operator*=(long double &j, jmp &this_obj);
+        friend void operator*=(string &num2_str, jmp &this_obj);
+
+        /// Conditional operators
+        bool operator==(jmp &j);
+        bool operator==(const long double &j);
+        bool operator==(string &j);
+        bool operator==(const char* j);
+        friend bool operator==(const long double &j, jmp &this_obj);
+        friend bool operator==(string &j, jmp &this_obj);
+        friend bool operator==(const char* j, jmp &this_obj);
+
+        bool operator<(jmp &j);
+        bool operator<(const long double &j);
+        bool operator<(string &j);
+        bool operator<(const char* j);
+        friend bool operator<(const long double &j, jmp &this_obj);
+        friend bool operator<(string &j, jmp &this_obj);
+        friend bool operator<(const char* j, jmp &this_obj);
 };
 
 void jmp::FFT(std::complex<double>* a, ulli n, bool invert)
@@ -582,6 +601,10 @@ jmp jmp::operator*(jmp &j)
     if (sum_obj.float_point_index != 0 && sum_obj.float_point_index != sum_obj.number.size())
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
 
+    while (sum_obj.float_point_index != 0 && sum_obj.float_point_index <= sum_obj.number.size() &&
+        sum_obj.number[sum_obj.number.size() - 1] == '0')
+        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size()  - 1);
+
     return sum_obj;
 }
 
@@ -811,4 +834,137 @@ void operator*=(string &j, jmp &this_obj)
 void operator-=(string &j, jmp &this_obj)
 {
     j = (j - this_obj).to_string();
+}
+
+bool jmp::operator==(jmp &j)
+{
+    if ((has_negative_sign ? "-" : "") + number == (j.has_negative_sign ? "-" : "") + j.number)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator==(const long double &j)
+{
+    jmp num2(j);
+    if (*this == num2)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator==(string &j)
+{
+    jmp num2(j);
+    if (*this == num2)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator==(const char* j)
+{
+    jmp num2(j);
+    if (*this == num2)
+        return true;
+    else
+        return false;
+}
+
+bool operator==(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (this_obj == num2)
+        return true;
+    else
+        return false;
+}
+
+bool operator==(string &j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (this_obj == num2)
+        return true;
+    else
+        return false;
+}
+
+bool operator==(const char* j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (this_obj == num2)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator<(jmp &j)
+{
+    if (has_negative_sign && j.has_negative_sign == false)
+        return true;
+    else if (has_negative_sign == false && j.has_negative_sign)
+        return false;
+
+    bool which_number_is_bigger = which_is_bigger(number, j.number);
+    if (which_number_is_bigger == 1 && j.has_negative_sign)
+        return false;
+    else if (which_number_is_bigger == 0 && has_negative_sign == true)
+        return true;
+    else if (which_number_is_bigger == 1 && j.has_negative_sign == false)
+        return true;
+    return false;
+}
+
+bool jmp::operator<(const long double &j)
+{
+    jmp num2(j);
+    if (*this < num2)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator<(string &j)
+{
+    jmp num2(j);
+    if (*this < num2)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator<(const char* j)
+{
+    jmp num2(j);
+    if (*this < num2)
+        return true;
+    else
+        return false;
+}
+
+bool operator<(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (num2 < this_obj)
+        return true;
+    else
+        return false;
+}
+
+bool operator<(string &j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (num2 < this_obj)
+        return true;
+    else
+        return false;
+}
+
+bool operator<(const char* j, jmp &this_obj)
+{
+    jmp num2(j);
+    if (num2 < this_obj)
+        return true;
+    else
+        return false;
 }
