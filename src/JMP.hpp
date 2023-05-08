@@ -153,11 +153,14 @@ class JMP
         }
 
         /// Shortcut operators
+        JMP operator+(JMP &j);
+        JMP operator++();
+        JMP operator--();
         JMP operator++(int);
         JMP operator--(int);
-        JMP operator+(JMP &j);
         JMP operator*(JMP &j);
         JMP operator+(const long double &j);
+        JMP operator*(const long double &j);
         JMP operator+(string &num2_str);
         JMP operator+(const char* num2_str);
         friend JMP operator+(const long double &j, JMP &this_obj);
@@ -257,26 +260,39 @@ string JMP::multiply(const string& num1, const string& num2)
 
 void JMP::validation (const string &num)
 {
+    number = num;
+
     // If number is empty so is not valid
-    if (num.empty())
+    if (number.empty())
     {
         number = "0";
         return;
     }
 
+    if (number[0] == '-')
+    {
+        number.erase(number.begin());
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        has_negative_sign = true;
+    } else if (number[0] == '+') {
+        number.erase(number.begin());
+        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
+        has_positive_sign = true;
+    }
+
     bool valid = true;
     int number_of_dots = 0;
-    for (int i=1; i<num.length(); i++)
+    for (int i=0; i<number.length(); i++)
     {
         // If the number character is not in the range 0-9 and the number character is not '.'-
         // then this character is invalid
-        if ((num[i] < '0' || num[i] > '9') && num[i] != '.')
+        if ((number[i] < '0' || number[i] > '9') && number[i] != '.')
             valid = false;
         
         // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
         // the number characters, then update the float_point_index to know-
         // where is the point index in the number
-        if (num[i] == '.')
+        if (number[i] == '.')
         {
             number_of_dots++;
             float_point_index = i;
@@ -284,40 +300,26 @@ void JMP::validation (const string &num)
     }
 
     // "If conditions" for falsing the validity of the number string
-    if ((num[0]  < '0' ||  num[0]  > '9') && (num[0] != '-' && num[0] != '+')  ||
-            (num[0] == '0' && !(num[1] == '.' && (num[2] >= '0' && num[2] <= '9'))) ||
-            (num[1] == '0'  && (num[0] == '-' || num[0] == '+')) ||
-        (num.back() == '.' || number_of_dots > 1))
+    if ((number[0] == '0' && number[1] != '.') ||
+        (number.back() == '.' || number_of_dots > 1))
         valid = false;
     
     // "If conditions" for truing the validity of the number string
-    valid = num == "0" || num == "+0" || num == "-0" ? true : valid;
+    valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
 
     // We set the float_point_index to zero when the number is invalid.
     // Because if the next value is an integer number, and we have a specific float_point_index, some-
     // calculations will fail and give wrong answers.
     float_point_index = valid ? float_point_index : 0;            
-    number = valid ? num : "0";
+    number = valid ? number : "0";
 
     // Set the number sing
     if (valid)
     {
-        if (number[0] == '-')
-        {
-            float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-            number.erase(number.begin());
-            has_negative_sign = true;
-        } else if (number[0] == '+') {
-            float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-            number.erase(number.begin());
-            has_positive_sign = true;
-        } else
-            has_negative_sign = has_positive_sign = false;
-
         // We need to remove the float sign from the number so that we don't have a problem finding a specific index
         if (float_point_index != 0)
             number.erase(number.begin() + float_point_index);
-    }
+    } else has_negative_sign = has_positive_sign = false;
 }
 
 bool JMP::which_is_bigger(const string &num1, const string &num2) const
@@ -442,7 +444,7 @@ void JMP::equalizing_figures(JMP &j)
 
 void JMP::trim_the_number(JMP &j, bool bigger_number_is_negative)
 {
-    while (j.number[0] == '0')
+    while (j.number[0] == '0' && j.float_point_index != 2)
     {
         j.number.erase(j.number.begin());
         if (j.float_point_index > 0)
@@ -470,97 +472,11 @@ void JMP::trim_the_number(JMP &j, bool bigger_number_is_negative)
         j.number.append("0");
 }
 
-JMP JMP::operator++(int)
-{
-    // +1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index : number.length() - 1;
-    if (has_negative_sign == false)
-    {
-        // +1 for a positive number
-        number[last_integer_index]++;
-        for (int i=last_integer_index; i>=0; i--)
-        {
-            if (number[i] > '9' && i != 0)
-            {
-                number[i] = '0';
-                number[i - 1]++;
-            } else if (number[i] > '9' && i == 0) {
-                number[i] = '0';
-                number.insert(number.begin(), '1');
-            }
-        }
-    } else {
-        last_integer_index--;
-        // +1 for a negative number
-        number[last_integer_index]--;
-        for (int i=last_integer_index; i>=0; i--)
-        {
-            if (number[i] < '0' && i != 0)
-            {
-                number[i] = '9';
-                number[i - 1]--;
-            } else if (number[i] < '0' && i == 0) {
-                number.clear();
-                number.push_back('1');
-                has_negative_sign = false;
-                has_positive_sign = true;
-            } else if (number[i] == '0' && i == 0) {
-                number.erase(number.begin());
-            }
-        }
-    }
-
-    return *this;
-}
-
-JMP JMP::operator--(int)
-{
-    // -1 the number
-    int last_integer_index = float_point_index != 0 ? float_point_index : number.size();
-    if (has_negative_sign == false)
-    {
-        // -1 for a positive number
-        number[last_integer_index]--;
-        for (int i=last_integer_index; i>=0; i--)
-        {
-            if (number[i] < '0' && i != 0)
-            {
-                number[i] = '9';
-                number[i - 1]--;
-            } else if (number[i] < '0' && i == 0) {
-                number.clear();
-                number.push_back('1');
-                has_negative_sign = true;
-                has_positive_sign = false;
-            }
-        }
-    } else {
-        last_integer_index--;
-        // -1 for a negative number
-        number[last_integer_index]++;
-        for (int i=last_integer_index; i>=0; i--)
-        {
-            if (number[i] > '9' && i != 0)
-            {
-                number[i] = '0';
-                number[i - 1]++;
-            } else if (number[i] > '9' && i == 0) {
-                number[i] = '0';
-                number.insert(number.begin(), '1');
-            }
-        }
-    }
-
-    return *this;
-}
-
 JMP JMP::operator+(JMP &j)
 {
-    JMP sum_obj = JMP("0");
+    JMP sum_obj("0");
     int temp_number_size = number.size(), temp_second_number_size = j.number.size();
-
     equalizing_figures(j);
-
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger = false, second_number_is_bigger = false;
     if (which_is_bigger(number, j.number) == 0)
@@ -599,12 +515,34 @@ JMP JMP::operator+(JMP &j)
     return sum_obj;
 }
 
+JMP JMP::operator++()
+{
+    return *this + 1;
+}
+
+JMP JMP::operator--()
+{
+    return *this + -1;
+}
+
+JMP JMP::operator++(int)
+{
+    JMP temp = *this;
+    *this += 1;
+    return temp;
+}
+
+JMP JMP::operator--(int)
+{
+    JMP temp = *this;
+    *this += -1;
+    return temp;
+}
+
 JMP JMP::operator*(JMP &j)
 {
     JMP sum_obj("0");
-    equalizing_figures(j);
     sum_obj.number = multiply(number, j.number);
-
     bool this_number_is_bigger = false, second_number_is_bigger = false;
 
     if (which_is_bigger(number, j.number) == 0)
@@ -612,225 +550,57 @@ JMP JMP::operator*(JMP &j)
     else
         second_number_is_bigger = true;
 
-    unsigned long long int sum_of_decimals_of_two_numbers =
+    ulli sum_of_decimals_of_two_numbers =
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
         (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
-
+    while (sum_obj.number.size() <= sum_of_decimals_of_two_numbers)
+        sum_obj.number = "0" + sum_obj.number;
     sum_obj.float_point_index = sum_obj.number.size() - sum_of_decimals_of_two_numbers;
+
     trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
     return sum_obj;
 }
 
 JMP JMP::operator+(const long double &j)
 {
-    JMP sum_obj = JMP("0"), num2(double_to_string(j));
-    int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-    equalizing_figures(num2);
+    JMP num2(j);
+    return *this + num2;
+}
 
-    // Check which number is bigger, and we equal the sum object number to the biggest number
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (which_is_bigger(number, num2.number) == 0)
-    {
-        sum_obj.number = number;
-        if (float_point_index != 0)
-            sum_obj.float_point_index = float_point_index;
-        else if (float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+JMP JMP::operator*(const long double &j)
+{
+    JMP num2(j);
+    return *this * num2;
 }
 
 JMP JMP::operator+(string &num2_str)
 {
-    JMP sum_obj = JMP("0"), num2(num2_str);
-    int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-    equalizing_figures(num2);
-
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (which_is_bigger(number, num2.number) == 0)
-    {
-        sum_obj.number = number;
-        if (float_point_index != 0)
-            sum_obj.float_point_index = float_point_index;
-        else if (float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+    JMP num2(num2_str);
+    return *this + num2;
 }
 
 JMP JMP::operator+(const char* num_str)
 {
-    JMP sum_obj = JMP("0"), num2(num_str);
-    int temp_number_size = number.size(), temp_second_number_size = num2.number.size();
-    equalizing_figures(num2);
-
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (which_is_bigger(number, num2.number) == 0)
-    {
-        sum_obj.number = number;
-        if (float_point_index != 0)
-            sum_obj.float_point_index = float_point_index;
-        else if (float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    summation(sum_obj, number, num2.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, num2.has_negative_sign);
-    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+    JMP num2(num_str);
+    return *this + num2;
 }
 
 JMP operator+(const long double &j, JMP &this_obj)
 {
-    JMP sum_obj = JMP(0), num2(double_to_string(j));
-    double check;
-    if (modf(j, &check) == 0.0)
-    {
-        num2.number = num2.number.substr(0, num2.float_point_index);    
-        num2.float_point_index = 0;
-    }
-
-    int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-    this_obj.equalizing_figures(num2);
-
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
-    {
-        sum_obj.number = this_obj.number;
-        if (this_obj.float_point_index != 0)
-            sum_obj.float_point_index = this_obj.float_point_index;
-        else if (this_obj.float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+    JMP num2(j);
+    return this_obj + num2;
 }
 
 JMP operator+(string &num2_str, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0"), num2(num2_str);
-    int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-    this_obj.equalizing_figures(num2);
-
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
-    {
-        sum_obj.number = this_obj.number;
-        if (this_obj.float_point_index != 0)
-            sum_obj.float_point_index = this_obj.float_point_index;
-        else if (this_obj.float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+    JMP num2(num2_str);
+    return this_obj + num2;
 }
 
 JMP operator+(const char* num2_str, JMP &this_obj)
 {
-    JMP sum_obj = JMP("0"), num2(num2_str);
-    int temp_number_size = this_obj.number.size(), temp_second_number_size = num2.number.size();
-    this_obj.equalizing_figures(num2);
-
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-    if (this_obj.which_is_bigger(this_obj.number, num2.number) == 0)
-    {
-        sum_obj.number = this_obj.number;
-        if (this_obj.float_point_index != 0)
-            sum_obj.float_point_index = this_obj.float_point_index;
-        else if (this_obj.float_point_index == 0 && num2.float_point_index != 0)
-            sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        this_number_is_bigger = true;
-    } else {
-        sum_obj.number = num2.number;
-        if (num2.float_point_index != 0)
-            sum_obj.float_point_index = num2.float_point_index;
-        else if (num2.float_point_index == 0 && this_obj.float_point_index != 0)
-            sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
-        second_number_is_bigger = true;
-    }
-
-    this_obj.summation(sum_obj, this_obj.number, num2.number, this_number_is_bigger, second_number_is_bigger, this_obj.has_negative_sign, num2.has_negative_sign);
-    this_obj.trim_the_number(sum_obj, (this_number_is_bigger && this_obj.has_negative_sign) || (second_number_is_bigger && num2.has_negative_sign));
-
-    return sum_obj;
+    JMP num2(num2_str);
+    return this_obj + num2;
 }
 
 void JMP::operator+=(const long double &j)
