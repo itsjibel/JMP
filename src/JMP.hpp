@@ -30,7 +30,7 @@ class JMP
 
     public:
         bool has_negative_sign = false, has_positive_sign = false;
-        int float_point_index = 0;
+        ulli float_point_index = 0;
         string number;
 
         /// Constructors
@@ -148,14 +148,14 @@ class JMP
             return float_point_index == 0;
         }
 
-        unsigned long long int size() const
+        ulli size() const
         {
             return number.size();
         }
 
         ulli allocated() const
         {
-            return number.capacity() * sizeof(char);
+            return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2;
         }
 
         /// Shortcut operators
@@ -618,7 +618,7 @@ JMP JMP::operator*(JMP &j)
     else
         second_number_is_bigger = true;
 
-    unsigned long long int sum_of_decimals_of_two_numbers =
+    ulli sum_of_decimals_of_two_numbers =
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
         (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
 
