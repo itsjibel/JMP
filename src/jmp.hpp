@@ -144,6 +144,7 @@ class jmp
         /// Shortcut operators
         jmp operator+(jmp &j);
         jmp operator*(jmp &j);
+        jmp operator-(jmp &j);
         jmp operator++();
         jmp operator--();
         jmp operator++(int);
@@ -471,10 +472,13 @@ void jmp::trim_the_number(jmp &j, bool bigger_number_is_negative)
 
 jmp jmp::operator+(jmp &j)
 {
-    if (j.float_point_index != 0)
+    if (j.float_point_index != 0 && j.float_point_index < j.number.size())
         j.number.erase(j.number.begin() + j.float_point_index);
-    if (float_point_index != 0)
+    else j.float_point_index = 0;
+
+    if (float_point_index != 0 && float_point_index < number.size())
         number.erase(number.begin() + float_point_index);
+    else float_point_index = 0;
 
     jmp sum_obj("0");
     int temp_number_size = number.size(), temp_second_number_size = j.number.size();
@@ -525,13 +529,22 @@ jmp jmp::operator+(jmp &j)
 
 jmp jmp::operator*(jmp &j)
 {
-    if (j.float_point_index != 0)
+    if (j.float_point_index != 0 && j.float_point_index <= j.number.size())
         j.number.erase(j.number.begin() + j.float_point_index);
-    if (float_point_index != 0)
+    else j.float_point_index = 0;
+
+    if (float_point_index != 0 && float_point_index <= number.size())
         number.erase(number.begin() + float_point_index);
+    else float_point_index = 0;
 
     jmp sum_obj("0");
-    sum_obj.number = multiply(number, j.number);
+    if (j.number == "1")
+        sum_obj = number;
+    else if (number == "1")
+        sum_obj = j.number;
+    else
+        sum_obj.number = multiply(number, j.number);
+
     bool this_number_is_bigger = false, second_number_is_bigger = false;
 
     if (which_is_bigger(number, j.number) == 0)
@@ -558,6 +571,12 @@ jmp jmp::operator*(jmp &j)
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
 
     return sum_obj;
+}
+
+jmp jmp::operator-(jmp &j)
+{
+    jmp sub_obj = *this * -1 + j;
+    return sub_obj;
 }
 
 jmp jmp::operator++()

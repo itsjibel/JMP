@@ -122,5 +122,9 @@ int main()
     mul1 *= "-9999443453452459534.3516515";
     cout<<mul1<<endl;
 
+    // Subtract two jmp numbers
+    jmp sub1 = "-1234", sub2 = "-1235";
+    cout<<sub2 - sub1<<endl;
+
     return 0;
 }
