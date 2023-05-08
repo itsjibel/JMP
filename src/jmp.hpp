@@ -151,28 +151,40 @@ class jmp
         jmp operator--(int);
         jmp operator+(const long double &j);
         jmp operator*(const long double &j);
+        jmp operator-(const long double &j);
         jmp operator+(string &num2_str);
         jmp operator*(string &num2_str);
+        jmp operator-(string &num2_str);
         jmp operator+(const char* num2_str);
         jmp operator*(const char* num2_str);
+        jmp operator-(const char* num2_str);
         friend jmp operator+(const long double &j, jmp &this_obj);
         friend jmp operator*(const long double &j, jmp &this_obj);
+        friend jmp operator-(const long double &j, jmp &this_obj);
         friend jmp operator+(string &num2_str, jmp &this_obj);
         friend jmp operator*(string &num2_str, jmp &this_obj);
+        friend jmp operator-(string &num2_str, jmp &this_obj);
         friend jmp operator+(const char* num2_str, jmp &this_obj);
         friend jmp operator*(const char* num2_str, jmp &this_obj);
+        friend jmp operator-(const char* num2_str, jmp &this_obj);
         void operator+=(const long double &j);
         void operator*=(const long double &j);
+        void operator-=(const long double &j);
         void operator+=(string &num2_str);
         void operator*=(string &num2_str);
+        void operator-=(string &num2_str);
         void operator+=(jmp &num2_str);
         void operator*=(jmp &num2_str);
+        void operator-=(jmp &num2_str);
         void operator+=(const char* num2_str);
         void operator*=(const char* num2_str);
+        void operator-=(const char* num2_str);
         friend void operator+=(long double &j, jmp &this_obj);
         friend void operator*=(long double &j, jmp &this_obj);
+        friend void operator-=(long double &j, jmp &this_obj);
         friend void operator+=(string &num2_str, jmp &this_obj);
         friend void operator*=(string &num2_str, jmp &this_obj);
+        friend void operator-=(string &num2_str, jmp &this_obj);
 };
 
 void jmp::FFT(std::complex<double>* a, ulli n, bool invert)
@@ -615,6 +627,12 @@ jmp jmp::operator*(const long double &j)
     return *this * num2;
 }
 
+jmp jmp::operator-(const long double &j)
+{
+    jmp num2(j);
+    return *this - num2;
+}
+
 jmp jmp::operator+(string &num2_str)
 {
     jmp num2(num2_str);
@@ -625,6 +643,12 @@ jmp jmp::operator*(string &num2_str)
 {
     jmp num2(num2_str);
     return *this * num2;
+}
+
+jmp jmp::operator-(string &num2_str)
+{
+    jmp num2(num2_str);
+    return *this - num2;
 }
 
 jmp jmp::operator+(const char* num_str)
@@ -639,6 +663,12 @@ jmp jmp::operator*(const char* num_str)
     return *this * num2;
 }
 
+jmp jmp::operator-(const char* num_str)
+{
+    jmp num2(num_str);
+    return *this - num2;
+}
+
 jmp operator+(const long double &j, jmp &this_obj)
 {
     jmp num2(j);
@@ -649,6 +679,12 @@ jmp operator*(const long double &j, jmp &this_obj)
 {
     jmp num2(j);
     return this_obj * num2;
+}
+
+jmp operator-(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return this_obj - num2;
 }
 
 jmp operator+(string &num2_str, jmp &this_obj)
@@ -663,6 +699,12 @@ jmp operator*(string &num2_str, jmp &this_obj)
     return this_obj * num2;
 }
 
+jmp operator-(string &num2_str, jmp &this_obj)
+{
+    jmp num2(num2_str);
+    return this_obj - num2;
+}
+
 jmp operator+(const char* num2_str, jmp &this_obj)
 {
     jmp num2(num2_str);
@@ -675,6 +717,12 @@ jmp operator*(const char* num2_str, jmp &this_obj)
     return this_obj * num2;
 }
 
+jmp operator-(const char* num2_str, jmp &this_obj)
+{
+    jmp num2(num2_str);
+    return this_obj - num2;
+}
+
 void jmp::operator+=(const long double &j)
 {
     *this = *this + j;
@@ -683,6 +731,11 @@ void jmp::operator+=(const long double &j)
 void jmp::operator*=(const long double &j)
 {
     *this = *this * j;
+}
+
+void jmp::operator-=(const long double &j)
+{
+    *this = *this - j;
 }
 
 void jmp::operator+=(string &num2_str)
@@ -695,6 +748,11 @@ void jmp::operator*=(string &num2_str)
     *this = *this * num2_str;
 }
 
+void jmp::operator-=(string &num2_str)
+{
+    *this = *this - num2_str;
+}
+
 void jmp::operator+=(jmp &num2_str)
 {
     *this = *this + num2_str;
@@ -703,6 +761,11 @@ void jmp::operator+=(jmp &num2_str)
 void jmp::operator*=(jmp &num2_str)
 {
     *this = *this * num2_str;
+}
+
+void jmp::operator-=(jmp &num2_str)
+{
+    *this = *this - num2_str;
 }
 
 void jmp::operator+=(const char* num2_str)
@@ -715,6 +778,11 @@ void jmp::operator*=(const char* num2_str)
     *this = *this * num2_str;
 }
 
+void jmp::operator-=(const char* num2_str)
+{
+    *this = *this - num2_str;
+}
+
 void operator+=(long double &j, jmp &this_obj)
 {
     j = (j + this_obj).to_double();
@@ -725,6 +793,11 @@ void operator*=(long double &j, jmp &this_obj)
     j = (j * this_obj).to_double();
 }
 
+void operator-=(long double &j, jmp &this_obj)
+{
+    j = (j - this_obj).to_double();
+}
+
 void operator+=(string &j, jmp &this_obj)
 {
     j = (j + this_obj).to_string();
@@ -733,4 +806,9 @@ void operator+=(string &j, jmp &this_obj)
 void operator*=(string &j, jmp &this_obj)
 {
     j = (j * this_obj).to_string();
+}
+
+void operator-=(string &j, jmp &this_obj)
+{
+    j = (j - this_obj).to_string();
 }
