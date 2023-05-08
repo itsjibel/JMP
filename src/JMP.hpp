@@ -133,19 +133,29 @@ class JMP
                 number.append(num);
         }
 
-        bool is_empty()
+        bool is_empty() const
         {
             return number.empty();
         }
 
-        bool is_decimal()
+        bool is_decimal() const
         {
             return float_point_index != 0;
         }
 
-        bool is_integer()
+        bool is_integer() const
         {
             return float_point_index == 0;
+        }
+
+        unsigned long long int size() const
+        {
+            return number.size();
+        }
+
+        ulli allocated() const
+        {
+            return number.capacity() * sizeof(char);
         }
 
         /// Shortcut operators
