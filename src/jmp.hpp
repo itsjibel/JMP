@@ -204,6 +204,14 @@ class jmp
         friend bool operator<(const long double &j, jmp &this_obj);
         friend bool operator<(string &j, jmp &this_obj);
         friend bool operator<(const char* j, jmp &this_obj);
+
+        bool operator<=(jmp &j);
+        bool operator<=(const long double &j);
+        bool operator<=(string &j);
+        bool operator<=(const char* j);
+        friend bool operator<=(const long double &j, jmp &this_obj);
+        friend bool operator<=(string &j, jmp &this_obj);
+        friend bool operator<=(const char* j, jmp &this_obj);
 };
 
 void jmp::FFT(std::complex<double>* a, ulli n, bool invert)
@@ -847,55 +855,37 @@ bool jmp::operator==(jmp &j)
 bool jmp::operator==(const long double &j)
 {
     jmp num2(j);
-    if (*this == num2)
-        return true;
-    else
-        return false;
+    return *this == num2 ? true : false;
 }
 
 bool jmp::operator==(string &j)
 {
     jmp num2(j);
-    if (*this == num2)
-        return true;
-    else
-        return false;
+    return *this == num2 ? true : false;
 }
 
 bool jmp::operator==(const char* j)
 {
     jmp num2(j);
-    if (*this == num2)
-        return true;
-    else
-        return false;
+    return *this == num2 ? true : false;
 }
 
 bool operator==(const long double &j, jmp &this_obj)
 {
     jmp num2(j);
-    if (this_obj == num2)
-        return true;
-    else
-        return false;
+    return this_obj == num2 ? true : false;
 }
 
 bool operator==(string &j, jmp &this_obj)
 {
     jmp num2(j);
-    if (this_obj == num2)
-        return true;
-    else
-        return false;
+    return this_obj == num2 ? true : false;
 }
 
 bool operator==(const char* j, jmp &this_obj)
 {
     jmp num2(j);
-    if (this_obj == num2)
-        return true;
-    else
-        return false;
+    return this_obj == num2 ? true : false;
 }
 
 bool jmp::operator<(jmp &j)
@@ -918,53 +908,76 @@ bool jmp::operator<(jmp &j)
 bool jmp::operator<(const long double &j)
 {
     jmp num2(j);
-    if (*this < num2)
-        return true;
-    else
-        return false;
+    return *this < num2 ? true : false;
 }
 
 bool jmp::operator<(string &j)
 {
     jmp num2(j);
-    if (*this < num2)
-        return true;
-    else
-        return false;
+    return *this < num2 ? true : false;
 }
 
 bool jmp::operator<(const char* j)
 {
     jmp num2(j);
-    if (*this < num2)
-        return true;
-    else
-        return false;
+    return *this < num2 ? true : false;
 }
 
 bool operator<(const long double &j, jmp &this_obj)
 {
     jmp num2(j);
-    if (num2 < this_obj)
-        return true;
-    else
-        return false;
+    return num2 < this_obj ? true : false;
 }
 
 bool operator<(string &j, jmp &this_obj)
 {
     jmp num2(j);
-    if (num2 < this_obj)
-        return true;
-    else
-        return false;
+    return num2 < this_obj ? true : false;
 }
 
 bool operator<(const char* j, jmp &this_obj)
 {
     jmp num2(j);
-    if (num2 < this_obj)
-        return true;
-    else
-        return false;
+    return num2 < this_obj ? true : false;
+}
+
+bool jmp::operator<=(jmp &j)
+{
+    return *this < j || *this == j ? true : false;
+}
+
+bool jmp::operator<=(const long double &j)
+{
+    jmp num2(j);
+    return *this <= num2 ? true : false;
+}
+
+bool jmp::operator<=(string &j)
+{
+    jmp num2(j);
+    return *this <= num2 ? true : false;
+}
+
+bool jmp::operator<=(const char* j)
+{
+    jmp num2(j);
+    return *this <= num2 ? true : false;
+}
+
+bool operator<=(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 <= this_obj ? true : false;
+}
+
+bool operator<=(string &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 <= this_obj ? true : false;
+}
+
+bool operator<=(const char* j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 <= this_obj ? true : false;
 }

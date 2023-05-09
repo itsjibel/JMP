@@ -139,5 +139,9 @@ int main()
     if (cond2 < cond1)
         cout<<"Yes cond2 < cond1, "<<cond2<<" < "<<cond1<<endl;
 
+    cond1--;
+    if (cond2 <= cond1)
+        cout<<"Yes cond2 <= cond1, "<<cond2<<" <= "<<cond1<<endl;
+
     return 0;
 }
