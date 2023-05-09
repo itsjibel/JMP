@@ -197,6 +197,14 @@ class jmp
         friend bool operator==(string &j, jmp &this_obj);
         friend bool operator==(const char* j, jmp &this_obj);
 
+        bool operator!=(jmp &j);
+        bool operator!=(const long double &j);
+        bool operator!=(string &j);
+        bool operator!=(const char* j);
+        friend bool operator!=(const long double &j, jmp &this_obj);
+        friend bool operator!=(string &j, jmp &this_obj);
+        friend bool operator!=(const char* j, jmp &this_obj);
+
         bool operator<(jmp &j);
         bool operator<(const long double &j);
         bool operator<(string &j);
@@ -886,6 +894,50 @@ bool operator==(const char* j, jmp &this_obj)
 {
     jmp num2(j);
     return this_obj == num2 ? true : false;
+}
+
+bool jmp::operator!=(jmp &j)
+{
+    if ((has_negative_sign ? "-" : "") + number != (j.has_negative_sign ? "-" : "") + j.number)
+        return true;
+    else
+        return false;
+}
+
+bool jmp::operator!=(const long double &j)
+{
+    jmp num2(j);
+    return *this != num2 ? true : false;
+}
+
+bool jmp::operator!=(string &j)
+{
+    jmp num2(j);
+    return *this != num2 ? true : false;
+}
+
+bool jmp::operator!=(const char* j)
+{
+    jmp num2(j);
+    return *this != num2 ? true : false;
+}
+
+bool operator!=(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return this_obj != num2 ? true : false;
+}
+
+bool operator!=(string &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return this_obj != num2 ? true : false;
+}
+
+bool operator!=(const char* j, jmp &this_obj)
+{
+    jmp num2(j);
+    return this_obj != num2 ? true : false;
 }
 
 bool jmp::operator<(jmp &j)
