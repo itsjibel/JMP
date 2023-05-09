@@ -42,6 +42,8 @@ class jmp
         {
             number = j.number;
             float_point_index = j.float_point_index;
+            has_negative_sign = j.has_negative_sign;
+            has_positive_sign = j.has_positive_sign;
         }
 
         /// Destructor
@@ -187,6 +189,8 @@ class jmp
         void operator*=(const char* num2_str);
         friend void operator*=(long double& j, jmp& this_obj);
         friend void operator*=(string& num2_str, jmp& this_obj);
+
+        jmp operator^(jmp& j);
 
         /// Conditional operators
         bool operator==(jmp& j);
@@ -586,27 +590,33 @@ jmp jmp::operator+(jmp& j)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
     if (sum_obj.float_point_index != 0)
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
-
+    
+    if ((second_number_is_bigger && has_negative_sign == false && j.has_negative_sign) ||
+        (has_negative_sign && this_number_is_bigger))
+    {
+        //printf("Sum object %s\n", sum_obj.number.c_str());
+        sum_obj.has_negative_sign = true;
+    }
     return sum_obj;
 }
 
 jmp jmp::operator*(jmp& j)
 {
-    if (j.float_point_index != 0 && j.float_point_index <= j.number.size())
+    if (j.float_point_index != 0 && j.float_point_index < j.number.size())
         j.number.erase(j.number.begin() + j.float_point_index);
     else j.float_point_index = 0;
 
-    if (float_point_index != 0 && float_point_index <= number.size())
+    if (float_point_index != 0 && float_point_index < number.size())
         number.erase(number.begin() + float_point_index);
     else float_point_index = 0;
 
-    jmp sum_obj("0");
+    jmp mul_obj("0");
     if (j.number == "1")
-        sum_obj = number;
+        mul_obj = number;
     else if (number == "1")
-        sum_obj = j.number;
+        mul_obj = j.number;
     else
-        sum_obj.number = multiply(number, j.number);
+        mul_obj.number = multiply(number, j.number);
 
     bool this_number_is_bigger = false, second_number_is_bigger = false;
 
@@ -618,47 +628,50 @@ jmp jmp::operator*(jmp& j)
     ulli sum_of_decimals_of_two_numbers =
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
         (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
-    while (sum_obj.number.size() <= sum_of_decimals_of_two_numbers)
-        sum_obj.number = "0" + sum_obj.number;
-    sum_obj.float_point_index = sum_obj.number.size() - sum_of_decimals_of_two_numbers;
+    while (mul_obj.number.size() <= sum_of_decimals_of_two_numbers)
+        mul_obj.number = "0" + mul_obj.number;
+    mul_obj.float_point_index = mul_obj.number.size() - sum_of_decimals_of_two_numbers;
 
     if ((has_negative_sign == true && j.has_negative_sign == false) ||
         (has_negative_sign == false && j.has_negative_sign == true))
-        sum_obj.has_negative_sign = true;
+        mul_obj.has_negative_sign = true;
 
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
-    if (sum_obj.float_point_index != 0 && sum_obj.float_point_index != sum_obj.number.size())
-        sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
+    if (mul_obj.float_point_index != 0 && mul_obj.float_point_index != mul_obj.number.size())
+        mul_obj.number.insert(mul_obj.number.begin() + mul_obj.float_point_index, '.');
 
-    while (sum_obj.float_point_index != 0 && sum_obj.float_point_index <= sum_obj.number.size() &&
-        sum_obj.number[sum_obj.number.size() - 1] == '0')
-        sum_obj.number.erase(sum_obj.number.begin() + sum_obj.number.size()  - 1);
+    while (mul_obj.float_point_index != 0 && mul_obj.float_point_index <= mul_obj.number.size() &&
+        mul_obj.number[mul_obj.number.size() - 1] == '0')
+        mul_obj.number.erase(mul_obj.number.begin() + mul_obj.number.size()  - 1);
 
-    return sum_obj;
+    return mul_obj;
 }
 
 jmp jmp::operator-(jmp& j)
 {
-    jmp sub_obj = *this * -1 + j;
-    return sub_obj;
+    jmp negative = j;
+    negative.has_negative_sign = true;
+    return *this + negative;
 }
 
 jmp jmp::operator++()
 {
-    return *this + 1;
+    *this += 1;
+    return *this;
 }
 
 jmp jmp::operator--()
 {
-    return *this + -1;
+    *this -= 1;
+    return *this;
 }
 
 jmp jmp::operator++(int)
 {
-    jmp temp = *this;
+    jmp temp(*this);
     *this += 1;
     return temp;
 }
@@ -666,7 +679,7 @@ jmp jmp::operator++(int)
 jmp jmp::operator--(int)
 {
     jmp temp = *this;
-    *this += -1;
+    *this -= 1;
     return temp;
 }
 
@@ -867,6 +880,20 @@ void operator-=(string& j, jmp& this_obj)
 {
     j = (j - this_obj).to_string();
 }
+
+jmp jmp::operator^(jmp& j)
+{
+    string temp = j.number;
+    jmp result = 1;
+    while (j > 0.0)
+    {
+        result = result * *this;
+        --j;
+    }
+    return result;
+}
+
+
 
 bool jmp::operator==(jmp& j)
 {

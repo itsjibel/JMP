@@ -152,5 +152,7 @@ int main()
     if (cond2 >= cond1)
         cout<<"Yes cond2 >= cond1, "<<cond2<<" >= "<<cond1<<endl;
 
+    jmp pow1 = "2", pow2 = "168";
+    cout<<(pow1 ^ pow2)<<endl;
     return 0;
 }
