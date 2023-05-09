@@ -133,12 +133,15 @@ int main()
 
     jmp cond2 = "-1013.65";
     if (cond1 == cond2)
-        cout<<"Yes\n";
+        cout<<"Yes cond1 == cond2, "<<cond1<<" == "<<cond2<<endl;
 
     cond2--;
     if (cond2 < cond1)
         cout<<"Yes cond2 < cond1, "<<cond2<<" < "<<cond1<<endl;
     
+    if (cond1 > cond2)
+        cout<<"Yes cond1 > cond2, "<<cond1<<" > "<<cond2<<endl;
+
     if (cond2 != cond1)
         cout<<"Yes cond2 != cond1, "<<cond2<<" != "<<cond1<<endl;
 

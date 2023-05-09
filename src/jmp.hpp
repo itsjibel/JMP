@@ -220,6 +220,15 @@ class jmp
         friend bool operator<=(const long double &j, jmp &this_obj);
         friend bool operator<=(string &j, jmp &this_obj);
         friend bool operator<=(const char* j, jmp &this_obj);
+
+        bool operator>(jmp &j);
+        bool operator>(const long double &j);
+        bool operator>(string &j);
+        bool operator>(const char* j);
+        friend bool operator>(const long double &j, jmp &this_obj);
+        friend bool operator>(string &j, jmp &this_obj);
+        friend bool operator>(const char* j, jmp &this_obj);
+
 };
 
 void jmp::FFT(std::complex<double>* a, ulli n, bool invert)
@@ -942,6 +951,9 @@ bool operator!=(const char* j, jmp &this_obj)
 
 bool jmp::operator<(jmp &j)
 {
+    if (*this == j)
+        return false;
+
     if (has_negative_sign && j.has_negative_sign == false)
         return true;
     else if (has_negative_sign == false && j.has_negative_sign)
@@ -1032,4 +1044,45 @@ bool operator<=(const char* j, jmp &this_obj)
 {
     jmp num2(j);
     return num2 <= this_obj ? true : false;
+}
+
+bool jmp::operator>(jmp &j)
+{
+    return *this < j == false && *this != j ? true : false;
+}
+
+bool jmp::operator>(const long double &j)
+{
+    jmp num2(j);
+    return *this > num2 ? true : false;
+}
+
+bool jmp::operator>(string &j)
+{
+    jmp num2(j);
+    return *this > num2 ? true : false;
+}
+
+bool jmp::operator>(const char* j)
+{
+    jmp num2(j);
+    return *this > num2 ? true : false;
+}
+
+bool operator>(const long double &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 > this_obj ? true : false;
+}
+
+bool operator>(string &j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 > this_obj ? true : false;
+}
+
+bool operator>(const char* j, jmp &this_obj)
+{
+    jmp num2(j);
+    return num2 > this_obj ? true : false;
 }
