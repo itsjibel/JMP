@@ -1085,4 +1085,4 @@ bool operator>(const char* j, jmp &this_obj)
 {
     jmp num2(j);
     return num2 > this_obj ? true : false;
-}
+}//
