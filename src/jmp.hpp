@@ -221,36 +221,35 @@ class jmp
         friend bool operator>=(const char* j, jmp& this_obj);
 };
 
-void jmp::FFT(std::complex<double>* a, size_t& n, const bool& invert)
-{
-    const double angleMultiplier {(invert ? -1.0 : 1.0) * 2.0 * M_PI / n};
+void jmp::FFT(std::complex<double>* a, size_t& n, const bool& invert) {
+    // Calculate angle multiplier based on invert flag
+    const double angleMultiplier { (invert ? -1.0 : 1.0) * 2.0 * M_PI / n };
 
+    // Precompute twiddle factors (rotation angles) and store them in twiddleFactors array
     std::complex<double> twiddleFactors[n];
-    for (size_t i{0}; i<n; ++i)
-    {
-        const double angle {i * angleMultiplier};
+    for (size_t i{0}; i < n; ++i) {
+        const double angle { i * angleMultiplier };
         twiddleFactors[i] = std::polar(1.0, angle);
     }
 
     size_t j {0};
-    for (size_t i{1}; i<n; ++i)
-    {
-        size_t bit {n >> 1};
+    // Perform bit-reversal permutation on the input array
+    for (size_t i{1}; i < n; ++i) {
+        size_t bit { n >> 1 };
         while (((j ^= bit) & bit) == 0)
             bit >>= 1;
-        if (i < j) swap(a[i], a[j]);
+        if (i < j)
+            swap(a[i], a[j]);
     }
 
-    for (size_t len{2}; len<=n; len<<=1)
-    {
-        const size_t halfLen {len>>1}, twiddleStep {n / len};
-        for (size_t i{0}; i < n; i += len)
-        {
-            std::complex<double>* pa {a + i};
-            for (size_t j{0}; j<halfLen; ++j)
-            {
-                const std::complex<double> u {*pa};
-                const std::complex<double> v {*(pa + halfLen) * twiddleFactors[j * twiddleStep]};
+    // Perform butterfly operations for different lengths (powers of 2)
+    for (size_t len{2}; len <= n; len <<= 1) {
+        const size_t halfLen { len >> 1 }, twiddleStep { n / len };
+        for (size_t i{0}; i < n; i += len) {
+            std::complex<double>* pa { a + i };
+            for (size_t j{0}; j < halfLen; ++j) {
+                const std::complex<double> u { *pa };
+                const std::complex<double> v { *(pa + halfLen) * twiddleFactors[j * twiddleStep] };
                 *pa = u + v;
                 *(pa + halfLen) = u - v;
                 pa++;
@@ -258,9 +257,11 @@ void jmp::FFT(std::complex<double>* a, size_t& n, const bool& invert)
         }
     }
 
-    if (invert)
+    // Normalize the output if invert flag is set
+    if (invert) {
         for (size_t i{0}; i < n; ++i)
             a[i] /= n;
+    }
 }
 
 string jmp::multiply(const string& num1, const string& num2)
@@ -271,32 +272,39 @@ string jmp::multiply(const string& num1, const string& num2)
         n <<= 1;
     std::complex<double> a[n], b[n];
 
-    for (size_t i{0}; i < size1; ++i)
+    // Convert input strings to complex number arrays
+    for (size_t i{0}; i<size1; ++i)
         a[i] = num1[size1 - i - 1] - '0';
     for (size_t i{0}; i < size2; ++i)
         b[i] = num2[size2 - i - 1] - '0';
 
+    // Perform FFT on both arrays
     FFT(a, n, false);
     FFT(b, n, false);
 
-    for (size_t i{0}; i < n; ++i)
+    // Multiply the transformed arrays element-wise
+    for (size_t i{0}; i<n; ++i)
         a[i] *= b[i];
 
+    // Perform inverse FFT to obtain the convolution result
     FFT(a, n, true);
 
     ulli carry {0};
     string product;
-    for (size_t i{0}; i < n; ++i)
+
+    // Construct the product string by rounding the real parts and performing carry propagation
+    for (size_t i{0}; i<n; ++i)
     {
-        ulli digit = static_cast<ulli>(a[i].real() + 0.5) + carry;
+        ulli digit {static_cast<ulli>(a[i].real() + 0.5) + carry};
         product += '0' + (digit % 10);
         carry = digit / 10;
     }
 
+    // Remove trailing zeros from the product string
     while (product.size() > 1 && product.back() == '0')
         product.pop_back();
 
-    // Efficient string reversal
+    // Efficiently reverse the product string
     size_t start {0}, end {product.size() - 1};
     while (start < end)
     {
@@ -319,6 +327,7 @@ void jmp::validation (const string& num)
         return;
     }
 
+    // We erase the number sign to just check that this number string indexes are number or aren't a number
     if (number[0] == '-')
     {
         number.erase(number.begin());
@@ -337,33 +346,48 @@ void jmp::validation (const string& num)
         // If the number character is not in the range 0-9 and the number character is not '.'-
         // then this character is invalid
         if ((number[i] < '0' || number[i] > '9') && number[i] != '.')
+        {
             valid = false;
-        
+            break;
+        }
+
         // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
         // the number characters, then update the float_point_index to know-
         // where is the point index in the number
         if (number[i] == '.')
         {
             number_of_dots++;
+            if (number_of_dots > 1)
+            {
+                valid = false;
+                break;
+            }
             float_point_index = i;
         }
     }
 
     // "If conditions" for falsing the validity of the number string
     if ((number[0] == '0' && number[1] != '.') ||
-        (number.back() == '.' || number_of_dots > 1))
+        (number.front() == '.'))
         valid = false;
-    
+
     // "If conditions" for truing the validity of the number string
     valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
 
     // We set the float_point_index to zero when the number is invalid.
     // Because if the next value is an integer number, and we have a specific float_point_index, some-
     // calculations will fail and give wrong answers.
-    float_point_index = valid ? float_point_index : 0;            
+    float_point_index = valid ? float_point_index : 0;
+
+    // If the last index of the number is a '.' character so the user meant that this number is-
+    // a float number so we do consider this for the JMP number.
+    if (number.back() == '.' && valid)
+        number.push_back('0');
+
+    // If the number is valid, so it is; but if the number isn't valid, then we value the number to zero
     number = valid ? number : "0";
 
-    // Set the number sing
+    // If the number is not valid, we will set the sign of the number that set above with false
     if (valid == false)
         has_negative_sign = has_positive_sign = false;
 }
