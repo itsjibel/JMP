@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <complex>
+#include <memory>
 #include <string>
+#include <vector>
 using std::string;
 
 string double_to_string(const long double& num)
@@ -23,7 +25,7 @@ class jmp
         void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
 
         /// Arithmetic functions
-        void FFT(std::complex<double>* a, size_t& n, const bool& invert);
+        void FFT(std::complex<double>* a, ulli& n, const bool& invert);
         void summation(jmp& sum_obj, const string& num1, const string& num2,
                         bool& first_number_is_bigger, bool& second_number_is_bigger,
                         bool& first_number_has_negative_sign, bool& second_number_has_negative_sign);
@@ -221,79 +223,86 @@ class jmp
         friend bool operator>=(const char* j, jmp& this_obj);
 };
 
-void jmp::FFT(std::complex<double>* a, size_t& n, const bool& invert) {
-    // Calculate angle multiplier based on invert flag
-    const double angleMultiplier { (invert ? -1.0 : 1.0) * 2.0 * M_PI / n };
+void jmp::FFT(std::complex<double>* a, ulli& n, const bool& invert)
+{
+    const double angleMultiplier = (invert ? -2.0 : 2.0) * M_PI / n;
 
-    // Precompute twiddle factors (rotation angles) and store them in twiddleFactors array
-    std::complex<double> twiddleFactors[n];
-    for (size_t i{0}; i < n; ++i) {
-        const double angle { i * angleMultiplier };
-        twiddleFactors[i] = std::polar(1.0, angle);
-    }
-
-    size_t j {0};
-    // Perform bit-reversal permutation on the input array
-    for (size_t i{1}; i < n; ++i) {
-        size_t bit { n >> 1 };
-        while (((j ^= bit) & bit) == 0)
+    // Bit-reversal permutation
+    for (ulli i = 1, j = 0; i < n; ++i)
+    {
+        ulli bit = n >> 1;
+        while (j & bit)
+        {
+            j ^= bit;
             bit >>= 1;
+        }
+        j ^= bit;
+
         if (i < j)
-            swap(a[i], a[j]);
+            std::swap(a[i], a[j]);
     }
 
-    // Perform butterfly operations for different lengths (powers of 2)
-    for (size_t len{2}; len <= n; len <<= 1) {
-        const size_t halfLen { len >> 1 }, twiddleStep { n / len };
-        for (size_t i{0}; i < n; i += len) {
-            std::complex<double>* pa { a + i };
-            for (size_t j{0}; j < halfLen; ++j) {
-                const std::complex<double> u { *pa };
-                const std::complex<double> v { *(pa + halfLen) * twiddleFactors[j * twiddleStep] };
-                *pa = u + v;
-                *(pa + halfLen) = u - v;
-                pa++;
+    // Precompute twiddle factors and perform butterfly operations
+    for (ulli len = 2; len <= n; len <<= 1)
+    {
+        const double deltaAngle = angleMultiplier * (n / len);
+        const std::complex<double> omegaBase = std::polar(1.0, deltaAngle);
+        std::complex<double> omega = 1.0;
+
+        for (ulli i = 0; i < len / 2; ++i)
+        {
+            for (ulli j = i; j < n; j += len)
+            {
+                std::complex<double> u = a[j];
+                std::complex<double> t = omega * a[j + len / 2];
+                a[j] = u + t;
+                a[j + len / 2] = u - t;
             }
+
+            omega *= omegaBase;
         }
     }
 
     // Normalize the output if invert flag is set
-    if (invert) {
-        for (size_t i{0}; i < n; ++i)
-            a[i] /= n;
+    if (invert)
+    {
+        const double scale = 1.0 / n;
+        for (ulli i = 0; i < n; ++i)
+            a[i] *= scale;
     }
 }
 
 string jmp::multiply(const string& num1, const string& num2)
 {
-    const size_t size1 {num1.size()}, size2 {num2.size()};
-    size_t n {1};
+    const ulli size1 {num1.size()}, size2 {num2.size()};
+    ulli n {1};
     while (n < size1 + size2)
         n <<= 1;
-    std::complex<double> a[n], b[n];
+    std::unique_ptr<std::complex<double>[]> a = std::make_unique<std::complex<double>[]>(n);
+    std::unique_ptr<std::complex<double>[]> b = std::make_unique<std::complex<double>[]>(n);
 
     // Convert input strings to complex number arrays
-    for (size_t i{0}; i<size1; ++i)
+    for (ulli i{0}; i<size1; ++i)
         a[i] = num1[size1 - i - 1] - '0';
-    for (size_t i{0}; i < size2; ++i)
+    for (ulli i{0}; i < size2; ++i)
         b[i] = num2[size2 - i - 1] - '0';
 
     // Perform FFT on both arrays
-    FFT(a, n, false);
-    FFT(b, n, false);
+    FFT(a.get(), n, false);
+    FFT(b.get(), n, false);
 
     // Multiply the transformed arrays element-wise
-    for (size_t i{0}; i<n; ++i)
+    for (ulli i{0}; i<n; ++i)
         a[i] *= b[i];
 
     // Perform inverse FFT to obtain the convolution result
-    FFT(a, n, true);
+    FFT(a.get(), n, true);
 
     ulli carry {0};
     string product;
 
     // Construct the product string by rounding the real parts and performing carry propagation
-    for (size_t i{0}; i<n; ++i)
+    for (ulli i{0}; i<n; ++i)
     {
         ulli digit {static_cast<ulli>(a[i].real() + 0.5) + carry};
         product += '0' + (digit % 10);
@@ -305,7 +314,7 @@ string jmp::multiply(const string& num1, const string& num2)
         product.pop_back();
 
     // Efficiently reverse the product string
-    size_t start {0}, end {product.size() - 1};
+    ulli start {0}, end {product.size() - 1};
     while (start < end)
     {
         std::swap(product[start], product[end]);
@@ -340,8 +349,8 @@ void jmp::validation (const string& num)
     }
 
     bool valid {true};
-    size_t number_of_dots {0};
-    for (size_t i{0}; i<number.length(); i++)
+    ulli number_of_dots {0};
+    for (ulli i{0}; i<number.length(); i++)
     {
         // If the number character is not in the range 0-9 and the number character is not '.'-
         // then this character is invalid
@@ -559,7 +568,7 @@ jmp jmp::operator+(jmp& j)
     else float_point_index = 0;
 
     jmp sum_obj("0");
-    size_t temp_number_size {number.size()}, temp_second_number_size {j.number.size()};
+    ulli temp_number_size {number.size()}, temp_second_number_size {j.number.size()};
     equalizing_figures(j);
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger {false}, second_number_is_bigger {false};
