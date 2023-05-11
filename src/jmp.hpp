@@ -1,13 +1,15 @@
 #include <algorithm>
 #include <complex>
-#include <memory>
-#include <string.h>
+#include <string>
 using std::string;
 
 string double_to_string(const long double& num)
 {
+    // Create an output string stream object
     std::ostringstream strs;
-    strs<<num;
+    // Insert the value of 'num' into the output stream
+    strs << num;
+    // Retrieve the contents of the output stream as a string and return it
     return strs.str();
 }
 
@@ -21,15 +23,15 @@ class jmp
         void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
 
         /// Arithmetic functions
-        void FFT (std::complex<double>* a, ulli& n, const bool& invert);
-        void summation (jmp& sum_obj, const string& num1, const string& num2,
+        void FFT(std::complex<double>* a, size_t& n, const bool& invert);
+        void summation(jmp& sum_obj, const string& num1, const string& num2,
                         bool& first_number_is_bigger, bool& second_number_is_bigger,
                         bool& first_number_has_negative_sign, bool& second_number_has_negative_sign);
         string multiply(const string& num1, const string& num2);
 
     public:
-        bool has_negative_sign = false, has_positive_sign = false;
-        ulli float_point_index = 0;
+        bool has_negative_sign {false}, has_positive_sign {false};
+        ulli float_point_index {0};
         string number;
 
         /// Constructors
@@ -73,20 +75,10 @@ class jmp
             float_point_index = 0;
         }
 
-        long long int to_int()
-        {
-            return atoi(std::move(number.c_str()));
-        }
-
-        long double to_double()
-        {
-            return std::stod(number);
-        }
-
-        string to_string()
-        {
-            return number;
-        }
+        // Conversion functions
+        long long int to_int()    { return atoi(std::move(number.c_str())); }
+        long double   to_double() { return std::stod(number); }
+        string        to_string() { return number; }
 
         void internal_conversion_to_int()
         {
@@ -101,49 +93,30 @@ class jmp
                 number.append(num);
         }
 
-        bool is_empty() const
-        {
-            return number.empty();
-        }
-
-        bool is_decimal() const
-        {
-            return float_point_index != 0;
-        }
-
-        bool is_integer() const
-        {
-            return float_point_index == 0;
-        }
-
-        ulli size() const
-        {
-            return number.size();
-        }
-
-        ulli allocated() const
-        {
-            return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2;
-        }
+        // About-number functions
+        bool is_empty()   const { return number.empty(); }
+        bool is_decimal() const { return float_point_index != 0; }
+        bool is_integer() const { return float_point_index == 0; }
+        ulli size()       const { return number.size(); }
+        ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
         /// Assignment operator
         jmp operator=(const string& num)
         {
             clear();
-            // Check the validity of the number, if the number is invalid, so equal it to zero
             validation(num);
             return *this;
         }
-
         jmp operator=(const char* num)
         {
             clear();
-            // Check the validity of the number, if the number is invalid, so equal it to zero
             validation(num);
             return *this;
         }
 
-        /// Arithmetic operators
+        /*=========================================
+                    Summation operators
+          =========================================*/
         jmp operator+(jmp& j);
         jmp operator+(const long double& j);
         jmp operator+(string& num2_str);
@@ -160,6 +133,9 @@ class jmp
         jmp operator++();
         jmp operator++(int);
 
+        /*=========================================
+                   Subtraction operators
+          =========================================*/
         jmp operator-(jmp& j);
         jmp operator-(const long double& j);
         jmp operator-(string& num2_str);
@@ -176,6 +152,9 @@ class jmp
         jmp operator--(int);
         jmp operator--();
 
+        /*=========================================
+                   Multiplication operators
+          =========================================*/
         jmp operator*(jmp& j);
         jmp operator*(const long double& j);
         jmp operator*(string& num2_str);
@@ -190,9 +169,14 @@ class jmp
         friend void operator*=(long double& j, jmp& this_obj);
         friend void operator*=(string& num2_str, jmp& this_obj);
 
+        /*=========================================
+                  Exponentiation operators
+          =========================================*/
         jmp operator^(jmp& j);
 
-        /// Conditional operators
+        /*=========================================
+                   Conditional operators
+          =========================================*/
         bool operator==(jmp& j);
         bool operator==(const long double& j);
         bool operator==(string& j);
@@ -200,7 +184,6 @@ class jmp
         friend bool operator==(const long double& j, jmp& this_obj);
         friend bool operator==(string& j, jmp& this_obj);
         friend bool operator==(const char* j, jmp& this_obj);
-
         bool operator!=(jmp& j);
         bool operator!=(const long double& j);
         bool operator!=(string& j);
@@ -208,7 +191,6 @@ class jmp
         friend bool operator!=(const long double& j, jmp& this_obj);
         friend bool operator!=(string& j, jmp& this_obj);
         friend bool operator!=(const char* j, jmp& this_obj);
-
         bool operator<(jmp& j);
         bool operator<(const long double& j);
         bool operator<(string& j);
@@ -216,7 +198,6 @@ class jmp
         friend bool operator<(const long double& j, jmp& this_obj);
         friend bool operator<(string& j, jmp& this_obj);
         friend bool operator<(const char* j, jmp& this_obj);
-
         bool operator<=(jmp& j);
         bool operator<=(const long double& j);
         bool operator<=(string& j);
@@ -224,7 +205,6 @@ class jmp
         friend bool operator<=(const long double& j, jmp& this_obj);
         friend bool operator<=(string& j, jmp& this_obj);
         friend bool operator<=(const char* j, jmp& this_obj);
-
         bool operator>(jmp& j);
         bool operator>(const long double& j);
         bool operator>(string& j);
@@ -232,7 +212,6 @@ class jmp
         friend bool operator>(const long double& j, jmp& this_obj);
         friend bool operator>(string& j, jmp& this_obj);
         friend bool operator>(const char* j, jmp& this_obj);
-
         bool operator>=(jmp& j);
         bool operator>=(const long double& j);
         bool operator>=(string& j);
@@ -242,90 +221,92 @@ class jmp
         friend bool operator>=(const char* j, jmp& this_obj);
 };
 
-void jmp::FFT(std::complex<double>* a, ulli& n, const bool& invert)
+void jmp::FFT(std::complex<double>* a, size_t& n, const bool& invert)
 {
-    // Bit-reversal permutation
-    for (ulli i = 1, j = 0; i < n; ++i)
+    const double angleMultiplier {(invert ? -1.0 : 1.0) * 2.0 * M_PI / n};
+
+    std::complex<double> twiddleFactors[n];
+    for (size_t i{0}; i<n; ++i)
     {
-        ulli bit = n >> 1;
-        while (j >= bit)
-        {
-            j -= bit;
-            bit >>= 1;
-        }
-        j += bit;
-        if (i < j)
-            swap(a[i], a[j]);
+        const double angle {i * angleMultiplier};
+        twiddleFactors[i] = std::polar(1.0, angle);
     }
 
-    // Cooley-Tukey FFT algorithm
-    for (ulli len = 2; len <= n; len <<= 1)
+    size_t j {0};
+    for (size_t i{1}; i<n; ++i)
     {
-        double angle = 2 * M_PI / len * (invert ? -1 : 1);
-        std::complex<double> wlen(cos(angle), sin(angle));
-        for (ulli i = 0; i < n; i += len)
+        size_t bit {n >> 1};
+        while (((j ^= bit) & bit) == 0)
+            bit >>= 1;
+        if (i < j) swap(a[i], a[j]);
+    }
+
+    for (size_t len{2}; len<=n; len<<=1)
+    {
+        const size_t halfLen {len>>1}, twiddleStep {n / len};
+        for (size_t i{0}; i < n; i += len)
         {
-            std::complex<double> w(1);
-            for (ulli j = 0; j < len / 2; ++j)
+            std::complex<double>* pa {a + i};
+            for (size_t j{0}; j<halfLen; ++j)
             {
-                // Butterfly operation
-                std::complex<double> u = a[i + j], v = a[i + j + len / 2] * w;
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
-                w *= wlen;
+                const std::complex<double> u {*pa};
+                const std::complex<double> v {*(pa + halfLen) * twiddleFactors[j * twiddleStep]};
+                *pa = u + v;
+                *(pa + halfLen) = u - v;
+                pa++;
             }
         }
     }
 
-    // Invert the FFT if specified
     if (invert)
-        for (ulli i = 0; i < n; ++i)
-            a[i] /= n;  // Normalize the result by dividing each element by 'n'
+        for (size_t i{0}; i < n; ++i)
+            a[i] /= n;
 }
 
 string jmp::multiply(const string& num1, const string& num2)
 {
-    ulli n = 1;
-    while (n < num1.size() + num2.size())
-        n <<= 1;  // Find the smallest power of 2 that can hold the result of multiplication
+    const size_t size1 {num1.size()}, size2 {num2.size()};
+    size_t n {1};
+    while (n < size1 + size2)
+        n <<= 1;
+    std::complex<double> a[n], b[n];
 
-    auto a = std::make_unique<std::complex<double>[]>(n);  // Complex array for the first number
-    auto b = std::make_unique<std::complex<double>[]>(n);  // Complex array for the second number
+    for (size_t i{0}; i < size1; ++i)
+        a[i] = num1[size1 - i - 1] - '0';
+    for (size_t i{0}; i < size2; ++i)
+        b[i] = num2[size2 - i - 1] - '0';
 
-    // Convert the numbers to complex representation
-    for (ulli i = 0; i < num1.size(); ++i)
-        a[i] = num1[num1.size() - i - 1] - '0';  // Reverse the order and subtract ASCII offset to get the digit value
-    for (ulli i = 0; i < num2.size(); ++i)
-        b[i] = num2[num2.size() - i - 1] - '0';
+    FFT(a, n, false);
+    FFT(b, n, false);
 
-    // Perform FFT on the complex arrays
-    FFT(a.get(), n, false);  // Perform forward FFT on the first number
-    FFT(b.get(), n, false);  // Perform forward FFT on the second number
-
-    // Multiply the complex arrays element-wise
-    for (ulli i = 0; i < n; ++i)
+    for (size_t i{0}; i < n; ++i)
         a[i] *= b[i];
 
-    // Perform inverse FFT
-    FFT(a.get(), n, true);  // Perform inverse FFT on the multiplied result
+    FFT(a, n, true);
 
-    ulli carry = 0;
+    ulli carry {0};
     string product;
-    for (ulli i = 0; i < n; ++i) {
-        // Retrieve the real part of each element and perform carry operation
-        ulli digit = static_cast<ulli>(round(a[i].real())) + carry;
-        product += '0' + (digit % 10);  // Convert the digit to ASCII character
+    for (size_t i{0}; i < n; ++i)
+    {
+        ulli digit = static_cast<ulli>(a[i].real() + 0.5) + carry;
+        product += '0' + (digit % 10);
         carry = digit / 10;
     }
-    // Remove leading zeros from the product
+
     while (product.size() > 1 && product.back() == '0')
         product.pop_back();
 
-    reverse(product.begin(), product.end());  // Reverse the product to correct the order
+    // Efficient string reversal
+    size_t start {0}, end {product.size() - 1};
+    while (start < end)
+    {
+        std::swap(product[start], product[end]);
+        ++start;
+        --end;
+    }
+
     return product;
 }
-
-
 
 void jmp::validation (const string& num)
 {
@@ -349,9 +330,9 @@ void jmp::validation (const string& num)
         has_positive_sign = true;
     }
 
-    bool valid = true;
-    int number_of_dots = 0;
-    for (int i=0; i<number.length(); i++)
+    bool valid {true};
+    size_t number_of_dots {0};
+    for (size_t i{0}; i<number.length(); i++)
     {
         // If the number character is not in the range 0-9 and the number character is not '.'-
         // then this character is invalid
@@ -400,7 +381,7 @@ bool jmp::which_is_bigger(const string& num1, const string& num2) const
     {
         // If the two string numbers have the same length then we should check digit by digit to-
         // understand which number is bigger
-        int counter = 0;
+        int counter {0};
         while (counter < num1.size())
         {
             if (num1[counter] > num2[counter])
@@ -420,8 +401,8 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
     // Now we ready to add two numbers together
     if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
     {
-        int difference_of_two_numbers = num1.size() - num2.size();
-        for (int i=num1.size() - 1; i>=0; i--)
+        long unsigned int difference_of_two_numbers {num1.size() - num2.size()};
+        for (long int i{num1.size() - 1}; i>=0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
@@ -436,8 +417,8 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
             }
         }
     } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num2.size() - num1.size();
-        for (int i=num2.size() - 1; i>=0; i--)
+        long unsigned int difference_of_two_numbers {num2.size() - num1.size()};
+        for (int i{num2.size() - 1}; i>=0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
@@ -453,8 +434,8 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
             }
         }
     } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num1.size() - num2.size();
-        for (int i=num1.size() - 1; i>=0; i--)
+        long unsigned int difference_of_two_numbers {num1.size() - num2.size()};
+        for (int i{num1.size() - 1}; i>=0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
@@ -466,8 +447,8 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
             }
         }
     } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
-        int difference_of_two_numbers = num2.size() - num1.size();
-        for (int i=num2.size() - 1; i>=0; i--)
+        long unsigned int difference_of_two_numbers {num2.size() - num1.size()};
+        for (int i{num2.size() - 1}; i>=0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
@@ -488,21 +469,27 @@ void jmp::equalizing_figures(jmp& j)
     {
         // It means this object number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
-        int how_many_zeros = (number.size() - float_point_index) - (j.number.size() - j.float_point_index);
-        for (int i=0; i<how_many_zeros; i++)
+        long unsigned int how_many_zeros {(number.size() - float_point_index) - (j.number.size() - j.float_point_index)};
+        for (int i{0}; i<how_many_zeros; i++)
             j.number.push_back('0');
-    } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+    }
+    else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
+    {
         // It means second number has more decimals than this object number
-        int how_many_zeros = (j.number.size() - j.float_point_index) - (number.size() - float_point_index);
-        for (int i=0; i<how_many_zeros; i++)
+        long unsigned int how_many_zeros {(j.number.size() - j.float_point_index) - (number.size() - float_point_index)};
+        for (int i{0}; i<how_many_zeros; i++)
             number.push_back('0');
-    } else if (j.float_point_index != 0 && float_point_index == 0) {
-        int how_many_zeros = j.number.size() - j.float_point_index;
-        for (int i=0; i<how_many_zeros; i++)
+    }
+    else if (j.float_point_index != 0 && float_point_index == 0)
+    {
+        long unsigned int how_many_zeros {j.number.size() - j.float_point_index};
+        for (int i{0}; i<how_many_zeros; i++)
             number.push_back('0');
-    } else if (j.float_point_index == 0 && float_point_index != 0) {
-        int how_many_zeros = number.size() - float_point_index;
-        for (int i=0; i<how_many_zeros; i++)
+    }
+    else if (j.float_point_index == 0 && float_point_index != 0)
+    {
+        long unsigned int how_many_zeros {number.size() - float_point_index};
+        for (int i{0}; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
 }
@@ -548,10 +535,10 @@ jmp jmp::operator+(jmp& j)
     else float_point_index = 0;
 
     jmp sum_obj("0");
-    int temp_number_size = number.size(), temp_second_number_size = j.number.size();
+    size_t temp_number_size {number.size()}, temp_second_number_size {j.number.size()};
     equalizing_figures(j);
     // Check which number is bigger, and we equal the sum object number to the biggest number
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
+    bool this_number_is_bigger {false}, second_number_is_bigger {false};
     if (which_is_bigger(number, j.number) == 0)
     {
         sum_obj.number = number;
@@ -618,18 +605,13 @@ jmp jmp::operator*(jmp& j)
     else
         mul_obj.number = multiply(number, j.number);
 
-    bool this_number_is_bigger = false, second_number_is_bigger = false;
-
-    if (which_is_bigger(number, j.number) == 0)
-        this_number_is_bigger = true;
-    else
-        second_number_is_bigger = true;
-
-    ulli sum_of_decimals_of_two_numbers =
+    ulli sum_of_decimals_of_two_numbers {
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
-        (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index));
+        (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index))};
+
     while (mul_obj.number.size() <= sum_of_decimals_of_two_numbers)
         mul_obj.number = "0" + mul_obj.number;
+
     mul_obj.float_point_index = mul_obj.number.size() - sum_of_decimals_of_two_numbers;
 
     if ((has_negative_sign == true && j.has_negative_sign == false) ||
@@ -643,7 +625,7 @@ jmp jmp::operator*(jmp& j)
     if (mul_obj.float_point_index != 0 && mul_obj.float_point_index != mul_obj.number.size())
         mul_obj.number.insert(mul_obj.number.begin() + mul_obj.float_point_index, '.');
 
-    while (mul_obj.float_point_index != 0 && mul_obj.float_point_index <= mul_obj.number.size() &&
+    while (mul_obj.float_point_index != 0 && (mul_obj.float_point_index <= mul_obj.number.size() - 1) &&
         mul_obj.number[mul_obj.number.size() - 1] == '0')
         mul_obj.number.erase(mul_obj.number.begin() + mul_obj.number.size()  - 1);
 
@@ -883,17 +865,11 @@ void operator-=(string& j, jmp& this_obj)
 
 jmp jmp::operator^(jmp& j)
 {
-    string temp = j.number;
-    jmp result = 1;
-    while (j > 0.0)
-    {
-        result = result * *this;
-        --j;
-    }
-    return result;
+    string temp_base = number;
+    while (--j > "0")
+        *this *= temp_base;
+    return *this;
 }
-
-
 
 bool jmp::operator==(jmp& j)
 {

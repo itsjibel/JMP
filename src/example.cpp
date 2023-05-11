@@ -1,158 +1,157 @@
 #include "jmp.hpp"
 #include <iostream>
+
 using std::endl;
 using std::cout;
 
 int main()
 {
+    // Creating a jmp object initialized with a const char* value "600"
     jmp my_number = "600";
-    // Put const char* into a jmp object with constructor -> 600
-    cout<<my_number<<endl;
+    cout << my_number << endl;
 
-    // Put const char* into a jmp object -> +700
+    // Assigning a new value to the jmp object
     my_number = "+700";
-    cout<<my_number<<endl;
+    cout << my_number << endl;
 
-    // Put the string into a jmp object -> -989
+    // Using a string to assign a value to the jmp object
     string str = "-990";
     my_number = str;
-    cout<<my_number<<endl;
+    cout << my_number << endl;
 
-    // ++ the jmp number
+    // Incrementing the jmp object by one
     my_number = "-999";
     my_number++;
-    cout<<my_number<<endl;
+    cout << my_number << endl;
 
-    // -- the jmp number
+    // Decrementing the jmp object by one
     my_number = "0";
-    cout<<--my_number<<endl;
+    cout << --my_number << endl;
 
-    // Cout when ++ the jmp object
+    // Incrementing the jmp object by one and then printing it
     my_number = "999999999999999999999999999999999999998";
-    cout<<++my_number<<endl;
+    cout << ++my_number << endl;
 
-    // Put the string into a jmp object
+    // Creating a new jmp object and incrementing it by one
     string sec_str = "9999999999999999999";
     jmp second_number = sec_str;
+    cout << ++second_number << endl;
 
-    // Print ++ed jmp number
-    cout<<++second_number<<endl;
+    // Printing the sum of two positive jmp numbers
+    cout << second_number + my_number << endl;
 
-    // Cout the sum of the two positive jmp numbers
-    cout<<second_number + my_number<<endl;
-
-    // Cout the sum of the two negative jmp numbers
+    // Printing the sum of two negative jmp numbers
     second_number = "-99999999";
     my_number = "-9999999";
-    cout<<my_number + second_number<<endl;
+    cout << my_number + second_number << endl;
 
-
-    // Cout sum of the positive and negative jmp numbers
+    // Printing the sum of a positive and a negative jmp number
     second_number = "-99999999";
     my_number = "100000000";
-    cout<<my_number + second_number<<endl;
+    cout << my_number + second_number << endl;
 
-    // Cout sum of the jmp number and int
-    int a = -98;
-    cout<<my_number + a<<endl;
+    // Printing the sum of the jmp number and an integer
+    int a {-98};
+    cout << my_number + a << endl;
 
-    // Cout, then -- the jmp number
+    // Printing the jmp number and then decrementing it
     jmp c = "-542.21442";
-    cout<<c--<<endl;
+    cout << c-- << endl;
 
-    // Cout the --ed jmp number
-    cout<<--c<<endl;
+    // Decrementing the jmp number and then printing it
+    cout << --c << endl;
 
-    // Cout the sum of two float jmp numbers
+    // Printing the sum of two float jmp numbers
     jmp e = -24.8653;
-    cout<<"Result one: "<<c + e<<endl;
-    cout<<"Result two: "<<c + -24.8653<<endl;
+    cout << "Result one: " << c + e << endl;
+    cout << "Result two: " << c + -24.8653 << endl;
 
-    // Put jmp number into a integer variable
+    // Converting the jmp number to an integer and printing it
     long long int my_int = c.to_int();
-    cout<<"Int number: "<<my_int<<endl;
+    cout << "Int number: " << my_int << endl;
 
-    // Put jmp number into a float variable
+    // Converting the jmp number to a float and printing it
     long double my_double = c.to_double();
-    cout<<"Double number: "<<my_double<<endl;
+    cout << "Double number: " << my_double << endl;
 
-    // Convert the jmp number from decimal to integer
+    // Converting the jmp number from decimal to integer
     c.internal_conversion_to_int();
-    cout<<c<<endl;
+    cout << c << endl;
 
-    // Append number to the jmp number
+    // Appending a number to the jmp number
     c.append("12345454");
-    cout<<c<<endl;
+    cout << c << endl;
 
-    // Print is jmp number integer?
-    cout<<(c.is_integer() ? "Yes\n" : "No\n");
+    // Checking if the jmp number is an integer
+    cout << (c.is_integer() ? "Yes\n" : "No\n");
 
-    // Print is jmp number decimal?
-    cout<<(c.is_decimal() ? "Yes\n" : "No\n");
+    // Checking if the jmp number is a decimal
+    cout << (c.is_decimal() ? "Yes\n" : "No\n");
 
-    // Clear the jmp number data and print the is_empty function
+    // Clearing the jmp number data and checking if it is empty
     c.clear();
-    cout<<(c.is_empty() ? "Yes\n" : "No\n");
+    cout << (c.is_empty() ? "Yes\n" : "No\n");
 
-    // Sumition this time the first number is an double
+    // Sumition this time the first number is a double
     c = "123221398173981738917382130812931037999.5699511455515322";
-    cout<<465512 + c<<endl;
+    cout << 465512 + c << endl;
 
-    // += the jmp number with an double number
+    // Adding a double number to the jmp number using +=
     c += 120.454;
-    cout<<c<<endl;
+    cout << c << endl;
 
-    // Add string to jmp number
+    // Adding a string to the jmp number
     string string_number = "+210.6";
     c = "-400.4";
-    cout<<c + string_number<<endl;
-    cout<<string_number + c<<endl;
+    cout << c + string_number << endl;
+    cout << string_number + c << endl;
 
-    // Add const char* to jmp number
-    cout<<c + "-120"<<endl;
-    cout<<"-120" + c<<endl;
+    // Adding a const char* to the jmp number
+    cout << c + "-120" << endl;
+    cout << "-120" + c << endl;
 
-    // Multiply two jmp numbers
+    // Multiplying two jmp numbers
     jmp mul1 = "195164524524524515.65156", mul2 = "9999443453452459534.3516515";
-    cout<<mul1 * mul2<<endl;
+    cout << mul1 * mul2 << endl;
 
-    // Multiply jmp number with double
-    cout<<mul1 * -10000<<endl;
-    cout<<0.0001 * mul1<<endl;
+    // Multiplying the jmp number with a double
+    cout << mul1 * -10000 << endl;
+    cout << 0.0001 * mul1 << endl;
     mul1 *= "-9999443453452459534.3516515";
-    cout<<mul1<<endl;
+    cout << mul1 << endl;
 
-    // Subtract two jmp numbers
+    // Subtracting two jmp numbers
     jmp sub1 = "-1234", sub2 = "-1235";
-    cout<<sub2 - sub1<<endl;
+    cout << sub2 - sub1 << endl;
 
     // Conditional checking
     jmp cond1 = "-1013.65";
     if (cond1 == -1013.65 && -1013.65 == cond1)
-        cout<<"Yes\n";
+        cout << "Yes\n";
 
     jmp cond2 = "-1013.65";
     if (cond1 == cond2)
-        cout<<"Yes cond1 == cond2, "<<cond1<<" == "<<cond2<<endl;
+        cout << "Yes cond1 == cond2, " << cond1 << " == " << cond2 << endl;
 
     cond2--;
     if (cond2 < cond1)
-        cout<<"Yes cond2 < cond1, "<<cond2<<" < "<<cond1<<endl;
-    
+        cout << "Yes cond2 < cond1, " << cond2 << " < " << cond1 << endl;
+
     if (cond1 > cond2)
-        cout<<"Yes cond1 > cond2, "<<cond1<<" > "<<cond2<<endl;
+        cout << "Yes cond1 > cond2, " << cond1 << " > " << cond2 << endl;
 
     if (cond2 != cond1)
-        cout<<"Yes cond2 != cond1, "<<cond2<<" != "<<cond1<<endl;
+        cout << "Yes cond2 != cond1, " << cond2 << " != " << cond1 << endl;
 
     cond1--;
     if (cond2 <= cond1)
-        cout<<"Yes cond2 <= cond1, "<<cond2<<" <= "<<cond1<<endl;
+        cout << "Yes cond2 <= cond1, " << cond2 << " <= " << cond1 << endl;
 
     if (cond2 >= cond1)
-        cout<<"Yes cond2 >= cond1, "<<cond2<<" >= "<<cond1<<endl;
+        cout << "Yes cond2 >= cond1, " << cond2 << " >= " << cond1 << endl;
 
-    jmp pow1 = "2", pow2 = "168";
-    cout<<(pow1 ^ pow2)<<endl;
+    jmp pow1 = "2", pow2 = "1268";
+    cout << (pow1 ^ pow2) << endl;
+
     return 0;
 }
