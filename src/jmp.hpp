@@ -2,7 +2,6 @@
 #include <complex>
 #include <memory>
 #include <string>
-#include <vector>
 using std::string;
 
 string double_to_string(const long double& num)
