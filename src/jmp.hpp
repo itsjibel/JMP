@@ -931,9 +931,9 @@ string operator-=(string& j, jmp& this_obj)
 
 jmp jmp::operator^(jmp j)
 {
-    jmp result(1);
-    while (--j > 0.0)
-        result *= *this;
+    jmp result("1");
+    while (--j > -1.0)
+        result.number = move(((result) * (*this)).number);
     return result;
 }
 
