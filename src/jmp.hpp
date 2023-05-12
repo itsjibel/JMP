@@ -82,17 +82,19 @@ class jmp
         long double   to_double() { return std::stod(number); }
         string        to_string() { return number; }
 
-        void internal_conversion_to_int()
+        jmp internal_conversion_to_int()
         {
             number = number.substr(0, float_point_index);
             float_point_index = 0;
+            return *this;
         }
 
-        void append (const string& num)
+        jmp append (const string& num)
         {
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
                 number.append(num);
+            return *this;
         }
 
         // About-number functions
