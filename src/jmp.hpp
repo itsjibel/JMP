@@ -437,77 +437,111 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
                      bool& first_number_is_bigger, bool& second_number_is_bigger,
                      bool& first_number_has_negative_sign, bool& second_number_has_negative_sign)
 {
-    // Now we ready to add two numbers together
     if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
     {
-        auto difference_of_two_numbers {num1.size() - num2.size()};
+        /* If the numbers have the same sign (both are positive or negative),
+           and this number is bigger, so we sum the second number to this number like this:
+         */
+        auto difference_size_of_two_numbers {num1.size() - num2.size()};
         for (auto i{num1.size() - 1}; i>0; i--)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
-            if (i != 0 && sum_obj.number[i] > '9')
+            /* We start from the last digit of this number and move forwards to the second digit,
+               and if the current digit is greater than the difference between the two digits,
+               we add the current digit of this number to the second digit.
+             */
+            if (i >= difference_size_of_two_numbers)
+                sum_obj.number[i] += num2[i - difference_size_of_two_numbers] - '0';
+
+            /* If the current digit gets more than '9',
+               then we add 1 to the previous digit and subtract 10 from the current digit
+             */
+            if (sum_obj.number[i] > '9')
             {
-                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+                sum_obj.number[i - 1] += 1;
+                sum_obj.number[i] -= 10;
             }
         }
+
+        // If the difference between two numbers is zero, we add the first digits of the two numbers together
+        if (0 == difference_size_of_two_numbers)
+            sum_obj.number[0] += num2[0] - '0';
+
+        // And again do the previous condition for the first digit
         if (sum_obj.number[0] > '9')
         {
+            sum_obj.number[0] -= 10;
             sum_obj.number = '1' + sum_obj.number;
-            sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
             sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
         }
     }
     else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
     {
-        auto difference_of_two_numbers {num2.size() - num1.size()};
+        // This is the same. Just for the second number instead of this number.
+        auto difference_size_of_two_numbers {num2.size() - num1.size()};
         for (auto i{num2.size() - 1}; i>0; i--)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
+            if (i >= difference_size_of_two_numbers)
+                sum_obj.number[i] += num1[i - (difference_size_of_two_numbers)] - '0';
             if (i != 0 && sum_obj.number[i] > '9')
             {
-                sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
-                sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
+                sum_obj.number[i - 1] += 1;
+                sum_obj.number[i] -= 10;
             }
         }
         if (sum_obj.number[0] > '9')
         {
+            sum_obj.number[0] -= 10;
             sum_obj.number = '1' + sum_obj.number;
-            sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
             sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
         }
     }
     else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign))
     {
-        auto difference_of_two_numbers {num1.size() - num2.size()};
+        /* If the number signs are not equal together and this number is bigger,
+          so we subtract the second number from this number
+         */
+        auto difference_size_of_two_numbers {num1.size() - num2.size()};
         for (auto i{num1.size() - 1}; i>0; i--)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
+            /* We start from the last digit of this number and move forwards to the second digit,
+               and if the current digit is greater than the difference between the two digits,
+               we subtract second number digit from the current digit of this number.
+             */
+            if (i >= difference_size_of_two_numbers)
+                sum_obj.number[i] -= num2[i - difference_size_of_two_numbers] - '0';
+
+            /* If the current digit gets less than '0',
+               then we subtract 1 to the previous digit and add 10 to the current digit
+             */
             if (sum_obj.number[i] < '0')
             {
                 sum_obj.number[i] += 10;
                 sum_obj.number[i - 1]--;
             }
         }
-        if (0 == difference_of_two_numbers)
+        /* If the difference size of two numbers is 0,
+           then in the last action we subtract the first digit of the second number from this number.
+         */
+        if (0 == difference_size_of_two_numbers)
             sum_obj.number[0] -= num2[0] - '0';
     }
     else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign))
     {
-        auto difference_of_two_numbers {num2.size() - num1.size()};
+        // This is the same. Just for the second number instead of this number.
+        auto difference_size_of_two_numbers {num2.size() - num1.size()};
         for (auto i{num2.size() - 1}; i>0; i--)
         {
-            if (i >= difference_of_two_numbers)
-                sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
+            if (i >= difference_size_of_two_numbers)
+                sum_obj.number[i] -= num1[i - difference_size_of_two_numbers] - '0';
+
             if (sum_obj.number[i] < '0')
             {
                 sum_obj.number[i] += 10;
                 sum_obj.number[i - 1]--;
             }
         }
-        if (0 == difference_of_two_numbers)
+
+        if (0 == difference_size_of_two_numbers)
             sum_obj.number[0] -= num1[0] - '0';
     }
 }
@@ -517,15 +551,15 @@ void jmp::equalizing_figures(jmp& j)
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
     if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
     {
-        // It means this object number has more decimals than second number
-        // Now we need to know how many '0' decimals we should push back to the second number. (that number has lower decimals)
+        // It means this number has more decimals than second number
+        // Now we need to know how many '0' decimals we should push back to the second number.
         long unsigned int how_many_zeros {(number.size() - float_point_index) - (j.number.size() - j.float_point_index)};
         for (int i{0}; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
     else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
     {
-        // It means second number has more decimals than this object number
+        // It means the second number has more decimals than this number, so we equalize the figure of this number to the second number.
         long unsigned int how_many_zeros {(j.number.size() - j.float_point_index) - (number.size() - float_point_index)};
         for (int i{0}; i<how_many_zeros; i++)
             number.push_back('0');
@@ -546,7 +580,8 @@ void jmp::equalizing_figures(jmp& j)
 
 void jmp::trim_the_number(jmp& j, const bool& bigger_number_is_negative)
 {
-    while (j.number[0] == '0' && j.float_point_index != 1)
+    // Erase the useless beginning zeros after subtraction
+    while (j.number[0] == '0')
     {
         j.number.erase(j.number.begin());
         if (j.float_point_index > 0)
@@ -561,7 +596,7 @@ void jmp::trim_the_number(jmp& j, const bool& bigger_number_is_negative)
         }
     }
 
-    // Remove the ending-unusable zeros
+    // Remove the ending useless zeros after subtraction
     while (j.number[j.number.size() - 1] == '0' && j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.number.size() - 1);
 
@@ -570,6 +605,7 @@ void jmp::trim_the_number(jmp& j, const bool& bigger_number_is_negative)
     else if (bigger_number_is_negative)
         j.has_negative_sign = true;
 
+    // If the float index is the last index of the number so we push back '0' to the number to have the valid number.
     if (j.float_point_index != 0 && j.float_point_index == j.number.size())
         j.number.append("0");
 }
