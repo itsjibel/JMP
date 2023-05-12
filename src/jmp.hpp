@@ -2,6 +2,7 @@
 #include <complex>
 #include <memory>
 #include <string>
+#include <iostream>
 using std::string;
 
 string double_to_string(const long double& num)
@@ -9,7 +10,7 @@ string double_to_string(const long double& num)
     // Create an output string stream object
     std::ostringstream strs;
     // Insert the value of 'num' into the output stream
-    strs << num;
+    strs<<num;
     // Retrieve the contents of the output stream as a string and return it
     return strs.str();
 }
@@ -173,7 +174,13 @@ class jmp
         /*=========================================
                   Exponentiation operators
           =========================================*/
-        jmp operator^(jmp& j);
+        jmp operator^(jmp j);
+        jmp operator^(long double j);
+        jmp operator^(const string& num2_str);
+        jmp operator^(const char* num2_str);
+        friend long double operator^(long double j, jmp& this_obj);
+        friend string operator^(const string& num2_str, jmp& this_obj);
+        friend string operator^(const char* num2_str, jmp& this_obj);
 
         /*=========================================
                    Conditional operators
@@ -375,8 +382,7 @@ void jmp::validation (const string& num)
     }
 
     // "If conditions" for falsing the validity of the number string
-    if ((number[0] == '0' && number[1] != '.') ||
-        (number.front() == '.'))
+    if ((number[0] == '0' && number[1] != '.') || (number.front() == '.'))
         valid = false;
 
     // "If conditions" for truing the validity of the number string
@@ -389,15 +395,13 @@ void jmp::validation (const string& num)
 
     // If the last index of the number is a '.' character so the user meant that this number is-
     // a float number so we do consider this for the JMP number.
-    if (number.back() == '.' && valid)
-        number.push_back('0');
+    if (number.back() == '.' && valid) number.push_back('0');
 
     // If the number is valid, so it is; but if the number isn't valid, then we value the number to zero
-    number = valid ? number : "0";
+    if (!valid) number = "0";
 
     // If the number is not valid, we will set the sign of the number that set above with false
-    if (valid == false)
-        has_negative_sign = has_positive_sign = false;
+    if (valid == false) has_negative_sign = has_positive_sign = false;
 }
 
 bool jmp::which_is_bigger(const string& num1, const string& num2) const
@@ -433,8 +437,8 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
     // Now we ready to add two numbers together
     if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
     {
-        long unsigned int difference_of_two_numbers {num1.size() - num2.size()};
-        for (long int i{num1.size() - 1}; i>=0; i--)
+        auto difference_of_two_numbers {num1.size() - num2.size()};
+        for (auto i{num1.size() - 1}; i>0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] += num2[i - difference_of_two_numbers] - '0';
@@ -442,55 +446,66 @@ void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
             {
                 sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
                 sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj.number[i] > '9') {
-                sum_obj.number = '1' + sum_obj.number;
-                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
             }
         }
-    } else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign)) {
-        long unsigned int difference_of_two_numbers {num2.size() - num1.size()};
-        for (int i{num2.size() - 1}; i>=0; i--)
+        if (sum_obj.number[0] > '9')
+        {
+            sum_obj.number = '1' + sum_obj.number;
+            sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+            sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
+        }
+    }
+    else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    {
+        auto difference_of_two_numbers {num2.size() - num1.size()};
+        for (auto i{num2.size() - 1}; i>0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] += num1[i - (difference_of_two_numbers)] - '0';
-
             if (i != 0 && sum_obj.number[i] > '9')
             {
                 sum_obj.number[i - 1] += (sum_obj.number[i] - '0') / 10;
                 sum_obj.number[i] -= (sum_obj.number[i] - '0') / 10 * 10;
-            } else if (i == 0 && sum_obj.number[i] > '9') {
-                sum_obj.number = '1' + sum_obj.number;
-                sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
-                sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
             }
         }
-    } else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign)) {
-        long unsigned int difference_of_two_numbers {num1.size() - num2.size()};
-        for (int i{num1.size() - 1}; i>=0; i--)
+        if (sum_obj.number[0] > '9')
+        {
+            sum_obj.number = '1' + sum_obj.number;
+            sum_obj.number[1] -= (sum_obj.number[1] - '0') / 10 * 10;
+            sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
+        }
+    }
+    else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign))
+    {
+        auto difference_of_two_numbers {num1.size() - num2.size()};
+        for (auto i{num1.size() - 1}; i>0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] -= num2[i - difference_of_two_numbers] - '0';
-
             if (sum_obj.number[i] < '0')
             {
                 sum_obj.number[i] += 10;
                 sum_obj.number[i - 1]--;
             }
         }
-    } else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign)) {
-        long unsigned int difference_of_two_numbers {num2.size() - num1.size()};
-        for (int i{num2.size() - 1}; i>=0; i--)
+        if (0 == difference_of_two_numbers)
+            sum_obj.number[0] -= num2[0] - '0';
+    }
+    else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign))
+    {
+        auto difference_of_two_numbers {num2.size() - num1.size()};
+        for (auto i{num2.size() - 1}; i>0; i--)
         {
             if (i >= difference_of_two_numbers)
                 sum_obj.number[i] -= num1[i - difference_of_two_numbers] - '0';
-
             if (sum_obj.number[i] < '0')
             {
                 sum_obj.number[i] += 10;
                 sum_obj.number[i - 1]--;
             }
         }
+        if (0 == difference_of_two_numbers)
+            sum_obj.number[0] -= num1[0] - '0';
     }
 }
 
@@ -895,12 +910,48 @@ void operator-=(string& j, jmp& this_obj)
     j = (j - this_obj).to_string();
 }
 
-jmp jmp::operator^(jmp& j)
+jmp jmp::operator^(jmp j)
 {
-    string temp_base = number;
-    while (--j > "0")
-        *this *= temp_base;
-    return *this;
+    jmp result(1);
+    while (--j > 0.0)
+        result *= *this;
+    return result;
+}
+
+jmp jmp::operator^(long double j)
+{
+    jmp num2(j);
+    return *this ^ num2;
+}
+
+jmp jmp::operator^(const string& j)
+{
+    jmp num2(j);
+    return *this ^ num2;
+}
+
+jmp jmp::operator^(const char* j)
+{
+    jmp num2(j);
+    return *this ^ num2;
+}
+
+long double operator^(long double j, jmp& this_obj)
+{
+    jmp num2(j);
+    return (num2 ^ this_obj).to_double();
+}
+
+string operator^(const string& j, jmp& this_obj)
+{
+    jmp num2(j);
+    return (num2 ^ this_obj).to_string();
+}
+
+string operator^(const char* j, jmp& this_obj)
+{
+    jmp num2(j);
+    return (num2 ^ this_obj).to_string();
 }
 
 bool jmp::operator==(jmp& j)
