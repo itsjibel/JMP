@@ -51,7 +51,10 @@ class jmp
         }
 
         /// Destructor
-        virtual ~jmp() {}
+        virtual ~jmp()
+        {
+            clear();
+        }
 
         /// Stream operators
         friend std::ostream& operator<<(std::ostream& o, const jmp& j)
@@ -71,10 +74,7 @@ class jmp
         /// Optional functions
         void clear()
         {
-            number.clear();
-            has_negative_sign = false;
-            has_positive_sign = false;
-            float_point_index = 0;
+            number = float_point_index = has_positive_sign = has_negative_sign = 0;
         }
 
         // Conversion functions
