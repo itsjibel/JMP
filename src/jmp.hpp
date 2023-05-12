@@ -933,7 +933,7 @@ jmp jmp::operator^(jmp j)
 {
     jmp result("1");
     while (--j > -1.0)
-        result.number = move(((result) * (*this)).number);
+        result *= *this;
     return result;
 }
 
