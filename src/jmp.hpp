@@ -3,16 +3,6 @@
 #include <memory>
 using std::string;
 
-string double_to_string(const long double& num)
-{
-    // Create an output string stream object
-    std::ostringstream strs;
-    // Insert the value of 'num' into the output stream
-    strs<<num;
-    // Retrieve the contents of the output stream as a string and return it
-    return strs.str();
-}
-
 class jmp
 {
     private:
@@ -27,6 +17,15 @@ class jmp
         bool which_is_bigger(const string& num1, const string& num2) const;
         void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
+        string double_to_string(const long double& num)
+        {
+            // Create an output string stream object
+            std::ostringstream strs;
+            // Insert the value of 'num' into the output stream
+            strs<<num;
+            // Retrieve the contents of the output stream as a string and return it
+            return strs.str();
+        }
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool& invert);
