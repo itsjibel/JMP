@@ -7,7 +7,7 @@ class jmp
     private:
         typedef unsigned long long int ulli;
         /// The main members of the class
-        bool has_negative_sign {false}, has_positive_sign {false};
+        bool is_negative {false};
         ulli float_point_index {0};
         std::string number;
 
@@ -30,7 +30,7 @@ class jmp
         void FFT(std::complex<double>* a, ulli& n, const bool& invert);
         void summation(jmp& sum_obj, const std::string& num1, const std::string& num2,
                         bool& first_number_is_bigger, bool& second_number_is_bigger,
-                        bool& first_number_has_negative_sign, bool& second_number_has_negative_sign);
+                        bool& first_number_is_negative, bool& second_number_is_negative);
         std::string multiply(const std::string& num1, const std::string& num2);
 
     public:
@@ -44,8 +44,7 @@ class jmp
         {
             number = j.number;
             float_point_index = j.float_point_index;
-            has_negative_sign = j.has_negative_sign;
-            has_positive_sign = j.has_positive_sign;
+            is_negative = j.is_negative;
         }
 
         /// Destructor
@@ -57,7 +56,7 @@ class jmp
         /// Stream operators
         friend std::ostream& operator<<(std::ostream& o, const jmp& j)
         {
-            o<<(j.has_negative_sign ? '-' : j.has_positive_sign ? '+' : '\0');
+            o<<(j.is_negative ? '-' : '\0');
             o<<j.number;
             return o;
         }
@@ -72,7 +71,7 @@ class jmp
         /// Optional functions
         void clear()
         {
-            number = float_point_index = has_positive_sign = has_negative_sign = 0;
+            number = float_point_index = is_negative = 0;
         }
 
         // Conversion functions
@@ -348,11 +347,10 @@ void jmp::validation (const std::string& num)
     {
         number.erase(number.begin());
         float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        has_negative_sign = true;
+        is_negative = true;
     } else if (number[0] == '+') {
         number.erase(number.begin());
         float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-        has_positive_sign = true;
     }
 
     bool valid {true};
@@ -402,7 +400,7 @@ void jmp::validation (const std::string& num)
     if (!valid) number = "0";
 
     // If the number is not valid, we will set the sign of the number that set above with false
-    if (valid == false) has_negative_sign = has_positive_sign = false;
+    if (valid == false) is_negative = false;
 }
 
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
@@ -433,9 +431,9 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
 
 void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& num2,
                      bool& first_number_is_bigger, bool& second_number_is_bigger,
-                     bool& first_number_has_negative_sign, bool& second_number_has_negative_sign)
+                     bool& first_number_is_negative, bool& second_number_is_negative)
 {
-    if (first_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    if (first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
         /* If the numbers have the same sign (both are positive or negative),
            and this number is bigger, so we sum the second number to this number like this:
@@ -472,7 +470,7 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
             sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
         }
     }
-    else if (second_number_is_bigger && (first_number_has_negative_sign == second_number_has_negative_sign))
+    else if (second_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
         // This is the same. Just for the second number instead of this number.
         auto difference_size_of_two_numbers {num2.size() - num1.size()};
@@ -493,7 +491,7 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
             sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
         }
     }
-    else if (first_number_is_bigger && (first_number_has_negative_sign != second_number_has_negative_sign))
+    else if (first_number_is_bigger && (first_number_is_negative != second_number_is_negative))
     {
         /* If the number signs are not equal together and this number is bigger,
           so we subtract the second number from this number
@@ -523,7 +521,7 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
         if (0 == difference_size_of_two_numbers)
             sum_obj.number[0] -= num2[0] - '0';
     }
-    else if (second_number_is_bigger && (has_negative_sign != second_number_has_negative_sign))
+    else if (second_number_is_bigger && (is_negative != second_number_is_negative))
     {
         // This is the same. Just for the second number instead of this number.
         auto difference_size_of_two_numbers {num2.size() - num1.size()};
@@ -601,7 +599,7 @@ void jmp::trim_the_number(jmp& j, const bool& bigger_number_is_negative)
     if (j.number.empty())
         j.number = "0";
     else if (bigger_number_is_negative)
-        j.has_negative_sign = true;
+        j.is_negative = true;
 
     // If the float index is the last index of the number so we push back '0' to the number to have the valid number.
     if (j.float_point_index != 0 && j.float_point_index == j.number.size())
@@ -647,14 +645,14 @@ jmp jmp::operator+(jmp& j)
     }
 
     // Get sum of the two filtered strings
-    summation(sum_obj, number, j.number, this_number_is_bigger, second_number_is_bigger, has_negative_sign, j.has_negative_sign);
+    summation(sum_obj, number, j.number, this_number_is_bigger, second_number_is_bigger, is_negative, j.is_negative);
 
     /* Trim the number means if we have a number such as '000012.32400' after the summation of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
      * (-9900.22 + 9912.22) = 0012.00 ---> 12
      */
-    trim_the_number(sum_obj, (this_number_is_bigger && has_negative_sign) || (second_number_is_bigger && j.has_negative_sign));
+    trim_the_number(sum_obj, (this_number_is_bigger && is_negative) || (second_number_is_bigger && j.is_negative));
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
@@ -662,9 +660,9 @@ jmp jmp::operator+(jmp& j)
     if (sum_obj.float_point_index != 0)
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
     
-    if ((second_number_is_bigger && has_negative_sign == false && j.has_negative_sign) ||
-        (has_negative_sign && this_number_is_bigger))
-        sum_obj.has_negative_sign = true;
+    if ((second_number_is_bigger && is_negative == false && j.is_negative) ||
+        (is_negative && this_number_is_bigger))
+        sum_obj.is_negative = true;
     return sum_obj;
 }
 
@@ -695,9 +693,9 @@ jmp jmp::operator*(jmp& j)
 
     mul_obj.float_point_index = mul_obj.number.size() - sum_of_decimals_of_two_numbers;
 
-    if ((has_negative_sign == true && j.has_negative_sign == false) ||
-        (has_negative_sign == false && j.has_negative_sign == true))
-        mul_obj.has_negative_sign = true;
+    if ((is_negative == true && j.is_negative == false) ||
+        (is_negative == false && j.is_negative == true))
+        mul_obj.is_negative = true;
 
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
@@ -716,7 +714,7 @@ jmp jmp::operator*(jmp& j)
 jmp jmp::operator-(jmp& j)
 {
     jmp negative(j);
-    negative.has_negative_sign = true;
+    negative.is_negative = true;
     return *this + negative;
 }
 
@@ -1008,7 +1006,7 @@ std::string operator^(const char* j, jmp& this_obj)
 
 bool jmp::operator==(jmp& j)
 {
-    if ((has_negative_sign ? "-" : "") + number == (j.has_negative_sign ? "-" : "") + j.number)
+    if ((is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number)
         return true;
     else
         return false;
@@ -1052,7 +1050,7 @@ bool operator==(const char* j, jmp& this_obj)
 
 bool jmp::operator!=(jmp& j)
 {
-    if ((has_negative_sign ? "-" : "") + number != (j.has_negative_sign ? "-" : "") + j.number)
+    if ((is_negative ? "-" : "") + number != (j.is_negative ? "-" : "") + j.number)
         return true;
     else
         return false;
@@ -1099,17 +1097,17 @@ bool jmp::operator<(jmp& j)
     if (*this == j)
         return false;
 
-    if (has_negative_sign && j.has_negative_sign == false)
+    if (is_negative && j.is_negative == false)
         return true;
-    else if (has_negative_sign == false && j.has_negative_sign)
+    else if (is_negative == false && j.is_negative)
         return false;
 
     bool which_number_is_bigger = which_string_number_is_bigger(number, j.number);
-    if (which_number_is_bigger == 1 && j.has_negative_sign)
+    if (which_number_is_bigger == 1 && j.is_negative)
         return false;
-    else if (which_number_is_bigger == 0 && has_negative_sign == true)
+    else if (which_number_is_bigger == 0 && is_negative == true)
         return true;
-    else if (which_number_is_bigger == 1 && j.has_negative_sign == false)
+    else if (which_number_is_bigger == 1 && j.is_negative == false)
         return true;
     return false;
 }
