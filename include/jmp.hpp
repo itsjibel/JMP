@@ -101,7 +101,9 @@ class jmp
         ulli size()       const { return number.size(); }
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
-        /// Assignment operator
+        /*=========================================
+                     Assignment operator
+          =========================================*/
         jmp operator=(const std::string& num)
         {
             clear();
