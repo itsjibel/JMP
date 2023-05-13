@@ -16,15 +16,6 @@ class jmp
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
-        std::string double_to_string(const long double num)
-        {
-            // Create an output std::string stream object
-            std::ostringstream strs;
-            // Insert the value of 'num' into the output stream
-            strs<<num;
-            // Retrieve the contents of the output stream as a std::string and return it
-            return strs.str();
-        }
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
@@ -38,7 +29,16 @@ class jmp
         jmp() : number("0") {}
         jmp (const std::string& num) { validation(num); }
         jmp (const char* num) { validation(num); }
-        jmp (long double num) { validation(double_to_string(num)); }
+        jmp (long double num)
+        {
+            /// Counvert double to string
+            // Create an output std::string stream object
+            std::ostringstream strs;
+            // Insert the value of 'num' into the output stream
+            strs<<num;
+            // Retrieve the contents of the output stream as a std::string and return it
+            validation(strs.str());
+        }
         jmp (const jmp& j)
         {
             number = j.number;
