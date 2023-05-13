@@ -14,7 +14,7 @@ class jmp
 
         /// The helper functions
         void validation (const string& num);
-        bool which_is_bigger(const string& num1, const string& num2) const;
+        bool which_string_number_is_bigger(const string& num1, const string& num2) const;
         void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
         string double_to_string(const long double& num)
@@ -406,7 +406,7 @@ void jmp::validation (const string& num)
     if (valid == false) has_negative_sign = has_positive_sign = false;
 }
 
-bool jmp::which_is_bigger(const string& num1, const string& num2) const
+bool jmp::which_string_number_is_bigger(const string& num1, const string& num2) const
 {
     // This function takes two strings that number and compares them in terms of size
     // First of all, we check the simple things make the number bigger than other
@@ -624,7 +624,7 @@ jmp jmp::operator+(jmp& j)
     equalizing_figures(j);
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger {false}, second_number_is_bigger {false};
-    if (which_is_bigger(number, j.number) == 0)
+    if (which_string_number_is_bigger(number, j.number) == 0)
     {
         sum_obj.number = number;
 
@@ -1105,7 +1105,7 @@ bool jmp::operator<(jmp& j)
     else if (has_negative_sign == false && j.has_negative_sign)
         return false;
 
-    bool which_number_is_bigger = which_is_bigger(number, j.number);
+    bool which_number_is_bigger = which_string_number_is_bigger(number, j.number);
     if (which_number_is_bigger == 1 && j.has_negative_sign)
         return false;
     else if (which_number_is_bigger == 0 && has_negative_sign == true)
