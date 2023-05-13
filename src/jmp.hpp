@@ -666,10 +666,7 @@ jmp jmp::operator+(jmp& j)
     
     if ((second_number_is_bigger && has_negative_sign == false && j.has_negative_sign) ||
         (has_negative_sign && this_number_is_bigger))
-    {
-        //printf("Sum object %s\n", sum_obj.number.c_str());
         sum_obj.has_negative_sign = true;
-    }
     return sum_obj;
 }
 
@@ -720,34 +717,34 @@ jmp jmp::operator*(jmp& j)
 
 jmp jmp::operator-(jmp& j)
 {
-    jmp negative = j;
+    jmp negative(j);
     negative.has_negative_sign = true;
     return *this + negative;
 }
 
 jmp jmp::operator++()
 {
-    *this += 1;
+    *this += "1";
     return *this;
 }
 
 jmp jmp::operator--()
 {
-    *this -= 1;
+    *this -= "1";
     return *this;
 }
 
 jmp jmp::operator++(int)
 {
     jmp temp(*this);
-    *this += 1;
+    *this += "1";
     return temp;
 }
 
 jmp jmp::operator--(int)
 {
     jmp temp = *this;
-    *this -= 1;
+    *this -= "1";
     return temp;
 }
 
@@ -970,7 +967,7 @@ string operator-=(string& j, jmp& this_obj)
 jmp jmp::operator^(jmp j)
 {
     jmp result("1");
-    while (--j > -1.0)
+    while (--j > "-1")
         result *= *this;
     return result;
 }
