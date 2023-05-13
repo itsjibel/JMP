@@ -15,7 +15,7 @@ class jmp
         void validation (const std::string& num);
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void equalizing_figures(jmp& j);
-        void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
+        void trim_the_number(jmp& j, const bool bigger_number_is_negative);
         std::string double_to_string(const long double& num)
         {
             // Create an output std::string stream object
@@ -27,10 +27,10 @@ class jmp
         }
 
         /// Arithmetic functions
-        void FFT(std::complex<double>* a, ulli& n, const bool& invert);
+        void FFT(std::complex<double>* a, ulli& n, const bool invert);
         void summation(jmp& sum_obj, const std::string& num1, const std::string& num2,
-                        bool& first_number_is_bigger, bool& second_number_is_bigger,
-                        bool& first_number_is_negative, bool& second_number_is_negative);
+                        bool first_number_is_bigger, bool second_number_is_bigger,
+                        bool first_number_is_negative, bool second_number_is_negative);
         std::string multiply(const std::string& num1, const std::string& num2);
 
     public:
@@ -231,7 +231,7 @@ class jmp
         friend bool operator>=(const char* j, jmp& this_obj);
 };
 
-void jmp::FFT(std::complex<double>* a, ulli& n, const bool& invert)
+void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)
 {
     const double angleMultiplier = (invert ? -2.0 : 2.0) * M_PI / n;
 
@@ -432,8 +432,8 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
 }
 
 void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& num2,
-                     bool& first_number_is_bigger, bool& second_number_is_bigger,
-                     bool& first_number_is_negative, bool& second_number_is_negative)
+                     bool first_number_is_bigger, bool second_number_is_bigger,
+                     bool first_number_is_negative, bool second_number_is_negative)
 {
     if (first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
@@ -576,7 +576,7 @@ void jmp::equalizing_figures(jmp& j)
     }
 }
 
-void jmp::trim_the_number(jmp& j, const bool& bigger_number_is_negative)
+void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
 {
     // Erase the useless beginning zeros after subtraction
     while (j.number[0] == '0')
