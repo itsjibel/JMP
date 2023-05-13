@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <complex>
 #include <memory>
-using std::string;
 
 class jmp
 {
@@ -10,34 +9,34 @@ class jmp
         /// The main members of the class
         bool has_negative_sign {false}, has_positive_sign {false};
         ulli float_point_index {0};
-        string number;
+        std::string number;
 
         /// The helper functions
-        void validation (const string& num);
-        bool which_string_number_is_bigger(const string& num1, const string& num2) const;
+        void validation (const std::string& num);
+        bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool& bigger_number_is_negative);
-        string double_to_string(const long double& num)
+        std::string double_to_string(const long double& num)
         {
-            // Create an output string stream object
+            // Create an output std::string stream object
             std::ostringstream strs;
             // Insert the value of 'num' into the output stream
             strs<<num;
-            // Retrieve the contents of the output stream as a string and return it
+            // Retrieve the contents of the output stream as a std::string and return it
             return strs.str();
         }
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool& invert);
-        void summation(jmp& sum_obj, const string& num1, const string& num2,
+        void summation(jmp& sum_obj, const std::string& num1, const std::string& num2,
                         bool& first_number_is_bigger, bool& second_number_is_bigger,
                         bool& first_number_has_negative_sign, bool& second_number_has_negative_sign);
-        string multiply(const string& num1, const string& num2);
+        std::string multiply(const std::string& num1, const std::string& num2);
 
     public:
         /// Constructors
         jmp() : number("0") {}
-        jmp (const string& num) { validation(num); }
+        jmp (const std::string& num) { validation(num); }
         jmp (const char* num) { validation(num); }
         template <class T>
         jmp (T num) { validation(double_to_string(num)); }
@@ -79,7 +78,7 @@ class jmp
         // Conversion functions
         long long int to_int()    { return atoi(std::move(number.c_str())); }
         long double   to_double() { return std::stod(number); }
-        string        to_string() { return number; }
+        std::string        to_string() { return number; }
 
         jmp internal_conversion_to_int()
         {
@@ -88,7 +87,7 @@ class jmp
             return *this;
         }
 
-        jmp append (const string& num)
+        jmp append (const std::string& num)
         {
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
@@ -104,7 +103,7 @@ class jmp
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
         /// Assignment operator
-        jmp operator=(const string& num)
+        jmp operator=(const std::string& num)
         {
             clear();
             validation(num);
@@ -123,17 +122,17 @@ class jmp
           =========================================*/
         jmp operator+(jmp& j);
         jmp operator+(const long double& j);
-        jmp operator+(string& num2_str);
+        jmp operator+(std::string& num2_str);
         jmp operator+(const char* num2_str);
         friend jmp operator+(const long double& j, jmp& this_obj);
-        friend jmp operator+(string& num2_str, jmp& this_obj);
+        friend jmp operator+(std::string& num2_str, jmp& this_obj);
         friend jmp operator+(const char* num2_str, jmp& this_obj);
         jmp operator+=(jmp& num2_str);
         jmp operator+=(const long double& j);
-        jmp operator+=(string& num2_str);
+        jmp operator+=(std::string& num2_str);
         jmp operator+=(const char* num2_str);
         friend long double operator+=(long double& j, jmp& this_obj);
-        friend string operator+=(string& num2_str, jmp& this_obj);
+        friend std::string operator+=(std::string& num2_str, jmp& this_obj);
         jmp operator++();
         jmp operator++(int);
 
@@ -142,17 +141,17 @@ class jmp
           =========================================*/
         jmp operator-(jmp& j);
         jmp operator-(const long double& j);
-        jmp operator-(string& num2_str);
+        jmp operator-(std::string& num2_str);
         jmp operator-(const char* num2_str);
         friend jmp operator-(const long double& j, jmp& this_obj);
-        friend jmp operator-(string& num2_str, jmp& this_obj);
+        friend jmp operator-(std::string& num2_str, jmp& this_obj);
         friend jmp operator-(const char* num2_str, jmp& this_obj);
         jmp operator-=(const long double& j);
-        jmp operator-=(string& num2_str);
+        jmp operator-=(std::string& num2_str);
         jmp operator-=(jmp& num2_str);
         jmp operator-=(const char* num2_str);
         friend long double operator-=(long double& j, jmp& this_obj);
-        friend string operator-=(string& num2_str, jmp& this_obj);
+        friend std::string operator-=(std::string& num2_str, jmp& this_obj);
         jmp operator--(int);
         jmp operator--();
 
@@ -161,73 +160,73 @@ class jmp
           =========================================*/
         jmp operator*(jmp& j);
         jmp operator*(const long double& j);
-        jmp operator*(string& num2_str);
+        jmp operator*(std::string& num2_str);
         jmp operator*(const char* num2_str);
         friend jmp operator*(const long double& j, jmp& this_obj);
-        friend jmp operator*(string& num2_str, jmp& this_obj);
+        friend jmp operator*(std::string& num2_str, jmp& this_obj);
         friend jmp operator*(const char* num2_str, jmp& this_obj);
         jmp operator*=(const long double& j);
-        jmp operator*=(string& num2_str);
+        jmp operator*=(std::string& num2_str);
         jmp operator*=(jmp& num2_str);
         jmp operator*=(const char* num2_str);
         friend long double operator*=(long double& j, jmp& this_obj);
-        friend string operator*=(string& num2_str, jmp& this_obj);
+        friend std::string operator*=(std::string& num2_str, jmp& this_obj);
 
         /*=========================================
                   Exponentiation operators
           =========================================*/
         jmp operator^(jmp j);
         jmp operator^(long double j);
-        jmp operator^(const string& num2_str);
+        jmp operator^(const std::string& num2_str);
         jmp operator^(const char* num2_str);
         friend long double operator^(long double j, jmp& this_obj);
-        friend string operator^(const string& num2_str, jmp& this_obj);
-        friend string operator^(const char* num2_str, jmp& this_obj);
+        friend std::string operator^(const std::string& num2_str, jmp& this_obj);
+        friend std::string operator^(const char* num2_str, jmp& this_obj);
 
         /*=========================================
                    Conditional operators
           =========================================*/
         bool operator==(jmp& j);
         bool operator==(const long double& j);
-        bool operator==(string& j);
+        bool operator==(std::string& j);
         bool operator==(const char* j);
         friend bool operator==(const long double& j, jmp& this_obj);
-        friend bool operator==(string& j, jmp& this_obj);
+        friend bool operator==(std::string& j, jmp& this_obj);
         friend bool operator==(const char* j, jmp& this_obj);
         bool operator!=(jmp& j);
         bool operator!=(const long double& j);
-        bool operator!=(string& j);
+        bool operator!=(std::string& j);
         bool operator!=(const char* j);
         friend bool operator!=(const long double& j, jmp& this_obj);
-        friend bool operator!=(string& j, jmp& this_obj);
+        friend bool operator!=(std::string& j, jmp& this_obj);
         friend bool operator!=(const char* j, jmp& this_obj);
         bool operator<(jmp& j);
         bool operator<(const long double& j);
-        bool operator<(string& j);
+        bool operator<(std::string& j);
         bool operator<(const char* j);
         friend bool operator<(const long double& j, jmp& this_obj);
-        friend bool operator<(string& j, jmp& this_obj);
+        friend bool operator<(std::string& j, jmp& this_obj);
         friend bool operator<(const char* j, jmp& this_obj);
         bool operator<=(jmp& j);
         bool operator<=(const long double& j);
-        bool operator<=(string& j);
+        bool operator<=(std::string& j);
         bool operator<=(const char* j);
         friend bool operator<=(const long double& j, jmp& this_obj);
-        friend bool operator<=(string& j, jmp& this_obj);
+        friend bool operator<=(std::string& j, jmp& this_obj);
         friend bool operator<=(const char* j, jmp& this_obj);
         bool operator>(jmp& j);
         bool operator>(const long double& j);
-        bool operator>(string& j);
+        bool operator>(std::string& j);
         bool operator>(const char* j);
         friend bool operator>(const long double& j, jmp& this_obj);
-        friend bool operator>(string& j, jmp& this_obj);
+        friend bool operator>(std::string& j, jmp& this_obj);
         friend bool operator>(const char* j, jmp& this_obj);
         bool operator>=(jmp& j);
         bool operator>=(const long double& j);
-        bool operator>=(string& j);
+        bool operator>=(std::string& j);
         bool operator>=(const char* j);
         friend bool operator>=(const long double& j, jmp& this_obj);
-        friend bool operator>=(string& j, jmp& this_obj);
+        friend bool operator>=(std::string& j, jmp& this_obj);
         friend bool operator>=(const char* j, jmp& this_obj);
 };
 
@@ -280,7 +279,7 @@ void jmp::FFT(std::complex<double>* a, ulli& n, const bool& invert)
     }
 }
 
-string jmp::multiply(const string& num1, const string& num2)
+std::string jmp::multiply(const std::string& num1, const std::string& num2)
 {
     const ulli size1 {num1.size()}, size2 {num2.size()};
     ulli n {1};
@@ -307,9 +306,9 @@ string jmp::multiply(const string& num1, const string& num2)
     FFT(a.get(), n, true);
 
     ulli carry {0};
-    string product;
+    std::string product;
 
-    // Construct the product string by rounding the real parts and performing carry propagation
+    // Construct the product std::string by rounding the real parts and performing carry propagation
     for (ulli i{0}; i<n; ++i)
     {
         ulli digit {static_cast<ulli>(a[i].real() + 0.5) + carry};
@@ -333,7 +332,7 @@ string jmp::multiply(const string& num1, const string& num2)
     return product;
 }
 
-void jmp::validation (const string& num)
+void jmp::validation (const std::string& num)
 {
     number = num;
 
@@ -344,7 +343,7 @@ void jmp::validation (const string& num)
         return;
     }
 
-    // We erase the number sign to just check that this number string indexes are number or aren't a number
+    // We erase the number sign to just check that this number std::string indexes are number or aren't a number
     if (number[0] == '-')
     {
         number.erase(number.begin());
@@ -406,18 +405,18 @@ void jmp::validation (const string& num)
     if (valid == false) has_negative_sign = has_positive_sign = false;
 }
 
-bool jmp::which_string_number_is_bigger(const string& num1, const string& num2) const
+bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
     // This function takes two strings that number and compares them in terms of size
     // First of all, we check the simple things make the number bigger than other
-    // It's clear if the number string has a bigger length when is bigger than other
+    // It's clear if the number std::string has a bigger length when is bigger than other
     if (num1.size() > num2.size())
         return 0;
     else if (num2.size() > num1.size())
         return 1;
     else
     {
-        // If the two string numbers have the same length then we should check digit by digit to-
+        // If the two std::string numbers have the same length then we should check digit by digit to-
         // understand which number is bigger
         int counter {0};
         while (counter < num1.size())
@@ -432,7 +431,7 @@ bool jmp::which_string_number_is_bigger(const string& num1, const string& num2) 
     return 0;
 }
 
-void jmp::summation (jmp& sum_obj, const string& num1, const string& num2,
+void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& num2,
                      bool& first_number_is_bigger, bool& second_number_is_bigger,
                      bool& first_number_has_negative_sign, bool& second_number_has_negative_sign)
 {
@@ -765,19 +764,19 @@ jmp jmp::operator-(const long double& j)
     return *this - num2;
 }
 
-jmp jmp::operator+(string& num2_str)
+jmp jmp::operator+(std::string& num2_str)
 {
     jmp num2(num2_str);
     return *this + num2;
 }
 
-jmp jmp::operator*(string& num2_str)
+jmp jmp::operator*(std::string& num2_str)
 {
     jmp num2(num2_str);
     return *this * num2;
 }
 
-jmp jmp::operator-(string& num2_str)
+jmp jmp::operator-(std::string& num2_str)
 {
     jmp num2(num2_str);
     return *this - num2;
@@ -819,19 +818,19 @@ jmp operator-(const long double& j, jmp& this_obj)
     return this_obj - num2;
 }
 
-jmp operator+(string& num2_str, jmp& this_obj)
+jmp operator+(std::string& num2_str, jmp& this_obj)
 {
     jmp num2(num2_str);
     return this_obj + num2;
 }
 
-jmp operator*(string& num2_str, jmp& this_obj)
+jmp operator*(std::string& num2_str, jmp& this_obj)
 {
     jmp num2(num2_str);
     return this_obj * num2;
 }
 
-jmp operator-(string& num2_str, jmp& this_obj)
+jmp operator-(std::string& num2_str, jmp& this_obj)
 {
     jmp num2(num2_str);
     return this_obj - num2;
@@ -873,19 +872,19 @@ jmp jmp::operator-=(const long double& j)
     return *this;
 }
 
-jmp jmp::operator+=(string& num2_str)
+jmp jmp::operator+=(std::string& num2_str)
 {
     *this = *this + num2_str;
     return *this;
 }
 
-jmp jmp::operator*=(string& num2_str)
+jmp jmp::operator*=(std::string& num2_str)
 {
     *this = *this * num2_str;
     return *this;
 }
 
-jmp jmp::operator-=(string& num2_str)
+jmp jmp::operator-=(std::string& num2_str)
 {
     *this = *this - num2_str;
     return *this;
@@ -945,19 +944,19 @@ long double operator-=(long double& j, jmp& this_obj)
     return j;
 }
 
-string operator+=(string& j, jmp& this_obj)
+std::string operator+=(std::string& j, jmp& this_obj)
 {
     j = (j + this_obj).to_string();
     return j;
 }
 
-string operator*=(string& j, jmp& this_obj)
+std::string operator*=(std::string& j, jmp& this_obj)
 {
     j = (j * this_obj).to_string();
     return j;
 }
 
-string operator-=(string& j, jmp& this_obj)
+std::string operator-=(std::string& j, jmp& this_obj)
 {
     j = (j - this_obj).to_string();
     return j;
@@ -977,7 +976,7 @@ jmp jmp::operator^(long double j)
     return *this ^ num2;
 }
 
-jmp jmp::operator^(const string& j)
+jmp jmp::operator^(const std::string& j)
 {
     jmp num2(j);
     return *this ^ num2;
@@ -995,13 +994,13 @@ long double operator^(long double j, jmp& this_obj)
     return (num2 ^ this_obj).to_double();
 }
 
-string operator^(const string& j, jmp& this_obj)
+std::string operator^(const std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return (num2 ^ this_obj).to_string();
 }
 
-string operator^(const char* j, jmp& this_obj)
+std::string operator^(const char* j, jmp& this_obj)
 {
     jmp num2(j);
     return (num2 ^ this_obj).to_string();
@@ -1021,7 +1020,7 @@ bool jmp::operator==(const long double& j)
     return *this == num2 ? true : false;
 }
 
-bool jmp::operator==(string& j)
+bool jmp::operator==(std::string& j)
 {
     jmp num2(j);
     return *this == num2 ? true : false;
@@ -1039,7 +1038,7 @@ bool operator==(const long double& j, jmp& this_obj)
     return this_obj == num2 ? true : false;
 }
 
-bool operator==(string& j, jmp& this_obj)
+bool operator==(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return this_obj == num2 ? true : false;
@@ -1065,7 +1064,7 @@ bool jmp::operator!=(const long double& j)
     return *this != num2 ? true : false;
 }
 
-bool jmp::operator!=(string& j)
+bool jmp::operator!=(std::string& j)
 {
     jmp num2(j);
     return *this != num2 ? true : false;
@@ -1083,7 +1082,7 @@ bool operator!=(const long double& j, jmp& this_obj)
     return this_obj != num2 ? true : false;
 }
 
-bool operator!=(string& j, jmp& this_obj)
+bool operator!=(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return this_obj != num2 ? true : false;
@@ -1121,7 +1120,7 @@ bool jmp::operator<(const long double& j)
     return *this < num2 ? true : false;
 }
 
-bool jmp::operator<(string& j)
+bool jmp::operator<(std::string& j)
 {
     jmp num2(j);
     return *this < num2 ? true : false;
@@ -1139,7 +1138,7 @@ bool operator<(const long double& j, jmp& this_obj)
     return num2 < this_obj ? true : false;
 }
 
-bool operator<(string& j, jmp& this_obj)
+bool operator<(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return num2 < this_obj ? true : false;
@@ -1162,7 +1161,7 @@ bool jmp::operator<=(const long double& j)
     return *this <= num2 ? true : false;
 }
 
-bool jmp::operator<=(string& j)
+bool jmp::operator<=(std::string& j)
 {
     jmp num2(j);
     return *this <= num2 ? true : false;
@@ -1180,7 +1179,7 @@ bool operator<=(const long double& j, jmp& this_obj)
     return num2 <= this_obj ? true : false;
 }
 
-bool operator<=(string& j, jmp& this_obj)
+bool operator<=(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return num2 <= this_obj ? true : false;
@@ -1203,7 +1202,7 @@ bool jmp::operator>(const long double& j)
     return *this > num2 ? true : false;
 }
 
-bool jmp::operator>(string& j)
+bool jmp::operator>(std::string& j)
 {
     jmp num2(j);
     return *this > num2 ? true : false;
@@ -1221,7 +1220,7 @@ bool operator>(const long double& j, jmp& this_obj)
     return num2 > this_obj ? true : false;
 }
 
-bool operator>(string& j, jmp& this_obj)
+bool operator>(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return num2 > this_obj ? true : false;
@@ -1244,7 +1243,7 @@ bool jmp::operator>=(const long double& j)
     return *this >= num2 ? true : false;
 }
 
-bool jmp::operator>=(string& j)
+bool jmp::operator>=(std::string& j)
 {
     jmp num2(j);
     return *this >= num2 ? true : false;
@@ -1262,7 +1261,7 @@ bool operator>=(const long double& j, jmp& this_obj)
     return num2 >= this_obj ? true : false;
 }
 
-bool operator>=(string& j, jmp& this_obj)
+bool operator>=(std::string& j, jmp& this_obj)
 {
     jmp num2(j);
     return num2 >= this_obj ? true : false;
