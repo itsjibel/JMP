@@ -49,7 +49,7 @@ class jmp
         }
 
         /// Destructor
-        virtual ~jmp()
+        ~jmp()
         {
             clear();
         }
