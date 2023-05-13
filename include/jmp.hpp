@@ -38,8 +38,7 @@ class jmp
         jmp() : number("0") {}
         jmp (const std::string& num) { validation(num); }
         jmp (const char* num) { validation(num); }
-        template <class T>
-        jmp (T num) { validation(double_to_string(num)); }
+        jmp (long double num) { validation(double_to_string(num)); }
         jmp (const jmp& j)
         {
             number = j.number;
