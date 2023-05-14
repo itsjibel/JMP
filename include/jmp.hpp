@@ -1,3 +1,12 @@
+/* Definitions for JMP class functions   -*- mode: C++ -*-
+
+Copyleft(🄯) All uses of this library are free.
+  * This library is for challenging my (or your) C++ knowledge to write the good Multiple Precision Arithmetic Library,
+    all advice or help would be appreciated.
+
+Authors:
+  * Jibel Sadeghi <itsjibel@gmail.com> */
+
 #include <algorithm>
 #include <complex>
 #include <memory>
@@ -27,9 +36,9 @@ class jmp
     public:
         /// Constructors
         jmp() : number("0") {}
-        jmp (const std::string& num) { validation(num); }
-        jmp (const char* num) { validation(num); }
-        jmp (long double num)
+        jmp(const std::string& num) { validation(num); }
+        jmp(const char* num)        { validation(num); }
+        jmp(long double num)
         {
             /// Counvert double to string
             // Create an output std::string stream object
@@ -39,7 +48,8 @@ class jmp
             // Retrieve the contents of the output stream as a std::string and return it
             validation(strs.str());
         }
-        jmp (const jmp& j)
+
+        jmp(const jmp& j)
         {
             number = j.number;
             float_point_index = j.float_point_index;
@@ -47,12 +57,9 @@ class jmp
         }
 
         /// Destructor
-        ~jmp()
-        {
-            clear();
-        }
+        ~jmp() { clear(); }
 
-        /// Stream operators
+        /// ostream operator
         friend std::ostream& operator<<(std::ostream& o, const jmp& j)
         {
             o<<(j.is_negative ? '-' : '\0');
@@ -60,14 +67,6 @@ class jmp
             return o;
         }
 
-        friend std::istream& operator>>(std::istream& i, jmp& j)
-        {
-            // Get the jmp object
-            i>>j.number;
-            return (i);
-        }
-
-        /// Optional functions
         void clear()
         {
             number = float_point_index = is_negative = 0;
@@ -76,7 +75,7 @@ class jmp
         // Conversion functions
         long long int to_int()    { return atoi(std::move(number.c_str())); }
         long double   to_double() { return std::stod(number); }
-        std::string        to_string() { return number; }
+        std::string   to_string() { return number; }
 
         jmp internal_conversion_to_int()
         {
