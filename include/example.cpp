@@ -148,15 +148,11 @@ int main()
         std::cout<<"Yes cond2 >= cond1, "<<cond2<<" >= "<<cond1<<std::endl;
 
     jmp pow1 = "2", pow2 = "100";
-    std::cout<<(pow1 ^ pow2)<<std::endl;
-    std::cout<<(pow1 ^ 100)<<std::endl;
-    std::cout<<(pow1 ^ "100")<<std::endl;
+    std::cout<<pow1.powof(pow2)<<std::endl;
+    std::cout<<pow1.powof(100)<<std::endl;
+    std::cout<<pow1.powof("100")<<std::endl;
     std::string hundred = "100";
-    std::cout<<(pow1 ^ hundred)<<std::endl;
-    std::cout<<(2 ^ pow2)<<std::endl;
-    std::cout<<("2" ^ pow2)<<std::endl;
-    std::string two = "2";
-    std::cout<<(two ^ pow2)<<std::endl;
+    std::cout<<pow1.powof(hundred)<<std::endl;
 
     return 0;
 }

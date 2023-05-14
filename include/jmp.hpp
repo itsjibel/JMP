@@ -172,15 +172,12 @@ class jmp
         friend std::string operator*=(std::string& num2_str, jmp& this_obj);
 
         /*=========================================
-                  Exponentiation operators
+                  Exponentiation functions
           =========================================*/
-        jmp operator^(jmp j);
-        jmp operator^(long double j);
-        jmp operator^(const std::string& num2_str);
-        jmp operator^(const char* num2_str);
-        friend long double operator^(long double j, jmp& this_obj);
-        friend std::string operator^(const std::string& num2_str, jmp& this_obj);
-        friend std::string operator^(const char* num2_str, jmp& this_obj);
+        jmp powof(jmp j);
+        jmp powof(long double j);
+        jmp powof(const std::string& num2_str);
+        jmp powof(const char* num2_str);
 
         /*=========================================
                    Conditional operators
@@ -960,7 +957,7 @@ std::string operator-=(std::string& j, jmp& this_obj)
     return j;
 }
 
-jmp jmp::operator^(jmp j)
+jmp jmp::powof(jmp j)
 {
     jmp result("1");
     while (--j > "-1")
@@ -968,40 +965,22 @@ jmp jmp::operator^(jmp j)
     return result;
 }
 
-jmp jmp::operator^(long double j)
+jmp jmp::powof(long double j)
 {
     jmp num2(j);
-    return *this ^ num2;
+    return this->powof(num2);
 }
 
-jmp jmp::operator^(const std::string& j)
+jmp jmp::powof(const std::string& j)
 {
     jmp num2(j);
-    return *this ^ num2;
+    return this->powof(num2);
 }
 
-jmp jmp::operator^(const char* j)
+jmp jmp::powof(const char* j)
 {
     jmp num2(j);
-    return *this ^ num2;
-}
-
-long double operator^(long double j, jmp& this_obj)
-{
-    jmp num2(j);
-    return (num2 ^ this_obj).to_double();
-}
-
-std::string operator^(const std::string& j, jmp& this_obj)
-{
-    jmp num2(j);
-    return (num2 ^ this_obj).to_string();
-}
-
-std::string operator^(const char* j, jmp& this_obj)
-{
-    jmp num2(j);
-    return (num2 ^ this_obj).to_string();
+    return this->powof(num2);
 }
 
 bool jmp::operator==(jmp& j)
