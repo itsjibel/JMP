@@ -590,15 +590,13 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
 
 jmp jmp::operator+(jmp& j)
 {
-    if (j.float_point_index != 0 && j.float_point_index < j.number.size())
+    // Erase the float point from numbers to start the calculation
+    if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
-    else j.float_point_index = 0;
-
-    if (float_point_index != 0 && float_point_index < number.size())
+    if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
-    else float_point_index = 0;
 
-    jmp sum_obj("0");
+    jmp sum_obj;
     ulli temp_number_size {number.size()}, temp_second_number_size {j.number.size()};
     equalizing_figures(j);
     // Check which number is bigger, and we equal the sum object number to the biggest number
@@ -606,23 +604,17 @@ jmp jmp::operator+(jmp& j)
     if (which_string_number_is_bigger(number, j.number) == 0)
     {
         sum_obj.number = number;
-
         if (float_point_index != 0)
             sum_obj.float_point_index = float_point_index;
-        else if (float_point_index == 0 && j.float_point_index != 0)
+        else if (j.float_point_index != 0)
             sum_obj.float_point_index = temp_number_size;
-        else
-            sum_obj.float_point_index = 0;
         this_number_is_bigger = true;
     } else {
         sum_obj.number = j.number;
-
         if (j.float_point_index != 0)
             sum_obj.float_point_index = j.float_point_index;
-        else if (j.float_point_index == 0 && float_point_index != 0)
+        else if (float_point_index != 0)
             sum_obj.float_point_index = temp_second_number_size;
-        else
-            sum_obj.float_point_index = 0;
         second_number_is_bigger = true;
     }
 
@@ -635,16 +627,17 @@ jmp jmp::operator+(jmp& j)
      * (-9900.22 + 9912.22) = 0012.00 ---> 12
      */
     trim_the_number(sum_obj, (this_number_is_bigger && is_negative) || (second_number_is_bigger && j.is_negative));
+    
+    // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
     if (sum_obj.float_point_index != 0)
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
-    
-    if ((second_number_is_bigger && is_negative == false && j.is_negative) ||
-        (is_negative && this_number_is_bigger))
-        sum_obj.is_negative = true;
+
+    sum_obj.is_negative = (j.is_negative && second_number_is_bigger) || (is_negative && this_number_is_bigger);
+
     return sum_obj;
 }
 
