@@ -99,9 +99,9 @@ class jmp
         ulli size()       const { return number.size(); }
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
-        /*=========================================
-                     Assignment operator
-          =========================================*/
+        /* =========================================
+                      Assignment operator
+           ========================================= */
         jmp operator=(const std::string& num)
         {
             clear();
@@ -116,9 +116,9 @@ class jmp
             return *this;
         }
 
-        /*=========================================
-                    Summation operators
-          =========================================*/
+        /* =========================================
+                      Summation operators
+           ========================================= */
         jmp operator+(jmp& j);
         jmp operator+(const long double j);
         jmp operator+(std::string& num2_str);
@@ -135,9 +135,9 @@ class jmp
         jmp operator++();
         jmp operator++(int);
 
-        /*=========================================
-                   Subtraction operators
-          =========================================*/
+        /* =========================================
+                     Subtraction operators
+           ========================================= */
         jmp operator-(jmp& j);
         jmp operator-(const long double j);
         jmp operator-(std::string& num2_str);
@@ -154,9 +154,9 @@ class jmp
         jmp operator--(int);
         jmp operator--();
 
-        /*=========================================
-                   Multiplication operators
-          =========================================*/
+        /* =========================================
+                    Multiplication operators
+           ========================================= */
         jmp operator*(jmp& j);
         jmp operator*(const long double j);
         jmp operator*(std::string& num2_str);
@@ -171,17 +171,17 @@ class jmp
         friend long double operator*=(long double j, jmp& this_obj);
         friend std::string operator*=(std::string& num2_str, jmp& this_obj);
 
-        /*=========================================
-                  Exponentiation functions
-          =========================================*/
+        /* =========================================
+                    Exponentiation functions
+           ========================================= */
         jmp powof(jmp j);
         jmp powof(long double j);
         jmp powof(const std::string& num2_str);
         jmp powof(const char* num2_str);
 
-        /*=========================================
-                   Conditional operators
-          =========================================*/
+        /* =========================================
+                     Conditional operators
+           ========================================= */
         bool operator==(jmp& j);
         bool operator==(const long double j);
         bool operator==(std::string& j);
@@ -418,21 +418,18 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
     if (first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
         /* If the numbers have the same sign (both are positive or negative),
-           and this number is bigger, so we sum the second number to this number like this:
-         */
+           and this number is bigger, so we sum the second number to this number like this: */
         auto difference_size_of_two_numbers {num1.size() - num2.size()};
         for (auto i{num1.size() - 1}; i>0; i--)
         {
             /* We start from the last digit of this number and move forwards to the second digit,
                and if the current digit is greater than the difference between the two digits,
-               we add the current digit of this number to the second digit.
-             */
+               we add the current digit of this number to the second digit. */
             if (i >= difference_size_of_two_numbers)
                 sum_obj.number[i] += num2[i - difference_size_of_two_numbers] - '0';
 
             /* If the current digit gets more than '9',
-               then we add 1 to the previous digit and subtract 10 from the current digit
-             */
+               then we add 1 to the previous digit and subtract 10 from the current digit */
             if (sum_obj.number[i] > '9')
             {
                 sum_obj.number[i - 1] += 1;
@@ -476,21 +473,18 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
     else if (first_number_is_bigger && (first_number_is_negative != second_number_is_negative))
     {
         /* If the number signs are not equal together and this number is bigger,
-          so we subtract the second number from this number
-         */
+          so we subtract the second number from this number */
         auto difference_size_of_two_numbers {num1.size() - num2.size()};
         for (auto i{num1.size() - 1}; i>0; i--)
         {
             /* We start from the last digit of this number and move forwards to the second digit,
                and if the current digit is greater than the difference between the two digits,
-               we subtract second number digit from the current digit of this number.
-             */
+               we subtract second number digit from the current digit of this number. */
             if (i >= difference_size_of_two_numbers)
                 sum_obj.number[i] -= num2[i - difference_size_of_two_numbers] - '0';
 
             /* If the current digit gets less than '0',
-               then we subtract 1 to the previous digit and add 10 to the current digit
-             */
+               then we subtract 1 to the previous digit and add 10 to the current digit */
             if (sum_obj.number[i] < '0')
             {
                 sum_obj.number[i] += 10;
@@ -624,8 +618,7 @@ jmp jmp::operator+(jmp& j)
     /* Trim the number means if we have a number such as '000012.32400' after the summation of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
-     * (-9900.22 + 9912.22) = 0012.00 ---> 12
-     */
+     * (-9900.22 + 9912.22) = 0012.00 ---> 12 */
     trim_the_number(sum_obj, (this_number_is_bigger && is_negative) || (second_number_is_bigger && j.is_negative));
     
     // Add float point to numbers
@@ -643,15 +636,13 @@ jmp jmp::operator+(jmp& j)
 
 jmp jmp::operator*(jmp& j)
 {
+    // Erase the float point from numbers to start the calculation
     if (j.float_point_index != 0 && j.float_point_index < j.number.size())
         j.number.erase(j.number.begin() + j.float_point_index);
-    else j.float_point_index = 0;
-
     if (float_point_index != 0 && float_point_index < number.size())
         number.erase(number.begin() + float_point_index);
-    else float_point_index = 0;
 
-    jmp mul_obj("0");
+    jmp mul_obj;
     if (j.number == "1")
         mul_obj = number;
     else if (number == "1")
@@ -663,15 +654,24 @@ jmp jmp::operator*(jmp& j)
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
         (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index))};
 
+    /* When we have two numbers like 0.0001, and 0.00002,
+       mul_obj gets 2 because 1 * 2 is 2, and sum_of_decimals_of_two_numbers gets 9-
+       because we have 4 decimals in 0.0001 and 5 decimals in 0.00002,
+       so if we want to get correct multiplication,
+       we have to add '0' sum_of_decimals_of_two_numbers - mul_obj.number.size() times-
+       to begin of the number to get the correct multiplication result, which is 0.000000003.
+       (8 zeros to the beginning of '3' result give '000000003' and we add one '0' for the decimal number to have 0.0000...) */
     while (mul_obj.number.size() <= sum_of_decimals_of_two_numbers)
         mul_obj.number = "0" + mul_obj.number;
 
     mul_obj.float_point_index = mul_obj.number.size() - sum_of_decimals_of_two_numbers;
 
-    if ((is_negative == true && j.is_negative == false) ||
-        (is_negative == false && j.is_negative == true))
-        mul_obj.is_negative = true;
+    /* Determining the negativity of a number from the simple principle of-
+       negative in positive negative and positive in negative negative */
+    mul_obj.is_negative = (is_negative == true && j.is_negative == false) ||
+                          (is_negative == false && j.is_negative == true);
 
+    // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
@@ -679,8 +679,9 @@ jmp jmp::operator*(jmp& j)
     if (mul_obj.float_point_index != 0 && mul_obj.float_point_index != mul_obj.number.size())
         mul_obj.number.insert(mul_obj.number.begin() + mul_obj.float_point_index, '.');
 
-    while (mul_obj.float_point_index != 0 && (mul_obj.float_point_index <= mul_obj.number.size() - 1) &&
-        mul_obj.number[mul_obj.number.size() - 1] == '0')
+    // Remove the ending useless zeros after multiplication
+    while (mul_obj.float_point_index != 0 && mul_obj.number[mul_obj.number.size() - 1] == '0' &&
+           (mul_obj.float_point_index <= mul_obj.number.size() - 1))
         mul_obj.number.erase(mul_obj.number.begin() + mul_obj.number.size()  - 1);
 
     return mul_obj;
