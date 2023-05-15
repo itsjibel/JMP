@@ -331,14 +331,12 @@ std::string jmp::multiply(const std::string& num1, const std::string& num2)
 void jmp::validation (const std::string& num)
 {
     number = num;
-
     // If number is empty so is not valid
     if (number.empty())
     {
         number = "0";
         return;
     }
-
     // We erase the number sign to just check that this number std::string indexes are number or aren't a number
     if (number[0] == '-')
     {
@@ -350,54 +348,40 @@ void jmp::validation (const std::string& num)
         float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
     }
 
-    bool valid {true};
-    ulli number_of_dots {0};
-    for (ulli i{0}; i<number.length(); i++)
+    bool valid {true}, number_of_dots {0};
+    for (ulli i{0}; i<number.size(); i++)
     {
-        // If the number character is not in the range 0-9 and the number character is not '.'-
-        // then this character is invalid
-        if ((number[i] < '0' || number[i] > '9') && number[i] != '.')
-        {
-            valid = false;
-            break;
-        }
-
         // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
         // the number characters, then update the float_point_index to know-
         // where is the point index in the number
         if (number[i] == '.')
         {
-            number_of_dots++;
-            if (number_of_dots > 1)
+            if (number_of_dots == 1)
             {
                 valid = false;
                 break;
             }
+            number_of_dots = 1;
             float_point_index = i;
+        } else if (number[i] < '0' || number[i] > '9') {
+            // If the number character is not in the range 0-9 and the number character is not '.'-
+            // then this character is invalid
+            valid = false;
+            break;
         }
     }
 
     // "If conditions" for falsing the validity of the number string
-    if ((number[0] == '0' && number[1] != '.') || (number.front() == '.'))
+    if ((number[0] == '0' && number[1] != '.') ||
+        number.front() == '.')
         valid = false;
 
-    // "If conditions" for truing the validity of the number string
-    valid = number == "0" || number == "+0" || number == "-0" ? true : valid;
-
-    // We set the float_point_index to zero when the number is invalid.
-    // Because if the next value is an integer number, and we have a specific float_point_index, some-
-    // calculations will fail and give wrong answers.
-    float_point_index = valid ? float_point_index : 0;
+    if (!valid)
+        number = 48 + (valid = is_negative = float_point_index = false);
 
     // If the last index of the number is a '.' character so the user meant that this number is-
     // a float number so we do consider this for the JMP number.
-    if (number.back() == '.' && valid) number.push_back('0');
-
-    // If the number is valid, so it is; but if the number isn't valid, then we value the number to zero
-    if (!valid) number = "0";
-
-    // If the number is not valid, we will set the sign of the number that set above with false
-    if (valid == false) is_negative = false;
+    if (number.back() == '.') number.push_back('0');
 }
 
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
