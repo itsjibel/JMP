@@ -389,16 +389,17 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
     // This function takes two strings that number and compares them in terms of size
     // First of all, we check the simple things make the number bigger than other
     // It's clear if the number std::string has a bigger length when is bigger than other
-    if (num1.size() > num2.size())
+    auto num1size {num1.size()}, num2size {num2.size()};
+    if (num1size > num2size)
         return 0;
-    else if (num2.size() > num1.size())
+    else if (num2size > num1size)
         return 1;
     else
     {
         // If the two std::string numbers have the same length then we should check digit by digit to-
         // understand which number is bigger
         int counter {0};
-        while (counter < num1.size())
+        while (counter < num1size)
         {
             if (num1[counter] > num2[counter])
                 return 0;
