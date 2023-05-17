@@ -28,7 +28,7 @@ class jmp
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
-        std::string summation(const std::string& num1, const std::string& num2,
+        std::string sum(const std::string& num1, const std::string& num2,
                               bool first_number_is_bigger, bool second_number_is_bigger,
                               bool first_number_is_negative, bool second_number_is_negative,
                               ulli& sum_obj_float_point_index);
@@ -418,7 +418,7 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
     return 0;
 }
 
-std::string jmp::summation (const std::string& num1, const std::string& num2,
+std::string jmp::sum (const std::string& num1, const std::string& num2,
                             bool first_number_is_bigger, bool second_number_is_bigger,
                             bool first_number_is_negative, bool second_number_is_negative,
                             ulli& sum_obj_float_point_index)
@@ -628,10 +628,10 @@ jmp jmp::operator+(jmp& j)
     }
 
     // Get sum of the two filtered strings
-    sum_obj.number = summation(number, j.number, this_number_is_bigger, second_number_is_bigger,
+    sum_obj.number = sum(number, j.number, this_number_is_bigger, second_number_is_bigger,
                                is_negative, j.is_negative, sum_obj.float_point_index);
 
-    /* Trim the number means if we have a number such as '000012.32400' after the summation of two numbers, we trim the number to '12.324'
+    /* Trim the number means if we have a number such as '000012.32400' after the sum of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
      * (-9900.22 + 9912.22) = 0012.00 ---> 12 */
