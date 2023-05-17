@@ -28,10 +28,12 @@ class jmp
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
-        void summation(jmp& sum_obj, const std::string& num1, const std::string& num2,
-                        bool first_number_is_bigger, bool second_number_is_bigger,
-                        bool first_number_is_negative, bool second_number_is_negative);
+        std::string summation(const std::string& num1, const std::string& num2,
+                              bool first_number_is_bigger, bool second_number_is_bigger,
+                              bool first_number_is_negative, bool second_number_is_negative,
+                              ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
+        std::string divide(const std::string& num1, const std::string& num2);
 
     public:
         /// Constructors
@@ -182,7 +184,7 @@ class jmp
         /* =========================================
                      Divideation operators
            ========================================= */
-        jmp operator/(jmp& rhs);
+        jmp operator/(jmp& j);
 
         /* =========================================
                      Conditional operators
@@ -307,30 +309,30 @@ std::string jmp::multiply(const std::string& num1, const std::string& num2)
     FFT(a.get(), n, true);
 
     ulli carry {0};
-    std::string product;
+    std::string result;
 
-    // Construct the product std::string by rounding the real parts and performing carry propagation
+    // Construct the result std::string by rounding the real parts and performing carry propagation
     for (ulli i{0}; i<n; ++i)
     {
         ulli digit {static_cast<ulli>(a[i].real() + 0.5) + carry};
-        product += '0' + (digit % 10);
+        result += '0' + (digit % 10);
         carry = digit / 10;
     }
 
-    // Remove trailing zeros from the product string
-    while (product.size() > 1 && product.back() == '0')
-        product.pop_back();
+    // Remove trailing zeros from the result string
+    while (result.size() > 1 && result.back() == '0')
+        result.pop_back();
 
-    // Efficiently reverse the product string
-    ulli start {0}, end {product.size() - 1};
+    // Efficiently reverse the result string
+    ulli start {0}, end {result.size() - 1};
     while (start < end)
     {
-        std::swap(product[start], product[end]);
+        std::swap(result[start], result[end]);
         ++start;
         --end;
     }
 
-    return product;
+    return result;
 }
 
 void jmp::validation (const std::string& num)
@@ -416,10 +418,13 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
     return 0;
 }
 
-void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& num2,
-                     bool first_number_is_bigger, bool second_number_is_bigger,
-                     bool first_number_is_negative, bool second_number_is_negative)
+std::string jmp::summation (const std::string& num1, const std::string& num2,
+                            bool first_number_is_bigger, bool second_number_is_bigger,
+                            bool first_number_is_negative, bool second_number_is_negative,
+                            ulli& sum_obj_float_point_index)
 {
+    std::string result = first_number_is_bigger ? num1 : num2;
+
     if (first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
         /* If the numbers have the same sign (both are positive or negative),
@@ -431,27 +436,27 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
                and if the current digit is greater than the difference between the two digits,
                we add the current digit of this number to the second digit. */
             if (i >= difference_size_of_two_numbers)
-                sum_obj.number[i] += num2[i - difference_size_of_two_numbers] - '0';
+                result[i] += num2[i - difference_size_of_two_numbers] - '0';
 
             /* If the current digit gets more than '9',
                then we add 1 to the previous digit and subtract 10 from the current digit */
-            if (sum_obj.number[i] > '9')
+            if (result[i] > '9')
             {
-                sum_obj.number[i - 1] += 1;
-                sum_obj.number[i] -= 10;
+                result[i - 1] += 1;
+                result[i] -= 10;
             }
         }
 
         // If the difference between two numbers is zero, we add the first digits of the two numbers together
         if (0 == difference_size_of_two_numbers)
-            sum_obj.number[0] += num2[0] - '0';
+            result[0] += num2[0] - '0';
 
         // And again do the previous condition for the first digit
-        if (sum_obj.number[0] > '9')
+        if (result[0] > '9')
         {
-            sum_obj.number[0] -= 10;
-            sum_obj.number = '1' + sum_obj.number;
-            sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
+            result[0] -= 10;
+            result = '1' + result;
+            sum_obj_float_point_index = sum_obj_float_point_index != 0 ? sum_obj_float_point_index + 1 : 0;
         }
     }
     else if (second_number_is_bigger && (first_number_is_negative == second_number_is_negative))
@@ -461,18 +466,18 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
         for (auto i{num2.size() - 1}; i>0; i--)
         {
             if (i >= difference_size_of_two_numbers)
-                sum_obj.number[i] += num1[i - (difference_size_of_two_numbers)] - '0';
-            if (i != 0 && sum_obj.number[i] > '9')
+                result[i] += num1[i - (difference_size_of_two_numbers)] - '0';
+            if (i != 0 && result[i] > '9')
             {
-                sum_obj.number[i - 1] += 1;
-                sum_obj.number[i] -= 10;
+                result[i - 1] += 1;
+                result[i] -= 10;
             }
         }
-        if (sum_obj.number[0] > '9')
+        if (result[0] > '9')
         {
-            sum_obj.number[0] -= 10;
-            sum_obj.number = '1' + sum_obj.number;
-            sum_obj.float_point_index = sum_obj.float_point_index != 0 ? sum_obj.float_point_index + 1 : 0;
+            result[0] -= 10;
+            result = '1' + result;
+            sum_obj_float_point_index = sum_obj_float_point_index != 0 ? sum_obj_float_point_index + 1 : 0;
         }
     }
     else if (first_number_is_bigger && (first_number_is_negative != second_number_is_negative))
@@ -486,21 +491,21 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
                and if the current digit is greater than the difference between the two digits,
                we subtract second number digit from the current digit of this number. */
             if (i >= difference_size_of_two_numbers)
-                sum_obj.number[i] -= num2[i - difference_size_of_two_numbers] - '0';
+                result[i] -= num2[i - difference_size_of_two_numbers] - '0';
 
             /* If the current digit gets less than '0',
                then we subtract 1 to the previous digit and add 10 to the current digit */
-            if (sum_obj.number[i] < '0')
+            if (result[i] < '0')
             {
-                sum_obj.number[i] += 10;
-                sum_obj.number[i - 1]--;
+                result[i] += 10;
+                result[i - 1]--;
             }
         }
         /* If the difference size of two numbers is 0,
            then in the last action we subtract the first digit of the second number from this number.
          */
         if (0 == difference_size_of_two_numbers)
-            sum_obj.number[0] -= num2[0] - '0';
+            result[0] -= num2[0] - '0';
     }
     else if (second_number_is_bigger && (is_negative != second_number_is_negative))
     {
@@ -509,18 +514,25 @@ void jmp::summation (jmp& sum_obj, const std::string& num1, const std::string& n
         for (auto i{num2.size() - 1}; i>0; i--)
         {
             if (i >= difference_size_of_two_numbers)
-                sum_obj.number[i] -= num1[i - difference_size_of_two_numbers] - '0';
+                result[i] -= num1[i - difference_size_of_two_numbers] - '0';
 
-            if (sum_obj.number[i] < '0')
+            if (result[i] < '0')
             {
-                sum_obj.number[i] += 10;
-                sum_obj.number[i - 1]--;
+                result[i] += 10;
+                result[i - 1]--;
             }
         }
 
         if (0 == difference_size_of_two_numbers)
-            sum_obj.number[0] -= num1[0] - '0';
+            result[0] -= num1[0] - '0';
     }
+    return move(result);
+}
+
+std::string jmp::divide(const std::string& num1, const std::string& num2)
+{
+    std::string result = "0";
+    return result;
 }
 
 void jmp::equalizing_figures(jmp& j)
@@ -602,14 +614,12 @@ jmp jmp::operator+(jmp& j)
     bool this_number_is_bigger {false}, second_number_is_bigger {false};
     if (which_string_number_is_bigger(number, j.number) == 0)
     {
-        sum_obj.number = number;
         if (float_point_index != 0)
             sum_obj.float_point_index = float_point_index;
         else if (j.float_point_index != 0)
             sum_obj.float_point_index = temp_number_size;
         this_number_is_bigger = true;
     } else {
-        sum_obj.number = j.number;
         if (j.float_point_index != 0)
             sum_obj.float_point_index = j.float_point_index;
         else if (float_point_index != 0)
@@ -618,7 +628,8 @@ jmp jmp::operator+(jmp& j)
     }
 
     // Get sum of the two filtered strings
-    summation(sum_obj, number, j.number, this_number_is_bigger, second_number_is_bigger, is_negative, j.is_negative);
+    sum_obj.number = summation(number, j.number, this_number_is_bigger, second_number_is_bigger,
+                               is_negative, j.is_negative, sum_obj.float_point_index);
 
     /* Trim the number means if we have a number such as '000012.32400' after the summation of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
@@ -699,30 +710,36 @@ jmp jmp::operator-(jmp& j)
     return *this + negative;
 }
 
-jmp jmp::operator/(jmp& rhs)
+jmp jmp::operator/(jmp& j)
 {
-    if (rhs == "0")
+    if (j == "0")
         throw std::runtime_error("Division by zero error");
 
     // Erase the float point from numbers to start the calculation
-    if (rhs.float_point_index != 0)
-        rhs.number.erase(rhs.number.begin() + rhs.float_point_index);
+    if (j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.float_point_index);
     if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
 
-
     jmp div_obj;
+    if (j.number == "1")
+        div_obj = number;
+    else if (number == "1")
+        div_obj = j.number;
+    else
+        div_obj.number = divide(number, j.number);
+
 
     // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
-    if (rhs.float_point_index != 0)
-        rhs.number.insert(rhs.number.begin() + rhs.float_point_index, '.');
+    if (j.float_point_index != 0)
+        j.number.insert(j.number.begin() + j.float_point_index, '.');
     if (div_obj.float_point_index != 0)
         div_obj.number.insert(div_obj.number.begin() + div_obj.float_point_index, '.');
 
-    div_obj.is_negative = (is_negative == true && rhs.is_negative == false) ||
-                          (is_negative == false && rhs.is_negative == true);
+    div_obj.is_negative = (is_negative == true && j.is_negative == false) ||
+                          (is_negative == false && j.is_negative == true);
 
     return div_obj;
 }
