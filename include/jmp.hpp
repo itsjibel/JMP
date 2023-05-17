@@ -699,6 +699,34 @@ jmp jmp::operator-(jmp& j)
     return *this + negative;
 }
 
+jmp jmp::operator/(jmp& rhs)
+{
+    if (rhs == "0")
+        throw std::runtime_error("Division by zero error");
+
+    // Erase the float point from numbers to start the calculation
+    if (rhs.float_point_index != 0)
+        rhs.number.erase(rhs.number.begin() + rhs.float_point_index);
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+
+
+    jmp div_obj;
+
+    // Add float point to numbers
+    if (float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (rhs.float_point_index != 0)
+        rhs.number.insert(rhs.number.begin() + rhs.float_point_index, '.');
+    if (div_obj.float_point_index != 0)
+        div_obj.number.insert(div_obj.number.begin() + div_obj.float_point_index, '.');
+
+    div_obj.is_negative = (is_negative == true && rhs.is_negative == false) ||
+                          (is_negative == false && rhs.is_negative == true);
+
+    return div_obj;
+}
+
 jmp jmp::operator++()
 {
     *this += "1";
@@ -1232,13 +1260,4 @@ bool operator>=(const char* j, jmp& this_obj)
 {
     jmp num2(j);
     return num2 >= this_obj ? true : false;
-}
-
-jmp jmp::operator/(jmp& rhs)
-{
-    if (rhs == "0")
-        throw std::runtime_error("Division by zero error");
-
-    jmp div_obj;
-    return div_obj;
 }
