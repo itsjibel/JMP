@@ -16,7 +16,6 @@ class jmp
     private:
         typedef unsigned long long int ulli;
         /// The main members of the class
-        bool is_negative {false};
         ulli float_point_index {0};
         std::string number;
 
@@ -36,6 +35,7 @@ class jmp
         std::string divide(const std::string& num1, const std::string& num2);
 
     public:
+        bool is_negative {false};
         /// Constructors
         jmp() : number("0") {}
         jmp(const std::string& num) { validation(num); }
@@ -231,6 +231,15 @@ class jmp
         friend bool operator>=(const long double j, jmp& this_obj);
         friend bool operator>=(std::string& j, jmp& this_obj);
         friend bool operator>=(const char* j, jmp& this_obj);
+};
+
+namespace JMP
+{
+    jmp abs(jmp& j)
+    {
+        j.is_negative = false;
+        return j;
+    }
 };
 
 void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)

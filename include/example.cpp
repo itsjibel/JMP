@@ -154,8 +154,8 @@ int main()
     std::string hundred = "100";
     std::cout<<pow1.powof(hundred)<<std::endl;
 
-    jmp a1 = 5, a2 = 2;
-    std::cout<<a1 / a2<<std::endl;
+    jmp a1 = -5.35526;
+    std::cout<<JMP::abs(a1)<<std::endl;
 
     return 0;
 }
