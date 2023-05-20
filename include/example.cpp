@@ -154,8 +154,13 @@ int main()
     std::string hundred = "100";
     std::cout<<pow1.powof(hundred)<<std::endl;
 
+    // Print the 'a1' absolute value of the jmp number
     jmp a1 = -5.35526;
     std::cout<<JMP::abs(a1)<<std::endl;
+
+    // Set the 'a1' precision to 3
+    a1.set_precision(3);
+    std::cout<<a1<<std::endl;
 
     return 0;
 }

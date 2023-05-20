@@ -17,6 +17,7 @@ class jmp
         typedef unsigned long long int ulli;
         /// The main members of the class
         ulli float_point_index {0};
+        long long int precision {-1};
         std::string number;
 
         /// The helper functions
@@ -91,6 +92,17 @@ class jmp
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
                 number.append(num);
+            return *this;
+        }
+
+        jmp set_precision(long long int precision)
+        {
+            if (precision >= -1)
+            {
+                this->precision = precision;
+                if (precision != -1)
+                    number = number.substr(0, float_point_index + precision + 1);
+            }
             return *this;
         }
 
