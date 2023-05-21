@@ -155,11 +155,15 @@ int main()
     std::cout<<pow1.powof(hundred)<<std::endl;
 
     // Print the 'a1' absolute value of the jmp number
-    jmp a1 = -5.35526;
+    jmp a1 = -9.65526;
     std::cout<<JMP::abs(a1)<<std::endl;
 
     // Set the 'a1' precision to 3
-    a1.set_precision(3);
+    a1.set_precision(4);
+    std::cout<<a1<<std::endl;
+
+    // Round the 'a1' form the precision 2
+    a1.round_precision(2);
     std::cout<<a1<<std::endl;
 
     return 0;

@@ -95,8 +95,34 @@ class jmp
             return *this;
         }
 
-        jmp set_precision(long long int precision)
+        jmp set_precision (long long int precision)
         {
+            if (precision >= -1)
+            {
+                this->precision = precision;
+                if (precision != -1)
+                    number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
+                float_point_index = precision == 0 ? 0 : float_point_index;
+            }
+            return *this;
+        }
+
+        jmp round_precision (long long int precision)
+        {
+            // Rounding the number in decimals
+            if (precision == 0)
+            {
+                if (number[float_point_index + 1] >= '5')
+                    *this += 1;
+            } else {
+                jmp number_add_after_rounding = "0.1";
+                for (int i=1; i<precision; i++)
+                    number_add_after_rounding *= "0.1";
+
+                if (number[float_point_index + precision + 1] >= '5')
+                    *this += number_add_after_rounding;
+            }
+
             if (precision >= -1)
             {
                 this->precision = precision;
