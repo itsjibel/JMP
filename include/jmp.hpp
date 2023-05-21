@@ -101,7 +101,8 @@ class jmp
             {
                 this->precision = precision;
                 if (precision != -1)
-                    number = number.substr(0, float_point_index + precision + 1);
+                    number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
+                float_point_index = precision == 0 ? 0 : float_point_index;
             }
             return *this;
         }
