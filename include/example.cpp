@@ -64,11 +64,11 @@ int main()
     std::cout<<"Result two: "<<c + -24.8653<<std::endl;
 
     // Converting the jmp number to an integer and printing it
-    long long int my_int = c.to_int();
+    long long int my_int = JMP::to_int(c);
     std::cout<<"Int number: "<<my_int<<std::endl;
 
     // Converting the jmp number to a float and printing it
-    long double my_double = c.to_double();
+    long double my_double = JMP::to_double(c);
     std::cout<<"Double number: "<<my_double<<std::endl;
 
     // Converting the jmp number from decimal to integer

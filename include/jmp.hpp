@@ -75,11 +75,23 @@ class jmp
             number = float_point_index = is_negative = 0;
         }
 
-        // Conversion functions
-        long long int to_int()    { return atoi(std::move(number.c_str())); }
-        long double   to_double() { return std::stod(number); }
-        std::string   to_string() { return number; }
+        // Getter functions
+        std::string get_number() const
+        {
+            return number;
+        }
 
+        ulli get_float_point_index() const
+        {
+            return float_point_index;
+        }
+
+        bool get_is_negative() const
+        {
+            return is_negative;
+        }
+
+        // Conversion functions
         jmp internal_conversion_to_int()
         {
             number = number.substr(0, float_point_index);
@@ -279,6 +291,10 @@ namespace JMP
         j.is_negative = false;
         return j;
     }
+
+    long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
+    long double   to_double (jmp j) { return std::stod(j.get_number()); }
+    std::string   to_string (jmp j) { return j.get_number(); }
 };
 
 void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)
@@ -1000,37 +1016,37 @@ jmp jmp::operator-=(const char* num2_str)
 
 long double operator+=(long double j, jmp& this_obj)
 {
-    j = (j + this_obj).to_double();
+    j = JMP::to_double(j + this_obj);
     return j;
 }
 
 long double operator*=(long double j, jmp& this_obj)
 {
-    j = (j * this_obj).to_double();
+    j = JMP::to_double(j * this_obj);
     return j;
 }
 
 long double operator-=(long double j, jmp& this_obj)
 {
-    j = (j - this_obj).to_double();
+    j = JMP::to_double(j - this_obj);
     return j;
 }
 
 std::string operator+=(std::string& j, jmp& this_obj)
 {
-    j = (j + this_obj).to_string();
+    j = JMP::to_string(j + this_obj);
     return j;
 }
 
 std::string operator*=(std::string& j, jmp& this_obj)
 {
-    j = (j * this_obj).to_string();
+    j = JMP::to_string(j * this_obj);
     return j;
 }
 
 std::string operator-=(std::string& j, jmp& this_obj)
 {
-    j = (j - this_obj).to_string();
+    j = JMP::to_string(j - this_obj);
     return j;
 }
 
