@@ -166,5 +166,8 @@ int main()
     a1.round_precision(2);
     std::cout<<a1<<std::endl;
 
+    jmp div1="1000000", div2="3";
+    std::cout<<div1/div2<<std::endl;
+
     return 0;
 }

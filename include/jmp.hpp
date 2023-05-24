@@ -595,8 +595,20 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 
 std::string jmp::divide(const std::string& num1, const std::string& num2)
 {
-    std::string result = "0";
-    return result;
+    long long int divisor = std::stoi(num2);
+    ulli index;
+    std::string result;
+    int dividend = number[index] - '0';
+    while (dividend < divisor)
+        dividend = dividend * 10 + (number[++index] - '0');
+
+    while (number.size() > index)
+    {
+        result += (dividend / divisor) + '0';
+        dividend = (dividend % divisor) * 10 + number[++index] - '0';
+    }
+
+    return result.length() == 0 ? "0" : result;
 }
 
 void jmp::equalizing_figures(jmp& j)
