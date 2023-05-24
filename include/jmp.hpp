@@ -52,7 +52,7 @@ class jmp
             validation(strs.str());
         }
 
-        jmp(const jmp& j)
+        jmp (const jmp& j)
         {
             number = j.number;
             float_point_index = j.float_point_index;
@@ -60,7 +60,7 @@ class jmp
         }
 
         /// Destructor
-        ~jmp() { clear(); }
+        ~jmp() { reset(); }
 
         /// ostream operator
         friend std::ostream& operator<<(std::ostream& o, const jmp& j)
@@ -70,7 +70,7 @@ class jmp
             return o;
         }
 
-        void clear()
+        void reset()
         {
             number = float_point_index = is_negative = 0;
         }
@@ -157,14 +157,14 @@ class jmp
            ========================================= */
         jmp operator=(const std::string& num)
         {
-            clear();
+            reset();
             validation(num);
             return *this;
         }
 
         jmp operator=(const char* num)
         {
-            clear();
+            reset();
             validation(num);
             return *this;
         }
