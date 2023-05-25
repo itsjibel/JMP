@@ -169,5 +169,8 @@ int main()
     jmp div1="1000000", div2="3";
     std::cout<<div1/div2<<std::endl;
 
+    jmp fact1("100");
+    std::cout<<JMP::fact(fact1)<<std::endl;
+
     return 0;
 }
