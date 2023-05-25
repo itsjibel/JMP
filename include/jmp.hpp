@@ -18,7 +18,7 @@ class jmp
         /// The main members of the class
         ulli float_point_index {0};
         long long int precision {-1};
-        std::string number;
+        std::string number {"0"};
 
         /// The helper functions
         void validation (const std::string& num);
@@ -38,7 +38,7 @@ class jmp
     public:
         bool is_negative {false};
         /// Constructors
-        jmp() : number("0") {}
+        jmp() {}
         jmp(const std::string& num) { validation(num); }
         jmp(const char* num)        { validation(num); }
         jmp(long double num)
@@ -290,6 +290,20 @@ namespace JMP
     {
         j.is_negative = false;
         return j;
+    }
+
+    jmp fact(jmp& j)
+    {
+        if (j == 0.0)
+            return 1;
+        if (j < 0.0)
+            throw std::logic_error("JMP::fact: Can't calculate factorial when the given argument is negative.");
+
+        jmp result("1");
+        for (jmp i=1; i<=j; i++)
+            result *= i;
+
+        return result;
     }
 
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
