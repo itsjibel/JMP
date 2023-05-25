@@ -296,8 +296,8 @@ namespace JMP
     {
         if (j == 0.0)
             return 1;
-        if (j < 0.0)
-            throw std::logic_error("JMP::fact: Can't calculate factorial when the given argument is negative.");
+        if (j.is_decimal() || j < 0.0)
+            throw std::logic_error("JMP::fact: Factorial is only defined for natural numbers.");
 
         jmp result("1");
         for (jmp i=1; i<=j; i++)
