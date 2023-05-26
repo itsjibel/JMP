@@ -155,23 +155,6 @@ class jmp
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
         /* =========================================
-                      Assignment operator
-           ========================================= */
-        jmp operator=(const std::string& num)
-        {
-            reset();
-            validation(num);
-            return *this;
-        }
-
-        jmp operator=(const char* num)
-        {
-            reset();
-            validation(num);
-            return *this;
-        }
-
-        /* =========================================
                       Summation operators
            ========================================= */
         jmp operator+(jmp& j);
