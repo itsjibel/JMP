@@ -137,10 +137,10 @@ class jmp
 
             if (precision >= -1)
             {
-                this->precision = precision;
                 if (precision != -1)
                     number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
                 float_point_index = precision == 0 ? 0 : float_point_index;
+                this->precision = precision;
             }
             return *this;
         }
@@ -436,9 +436,9 @@ void jmp::validation (const std::string& num)
     bool valid {true}, number_of_dots {0};
     for (ulli i{0}; i<number.size(); i++)
     {
-        // If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
-        // the number characters, then update the float_point_index to know-
-        // where is the point index in the number
+        /* If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
+           the number characters, then update the float_point_index to know-
+           where is the point index in the number */
         if (number[i] == '.')
         {
             if (number_of_dots == 1)
@@ -449,8 +449,8 @@ void jmp::validation (const std::string& num)
             number_of_dots = 1;
             float_point_index = i;
         } else if (number[i] < '0' || number[i] > '9') {
-            // If the number character is not in the range 0-9 and the number character is not '.'-
-            // then this character is invalid
+            /* If the number character is not in the range 0-9 and the number character is not '.'-
+               then this character is invalid */
             valid = false;
             break;
         }
@@ -464,9 +464,14 @@ void jmp::validation (const std::string& num)
     if (!valid)
         number = 48 + (valid = is_negative = float_point_index = false);
 
-    // If the last index of the number is a '.' character so the user meant that this number is-
-    // a float number so we do consider this for the JMP number.
+    /* If the last index of the number is a '.' character so the user meant that this number is-
+       a float number so we do consider this for the JMP number. */
     if (number.back() == '.') number.push_back('0');
+
+    /* If the number is valid, we match the decimal precision of the number-
+       that we are going to put in our number member with the decimal precision of the class itself. */
+    if (valid && precision != -1 && number.size() - 1 > float_point_index + precision)
+        number = number.substr(0, float_point_index + precision + (precision != 0 ? 1 : 0));
 }
 
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
