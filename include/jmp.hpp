@@ -6,6 +6,8 @@ Copyleft(🄯) All uses of this library are free.
 
 Authors:
   * Jibel Sadeghi <itsjibel@gmail.com> */
+#include <chrono>
+#include <thread>
 
 #include <algorithm>
 #include <complex>
@@ -33,7 +35,7 @@ class jmp
                               bool first_number_is_negative, bool second_number_is_negative,
                               ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string& num1, const std::string& num2);
+        std::string divide(const std::string num1, const std::string num2, ulli precision);
 
     public:
         bool is_negative {false};
@@ -194,6 +196,7 @@ class jmp
         jmp operator-(jmp& j);
         jmp operator-(const long double j);
         jmp operator-(std::string& num2_str);
+        jmp operator-(std::string num2_str);
         jmp operator-(const char* num2_str);
         friend jmp operator-(const long double j, jmp& this_obj);
         friend jmp operator-(std::string& num2_str, jmp& this_obj);
@@ -612,19 +615,20 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
     return move(result);
 }
 
-std::string jmp::divide(const std::string& num1, const std::string& num2)
+
+std::string jmp::divide(const std::string num1, const std::string num2, ulli precision)
 {
     long long int divisor = std::stoi(num2);
-    ulli index;
+    ulli index {0};
     std::string result;
-    int dividend = number[index] - '0';
+    int dividend = num1[index] - '0';
     while (dividend < divisor)
-        dividend = dividend * 10 + (number[++index] - '0');
+        dividend = dividend * 10 + (num1[++index] - '0');
 
-    while (number.size() > index)
+    while (num1.size() > index)
     {
         result += (dividend / divisor) + '0';
-        dividend = (dividend % divisor) * 10 + number[++index] - '0';
+        dividend = (dividend % divisor) * 10 + num1[++index] - '0';
     }
 
     return result.length() == 0 ? "0" : result;
@@ -808,8 +812,9 @@ jmp jmp::operator-(jmp& j)
 jmp jmp::operator/(jmp& j)
 {
     if (j == "0")
-        throw std::runtime_error("Division by zero error");
+        throw std::logic_error("Division by zero error");
 
+    bool first_time = true;
     // Erase the float point from numbers to start the calculation
     if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
@@ -819,11 +824,28 @@ jmp jmp::operator/(jmp& j)
     jmp div_obj;
     if (j.number == "1")
         div_obj = number;
-    else if (number == "1")
-        div_obj = j.number;
     else
-        div_obj.number = divide(number, j.number);
+    {
+        std::string result = divide(number, j.number, precision);
+        jmp ans = *this - JMP::to_string(result * j);
 
+        while (ans != "0.0")
+        {
+            if (first_time)
+            {
+                first_time = false;
+                result.append(".");
+            }
+
+            if (ans.float_point_index != 0)
+                ans.number.erase(ans.number.begin() + ans.number.find('.'));
+            ans.number.push_back('0');
+            result.append(divide(ans.number, j.number, precision));
+            jmp a = result * j;
+            ans = number - a;
+        }
+        div_obj.number = result;
+    }
 
     // Add float point to numbers
     if (float_point_index != 0)
@@ -896,6 +918,12 @@ jmp jmp::operator*(std::string& num2_str)
 }
 
 jmp jmp::operator-(std::string& num2_str)
+{
+    jmp num2(num2_str);
+    return *this - num2;
+}
+
+jmp jmp::operator-(std::string num2_str)
 {
     jmp num2(num2_str);
     return *this - num2;
@@ -1005,7 +1033,7 @@ jmp jmp::operator*=(std::string& num2_str)
 
 jmp jmp::operator-=(std::string& num2_str)
 {
-    *this = *this - num2_str;
+    *this -= num2_str;
     return *this;
 }
 

@@ -169,7 +169,7 @@ int main()
     jmp fact1("10");
     std::cout<<JMP::fact(fact1)<<std::endl;
 
-    jmp div1="1000000", div2="3";
+    jmp div1="49", div2="8";
     std::cout<<div1/div2<<std::endl;
 
     return 0;
