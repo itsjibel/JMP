@@ -283,7 +283,7 @@ namespace JMP
         if (j == 0.0)
             return 1;
         if (j.is_decimal() || j < 0.0)
-            throw std::logic_error("JMP::fact: Factorial is only defined for natural numbers.");
+            std::__throw_logic_error("JMP::fact: Factorial is only defined for natural numbers.");
 
         jmp result("1");
         for (jmp i=1; i<=j; i++)
@@ -795,7 +795,7 @@ jmp jmp::operator-(jmp& j)
 jmp jmp::operator/(jmp& j)
 {
     if (j == "0")
-        throw std::logic_error("Division by zero error");
+        std::__throw_logic_error("Division by zero error");
 
     bool first_time = true;
     /// Make ready the numbers for division
