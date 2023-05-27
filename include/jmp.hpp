@@ -284,7 +284,7 @@ namespace JMP
     }
 
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
-    long double   to_double (jmp j) { return std::stod(j.get_number()); }
+    long double   to_double (jmp j) { return std::stold(j.get_number()); }
     std::string   to_string (jmp j) { return j.get_number(); }
 };
 
@@ -592,7 +592,7 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 
 std::string jmp::divide(const std::string num1, const std::string num2, ulli precision)
 {
-    long long int divisor = std::stoi(num2);
+    ulli divisor = std::stoull(num2);
     ulli index {0};
     std::string result;
     int dividend = num1[index] - '0';
