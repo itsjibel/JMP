@@ -74,7 +74,8 @@ class jmp
 
         void reset()
         {
-            number = float_point_index = is_negative = 0;
+            number = float_point_index = is_negative = initialized = 0;
+            precision = -1;
         }
 
         // Getter functions
