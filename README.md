@@ -5,9 +5,11 @@
 + Summation
 + Subtraction
 + Multiplication
++ Division
 + Exponentiation
++ Factorial
 
-## Benchmark on Core I7 11800H CPU
+## Benchmark on Intel Core i7-11800H CPU
 
 + 1.2 Million digits number multiply by 1.2 million digits number: **5.5s**
 + 2 to the power of 10000: **9.49s**
