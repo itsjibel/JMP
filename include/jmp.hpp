@@ -18,6 +18,7 @@ class jmp
         ulli float_point_index {0};
         long long int precision {-1};
         std::string number {"0"};
+        bool initialized {false};
 
         /// The helper functions
         void validation (const std::string& num);
@@ -38,8 +39,8 @@ class jmp
         bool is_negative {false};
         /// Constructors
         jmp() {}
-        jmp(const std::string& num) { validation(num); }
-        jmp(const char* num)        { validation(num); }
+        jmp(const std::string& num) { initialized = true; validation(num); }
+        jmp(const char* num)        { initialized = true; validation(num); }
         jmp(long double num)
         {
             /// Counvert double to string
@@ -49,6 +50,7 @@ class jmp
             strs<<num;
             // Retrieve the contents of the output stream as a std::string and return it
             validation(strs.str());
+            initialized = true;
         }
 
         jmp (const jmp& j)
@@ -56,6 +58,7 @@ class jmp
             number = j.number;
             float_point_index = j.float_point_index;
             is_negative = j.is_negative;
+            initialized = true;
         }
 
         /// Destructor
@@ -137,6 +140,7 @@ class jmp
         // About-number functions
         bool is_decimal() const { return float_point_index != 0; }
         bool is_integer() const { return float_point_index == 0; }
+        bool is_initialized() const { return initialized; }
         ulli size()       const { return number.size(); }
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
