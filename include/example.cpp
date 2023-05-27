@@ -85,10 +85,6 @@ int main()
     // Checking if the jmp number is a decimal
     std::cout<<(c.is_decimal() ? "Yes\n" : "No\n");
 
-    // Reseting the jmp number data and checking if it is empty
-    c.reset();
-    std::cout<<(c.is_empty() ? "Yes\n" : "No\n");
-
     // Sumition this time the first number is a double
     c = "123221398173981738917382130812931037999.5699511455515322";
     std::cout<<465512 + c<<std::endl;

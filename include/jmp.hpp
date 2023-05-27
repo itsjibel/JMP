@@ -28,9 +28,9 @@ class jmp
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
         std::string sum(const std::string& num1, const std::string& num2,
-                              bool first_number_is_bigger, bool second_number_is_bigger,
-                              bool first_number_is_negative, bool second_number_is_negative,
-                              ulli& sum_obj_float_point_index);
+                        bool first_number_is_bigger, bool second_number_is_bigger,
+                        bool first_number_is_negative, bool second_number_is_negative,
+                        ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
         std::string divide(const std::string num1, const std::string num2, ulli precision);
 
@@ -78,16 +78,6 @@ class jmp
         std::string get_number() const
         {
             return number;
-        }
-
-        ulli get_float_point_index() const
-        {
-            return float_point_index;
-        }
-
-        bool get_is_negative() const
-        {
-            return is_negative;
         }
 
         // Conversion functions
@@ -145,7 +135,6 @@ class jmp
         }
 
         // About-number functions
-        bool is_empty()   const { return number.empty(); }
         bool is_decimal() const { return float_point_index != 0; }
         bool is_integer() const { return float_point_index == 0; }
         ulli size()       const { return number.size(); }
@@ -485,9 +474,9 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
 }
 
 std::string jmp::sum (const std::string& num1, const std::string& num2,
-                            bool first_number_is_bigger, bool second_number_is_bigger,
-                            bool first_number_is_negative, bool second_number_is_negative,
-                            ulli& sum_obj_float_point_index)
+                      bool first_number_is_bigger, bool second_number_is_bigger,
+                      bool first_number_is_negative, bool second_number_is_negative,
+                      ulli& sum_obj_float_point_index)
 {
     std::string result = first_number_is_bigger ? num1 : num2;
 
@@ -708,7 +697,7 @@ jmp jmp::operator+(jmp& j)
 
     // Get sum of the two filtered strings
     sum_obj.number = sum(number, j.number, this_number_is_bigger, second_number_is_bigger,
-                               is_negative, j.is_negative, sum_obj.float_point_index);
+                         is_negative, j.is_negative, sum_obj.float_point_index);
 
     /* Trim the number means if we have a number such as '000012.32400' after the sum of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
