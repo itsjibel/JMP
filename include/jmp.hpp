@@ -798,14 +798,42 @@ jmp jmp::operator/(jmp& j)
         throw std::logic_error("Division by zero error");
 
     bool first_time = true;
-    // Erase the float point from numbers to start the calculation
+    /// Make ready the numbers for division
+    /* Erase the float point from numbers to start the calculation
+       and if the numbers for division is decimal we convert them to integer. */
     if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
     if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
 
+    // Equalize the number of decimals
+    while (number.size() - float_point_index < j.number.size() - j.float_point_index)
+        number.push_back('0');
+    while (j.number.size() - j.float_point_index < number.size() - float_point_index)
+        j.number.push_back('0');
+
+    // Delete the beginning zeros from number that have '0' in the beginning
+    ulli number_of_deleted_zeros {0}, number_of_deleted_zeros_j {0};
+    while (number[0] == '0')
+    {
+        number.erase(number.begin());
+        number_of_deleted_zeros++;
+    }
+    while (j.number[0] == '0')
+    {
+        number_of_deleted_zeros_j++;
+        j.number.erase(j.number.begin());
+    }
+
+    /* Set the float point index to zero to don't make a mistake in the calculation,
+       and save them for restoring the numbers to default. */
+    ulli temp_float_point_index {float_point_index}, j_temp_float_point_point = j.float_point_index;
+    float_point_index = j.float_point_index = 0;
+
     jmp div_obj;
-    if (j.number == "1")
+    /* If the number will divide by 1 when we are sure the result will be the number we have,
+       so we equal the 'div_obj' to the number, if the number will not divide by 1, we do the division */
+    if (j.number == "1" || j.number == "1.0")
         div_obj = number;
     else
     {
@@ -827,19 +855,31 @@ jmp jmp::operator/(jmp& j)
             jmp a = result * j;
             ans = number - a;
         }
-        div_obj.number = result;
+        div_obj = result;
     }
 
+    // Add the deleted zeros from numbers
+    for (ulli i=0; i<number_of_deleted_zeros; i++)
+        number.insert(number.begin(), '0');
+    for (ulli i=0; i<number_of_deleted_zeros_j; i++)
+        j.number.insert(j.number.begin(), '0');
+
+    float_point_index = temp_float_point_index;
+    j.float_point_index = j_temp_float_point_point;
     // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
-    if (div_obj.float_point_index != 0)
-        div_obj.number.insert(div_obj.number.begin() + div_obj.float_point_index, '.');
 
+    // Set the negativity of the division product
     div_obj.is_negative = (is_negative == true && j.is_negative == false) ||
                           (is_negative == false && j.is_negative == true);
+
+    // Set the decimal of the division product
+    for (ulli i=0; i<abs((number.size()-(float_point_index != 0 ? float_point_index : number.size()+1)-1) -
+                         (j.number.size()-(j.float_point_index != 0 ? j.float_point_index : j.number.size()+1)-1)); i++)
+        div_obj *= "0.1";
 
     return div_obj;
 }
