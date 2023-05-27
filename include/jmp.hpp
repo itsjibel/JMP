@@ -785,7 +785,7 @@ jmp jmp::operator-(jmp& j)
 
 jmp jmp::operator/(jmp& j)
 {
-    if (j == "0")
+    if (j == "0" || j == "0.0")
         std::__throw_logic_error("Division by zero error");
 
     bool first_time = true;
@@ -868,6 +868,7 @@ jmp jmp::operator/(jmp& j)
                           (is_negative == false && j.is_negative == true);
 
     // Set the decimal of the division product
+    if (div_obj != "0.0")
     for (ulli i=0; i<abs((number.size()-(float_point_index != 0 ? float_point_index : number.size()+1)-1) -
                          (j.number.size()-(j.float_point_index != 0 ? j.float_point_index : j.number.size()+1)-1)); i++)
         div_obj *= "0.1";
