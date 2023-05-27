@@ -6,9 +6,6 @@ Copyleft(🄯) All uses of this library are free.
 
 Authors:
   * Jibel Sadeghi <itsjibel@gmail.com> */
-#include <chrono>
-#include <thread>
-
 #include <algorithm>
 #include <complex>
 #include <memory>
