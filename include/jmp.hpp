@@ -603,7 +603,6 @@ std::string jmp::divide(const std::string num1, const std::string num2, ulli pre
         result += (dividend / divisor) + '0';
         dividend = (dividend % divisor) * 10 + num1[++index] - '0';
     }
-
     return result.length() == 0 ? "0" : result;
 }
 
@@ -658,7 +657,7 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
     }
 
     // Remove the ending useless zeros after subtraction
-    while (j.number[j.number.size() - 1] == '0' && j.float_point_index != 0)
+    while (j.number[j.number.size() - 1] == '0' && j.float_point_index != 0 && j.float_point_index != j.number.size())
         j.number.erase(j.number.begin() + j.number.size() - 1);
 
     if (j.number.empty())
@@ -833,17 +832,19 @@ jmp jmp::operator/(jmp& j)
     {
         std::string result = divide(number, j.number, precision);
         jmp ans = *this - JMP::to_string(result * j);
-
-        while (ans != "0.0")
+        int division_precision=20;
+        while (ans != "0.0" && --division_precision > 0)
         {
             if (first_time)
             {
                 first_time = false;
                 result.append(".");
             }
-
             if (ans.float_point_index != 0)
+            {
+            ans.number.push_back('0');
                 ans.number.erase(ans.number.begin() + ans.number.find('.'));
+            }
             ans.number.push_back('0');
             result.append(divide(ans.number, j.number, precision));
             jmp a = result * j;
