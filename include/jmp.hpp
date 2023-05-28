@@ -592,10 +592,9 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 
 std::string jmp::divide(const std::string num1, const std::string num2, ulli precision)
 {
-    ulli divisor = std::stoull(num2);
-    ulli index {0};
+    ulli divisor = stoull(num2), index {0};
     std::string result;
-    int dividend = num1[index] - '0';
+    int dividend {num1[index] - '0'};
     while (dividend < divisor)
         dividend = dividend * 10 + (num1[++index] - '0');
 
@@ -786,7 +785,7 @@ jmp jmp::operator-(jmp& j)
 jmp jmp::operator/(jmp& j)
 {
     if (j == "0" || j == "0.0")
-        std::__throw_logic_error("Division by zero error");
+        std::__throw_logic_error("jmp::operator/: Can not do division operation for zero.");
 
     bool first_time = true;
     /// Make ready the numbers for division
@@ -798,9 +797,11 @@ jmp jmp::operator/(jmp& j)
         number.erase(number.begin() + float_point_index);
 
     // Equalize the number of decimals
-    while (number.size() - float_point_index < j.number.size() - j.float_point_index)
+    while (number.size() - float_point_index < j.number.size() - j.float_point_index &&
+          (j.float_point_index != 0 || float_point_index != 0))
         number.push_back('0');
-    while (j.number.size() - j.float_point_index < number.size() - float_point_index)
+    while (j.number.size() - j.float_point_index < number.size() - float_point_index &&
+          (j.float_point_index != 0 || float_point_index != 0))
         j.number.push_back('0');
 
     // Delete the beginning zeros from number that have '0' in the beginning
@@ -826,6 +827,8 @@ jmp jmp::operator/(jmp& j)
        so we equal the 'div_obj' to the number, if the number will not divide by 1, we do the division */
     if (j.number == "1" || j.number == "1.0")
         div_obj = number;
+    else if (which_string_number_is_bigger("18446744073099999999", j.number) == 1)
+        std::__throw_range_error("jmp::operator/: Divisor can not be larger than 18446744073099999999.");
     else
     {
         std::string result = divide(number, j.number, precision);
