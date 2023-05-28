@@ -9,6 +9,8 @@ Authors:
 #include <algorithm>
 #include <complex>
 #include <memory>
+#include <thread>
+#include <chrono>
 
 class jmp
 {
@@ -830,27 +832,30 @@ jmp jmp::operator/(jmp& j)
         std::__throw_range_error("jmp::operator/: Divisor can not be larger than 18446744073099999999.");
     else
     {
-        std::string result = divide(number, j.number, precision);
-        jmp ans = *this - JMP::to_string(result * j);
+        std::string quotient = divide(number, j.number, precision);
+        jmp remaining = *this - JMP::to_string(quotient * j);
         int division_precision=20;
-        while (ans != "0.0" && --division_precision > 0)
+        ulli temp_remaining_size = remaining.number.size();
+        while (remaining != "0.0" && --division_precision > 0)
         {
             if (first_time)
             {
                 first_time = false;
-                result.append(".");
+                quotient.append(".");
             }
-            if (ans.float_point_index != 0)
-            {
-            ans.number.push_back('0');
-                ans.number.erase(ans.number.begin() + ans.number.find('.'));
-            }
-            ans.number.push_back('0');
-            result.append(divide(ans.number, j.number, precision));
-            jmp a = result * j;
-            ans = number - a;
+
+            if (remaining.float_point_index != 0)
+                remaining.number.erase(remaining.number.begin() + remaining.number.find('.'));
+
+            while (temp_remaining_size >= remaining.number.size())
+                remaining.number.push_back('0');
+
+            quotient.append(divide(remaining.number, j.number, precision));
+            temp_remaining_size = remaining.number.size();
+            jmp current_result = quotient * j;
+            remaining = number - current_result;
         }
-        div_obj = result;
+        div_obj = quotient;
     }
 
     // Add the deleted zeros from numbers
