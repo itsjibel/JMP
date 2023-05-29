@@ -6,11 +6,10 @@ Copyleft(🄯) All uses of this library are free.
 
 Authors:
   * Jibel Sadeghi <itsjibel@gmail.com> */
+
 #include <algorithm>
 #include <complex>
 #include <memory>
-#include <thread>
-#include <chrono>
 
 class jmp
 {
@@ -18,7 +17,7 @@ class jmp
         typedef unsigned long long int ulli;
         /// The main members of the class
         ulli float_point_index {0};
-        long long int precision {-1};
+        long long int division_precision {20}, precision {-1};
         std::string number {"0"};
         bool initialized {false};
 
@@ -112,6 +111,11 @@ class jmp
                 float_point_index = precision == 0 ? 0 : float_point_index;
             }
             return *this;
+        }
+
+        void set_division_precision (long long int precision)
+        {
+            division_precision = precision >= 0 ? precision : 20;
         }
 
         jmp round_precision (long long int precision)
@@ -834,9 +838,9 @@ jmp jmp::operator/(jmp& j)
     {
         std::string quotient = divide(number, j.number, precision);
         jmp remaining = *this - JMP::to_string(quotient * j);
-        int division_precision=20;
         ulli temp_remaining_size = remaining.number.size();
-        while (remaining != "0.0" && --division_precision > 0)
+
+        while (remaining != "0.0")
         {
             if (first_time)
             {
@@ -851,6 +855,11 @@ jmp jmp::operator/(jmp& j)
                 remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number, precision));
+            if (quotient.size() - quotient.find('.') > division_precision)
+            {
+                quotient = quotient.substr(0, quotient.find('.') + division_precision + 1);
+                break;
+            }
             temp_remaining_size = remaining.number.size();
             jmp current_result = quotient * j;
             remaining = number - current_result;
