@@ -892,25 +892,23 @@ long double operator+=(long double j, jmp& this_obj)
 jmp jmp::powof(jmp j)
 {
     jmp result("1"), negative_one("-1");
-    while (--j > negative_one)
-        result *= *this;
+    if (j.is_negative)
+        while (j++ <= negative_one)
+            result = result / *this;
+    else
+        while (--j > negative_one)
+            result *= *this;
     return result;
 }
 
 bool jmp::operator==(jmp& j) const
 {
-    if ((is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number)
-        return true;
-    else
-        return false;
+    return (is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number ? true : false;
 }
 
 bool jmp::operator!=(jmp& j) const
 {
-    if ((is_negative ? "-" : "") + number != (j.is_negative ? "-" : "") + j.number)
-        return true;
-    else
-        return false;
+    return (is_negative ? "-" : "") + number != (j.is_negative ? "-" : "") + j.number ? true : false;
 }
 
 bool jmp::operator<(jmp& j) const

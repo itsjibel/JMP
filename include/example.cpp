@@ -159,5 +159,8 @@ int main()
     div1.set_division_precision(50);
     std::cout<<div1/div2<<std::endl;
 
+    jmp pow3("2");
+    std::cout<<"Result: "<<pow3.powof(jmp("-3"))<<std::endl;
+
     return 0;
 }
