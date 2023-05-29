@@ -877,6 +877,12 @@ jmp jmp::operator*=(jmp& num2_str)
     return *this;
 }
 
+jmp jmp::operator/=(jmp& num2_str)
+{
+    *this = *this / num2_str;
+    return *this;
+}
+
 jmp jmp::operator-=(jmp& j)
 {
     *this = *this - j;
@@ -894,7 +900,7 @@ jmp jmp::powof(jmp j)
     jmp result("1"), negative_one("-1");
     if (j.is_negative)
         while (j++ <= negative_one)
-            result = result / *this;
+            result /= *this;
     else
         while (--j > negative_one)
             result *= *this;
