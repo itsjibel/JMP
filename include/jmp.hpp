@@ -34,7 +34,7 @@ class jmp
                         bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string num1, const std::string num2);
+        std::string divide(const std::string num1, ulli num2);
 
     public:
         bool is_negative {false};
@@ -592,13 +592,13 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
         if (0 == difference_size_of_two_numbers)
             result[0] -= num1[0] - '0';
     }
-    return move(result);
+    return std::move(result);
 }
 
 
-std::string jmp::divide(const std::string num1, const std::string num2)
+std::string jmp::divide(const std::string num1, ulli num2)
 {
-    ulli divisor = stoull(num2), index {0};
+    ulli divisor = num2, index {0};
     std::string result;
     int dividend {num1[index] - '0'};
     while (dividend < divisor)
@@ -836,7 +836,8 @@ jmp jmp::operator/(jmp& j)
         std::__throw_range_error("jmp::operator/: Divisor can not be larger than 18446744073099999999.");
     else
     {
-        std::string quotient = divide(number, j.number);
+        ulli num2 = std::stoull(j.number);
+        std::string quotient = divide(number, num2);
         jmp remaining = *this - JMP::to_string(quotient * j);
         ulli temp_remaining_size = remaining.number.size();
 
@@ -854,7 +855,7 @@ jmp jmp::operator/(jmp& j)
             while (temp_remaining_size >= remaining.number.size())
                 remaining.number.push_back('0');
 
-            quotient.append(divide(remaining.number, j.number));
+            quotient.append(divide(remaining.number, num2));
             if (quotient.size() - quotient.find('.') > division_precision)
             {
                 quotient = quotient.substr(0, quotient.find('.') + division_precision + 1);
