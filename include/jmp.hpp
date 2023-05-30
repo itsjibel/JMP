@@ -823,10 +823,12 @@ jmp jmp::operator/(jmp& j)
 
     // Set the decimal of the division product
     jmp one_tenth("0.1"), zero("0.0");
+    auto decimal_difference {abs((number.size()  -(float_point_index   != 0 ? float_point_index + 1 : number.size())) -
+                                 (j.number.size()-(j.float_point_index != 0 ? j.float_point_index+1 : j.number.size())))};
+
     if (div_obj != zero)
-    for (ulli i=0; i<abs((number.size()-(float_point_index != 0 ? float_point_index : number.size()+1)-1) -
-                         (j.number.size()-(j.float_point_index != 0 ? j.float_point_index : j.number.size()+1)-1)); i++)
-        div_obj *= one_tenth;
+        for (ulli i=0; i<decimal_difference; i++)
+            div_obj *= one_tenth;
 
     return div_obj;
 }
