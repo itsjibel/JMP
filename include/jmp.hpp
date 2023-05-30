@@ -68,8 +68,7 @@ class jmp
         /// ostream operator
         friend std::ostream& operator<<(std::ostream& o, const jmp& j)
         {
-            o<<(j.is_negative ? '-' : '\0');
-            o<<j.number;
+            o<<(j.is_negative ? '-' : '\0')<<j.number;
             return o;
         }
 
@@ -152,42 +151,30 @@ class jmp
         ulli size()       const { return number.size(); }
         ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
 
-        /* =========================================
-                      Summation operators
-           ========================================= */
+        /// Summation operators
         jmp operator+(jmp& j);
         jmp operator+=(jmp& j);
         jmp operator++();
         jmp operator++(int);
 
-        /* =========================================
-                     Subtraction operators
-           ========================================= */
+        /// Subtraction operators
         jmp operator-(jmp& j);
         jmp operator-=(jmp& j);
         jmp operator--(int);
         jmp operator--();
 
-        /* =========================================
-                    Multiplication operators
-           ========================================= */
+        /// Multiplication operators
         jmp operator*(jmp& j);
         jmp operator*=(jmp& j);
 
-        /* =========================================
-                     Divideation operators
-           ========================================= */
+        /// Divideation operators
         jmp operator/(jmp& j);
         jmp operator/=(jmp& j);
 
-        /* =========================================
-                    Exponentiation function
-           ========================================= */
+        /// Exponentiation function
         jmp powof(jmp j);
 
-        /* =========================================
-                     Conditional operators
-           ========================================= */
+        /// Conditional operators
         bool operator==(jmp& j) const;
         bool operator!=(jmp& j) const;
         bool operator<(jmp& j) const;
