@@ -801,9 +801,6 @@ jmp jmp::operator/(jmp& j)
             if (remaining.float_point_index != 0)
                 remaining.number.erase(remaining.number.begin() + remaining.number.find('.'));
 
-            while (remaining.number[0] == '0')
-                remaining.number.erase(remaining.number.begin());
-
             while (temp_remaining_size >= remaining.number.size())
                 remaining.number.push_back('0');
 

@@ -155,9 +155,12 @@ int main()
     jmp fact1("10");
     std::cout<<JMP::fact(fact1)<<std::endl;
 
-    jmp div1 = jmp("1"), div2 = jmp("18446744073099999999");
+    jmp div1 = jmp("14344"), div2 = jmp("18446744073099999999");
     div1.set_division_precision(100);
     std::cout<<div1/div2<<std::endl;
+
+    jmp pow3("2");
+    std::cout<<"Result: "<<pow3.powof(jmp("-3"))<<std::endl;
 
     return 0;
 }
