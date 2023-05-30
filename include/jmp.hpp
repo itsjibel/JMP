@@ -34,7 +34,36 @@ class jmp
                         bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string num1, ulli num2);
+        std::string divide(const std::string num1, __int128_t num2);
+        __int128_t atoint128_t(std::string const & in)
+        {
+            __int128_t res = 0;
+            size_t i = 0;
+            bool sign = false;
+
+            if (in[i] == '-')
+            {
+                ++i;
+                sign = true;
+            }
+
+            if (in[i] == '+')
+                ++i;
+
+            for (; i < in.size(); ++i)
+            {
+                const char c = in[i];
+                if (not std::isdigit(c)) 
+                    throw std::runtime_error(std::string("Non-numeric character: ") + c);
+                res *= 10;
+                res += c - '0';
+            }
+
+            if (sign)
+                res *= -1;
+
+            return res;
+        }
 
     public:
         bool is_negative {false};
@@ -513,11 +542,10 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 }
 
 
-std::string jmp::divide(const std::string num1, ulli num2)
+std::string jmp::divide(const std::string num1, __int128_t num2)
 {
-    ulli divisor = num2, index {0};
+    __int128_t divisor = num2, index {0}, dividend {num1[index] - 48};
     std::string result;
-    int dividend {num1[index] - '0'};
     while (dividend < divisor)
         dividend = dividend * 10 + (num1[++index] - '0');
 
@@ -755,7 +783,7 @@ jmp jmp::operator/(jmp& j)
         std::__throw_range_error("jmp::operator/: Divisor can not be larger than 18446744073099999999.");
     else
     {
-        ulli num2 = std::stoull(j.number);
+        __int128_t num2 = atoint128_t(j.number);
         std::string quotient = divide(number, num2);
         jmp jmp_quotient(quotient);
         jmp sub(JMP::to_string(jmp_quotient * j));
