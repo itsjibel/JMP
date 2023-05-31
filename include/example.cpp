@@ -160,7 +160,7 @@ int main()
     std::cout<<div1/div2<<std::endl;
 
     jmp pow3("2");
-    std::cout<<"Result: "<<pow3.powof(jmp("-3"))<<std::endl;
+    std::cout<<"Result: "<<pow3.powof(jmp("-10"))<<std::endl;
 
     return 0;
 }

@@ -747,14 +747,6 @@ jmp jmp::operator/(jmp& j)
     if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
 
-    // Equalize the number of decimals
-    while (number.size() - float_point_index < j.number.size() - j.float_point_index &&
-          (j.float_point_index != 0 || float_point_index != 0))
-        number.push_back('0');
-    while (j.number.size() - j.float_point_index < number.size() - float_point_index &&
-          (j.float_point_index != 0 || float_point_index != 0))
-        j.number.push_back('0');
-
     // Delete the beginning zeros from number that have '0' in the beginning
     ulli number_of_deleted_zeros {0}, number_of_deleted_zeros_j {0};
     while (number[0] == '0')
@@ -838,9 +830,9 @@ jmp jmp::operator/(jmp& j)
                           (is_negative == false && j.is_negative == true);
 
     // Set the decimal of the division product
+    auto decimal_difference {abs((j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) -
+                                 (number.size() - (float_point_index != 0 ? float_point_index + 1 : number.size())))};
     jmp one_tenth("0.1"), zero("0.0");
-    auto decimal_difference {abs((number.size()  -(float_point_index   != 0 ? float_point_index + 1 : number.size())) -
-                                 (j.number.size()-(j.float_point_index != 0 ? j.float_point_index+1 : j.number.size())))};
 
     if (div_obj != zero)
         for (ulli i=0; i<decimal_difference; i++)
