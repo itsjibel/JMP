@@ -797,7 +797,7 @@ jmp jmp::operator/(jmp& j)
             quotient.append(divide(remaining.number, num2));
             if (quotient.size() - quotient.find('.') > division_precision)
             {
-                quotient = quotient.substr(0, quotient.find('.') + division_precision - 1);
+                quotient = quotient.substr(0, quotient.find('.') + division_precision + 1);
                 break;
             }
             temp_remaining_size = remaining.number.size();
@@ -841,6 +841,8 @@ jmp jmp::operator/(jmp& j)
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
         div_obj.number.push_back('0');
+
+    div_obj.number = div_obj.number.substr(0, div_obj.number.find('.') + division_precision + 1);
 
     return div_obj;
 }
