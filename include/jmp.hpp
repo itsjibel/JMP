@@ -771,8 +771,6 @@ jmp jmp::operator/(jmp& j)
        so we equal the 'div_obj' to the number, if the number will not divide by 1, we do the division */
     if (j.number == "1" || j.number == "1.0")
         div_obj = jmp(number);
-    else if (which_string_number_is_bigger("18446744073099999999", j.number) == 1)
-        std::__throw_range_error("jmp::operator/: Divisor can not be larger than 18446744073099999999.");
     else
     {
         __int128_t num2 = atoint128_t(j.number);
@@ -799,7 +797,7 @@ jmp jmp::operator/(jmp& j)
             quotient.append(divide(remaining.number, num2));
             if (quotient.size() - quotient.find('.') > division_precision)
             {
-                quotient = quotient.substr(0, quotient.find('.') + division_precision + 1);
+                quotient = quotient.substr(0, quotient.find('.') + division_precision - 1);
                 break;
             }
             temp_remaining_size = remaining.number.size();
