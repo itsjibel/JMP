@@ -210,6 +210,7 @@ namespace JMP
     long double   to_double (jmp j) { return std::stold(j.get_number()); }
     std::string   to_string (jmp j) { return j.get_number(); }
     jmp sqr (jmp& j) { return j*j; }
+    jmp cube (jmp& j) { return j*j*j; }
 };
 
 void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)
