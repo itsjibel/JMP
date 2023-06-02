@@ -34,36 +34,7 @@ class jmp
                         bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string num1, __int128_t num2);
-        __int128_t atoint128_t(std::string const & in)
-        {
-            __int128_t res = 0;
-            size_t i = 0;
-            bool sign = false;
-
-            if (in[i] == '-')
-            {
-                ++i;
-                sign = true;
-            }
-
-            if (in[i] == '+')
-                ++i;
-
-            for (; i < in.size(); ++i)
-            {
-                const char c = in[i];
-                if (not std::isdigit(c)) 
-                    throw std::runtime_error(std::string("Non-numeric character: ") + c);
-                res *= 10;
-                res += c - '0';
-            }
-
-            if (sign)
-                res *= -1;
-
-            return res;
-        }
+        std::string divide(const std::string num1, int64_t num2);
 
     public:
         bool is_negative {false};
@@ -542,9 +513,9 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 }
 
 
-std::string jmp::divide(const std::string num1, __int128_t num2)
+std::string jmp::divide(const std::string num1, int64_t num2)
 {
-    __int128_t divisor = num2, index {0}, dividend {num1[index] - 48};
+    int64_t divisor = num2, index {0}, dividend {num1[index] - 48};
     std::string result;
     while (dividend < divisor)
         dividend = dividend * 10 + (num1[++index] - '0');
@@ -564,26 +535,26 @@ void jmp::equalizing_figures(jmp& j)
     {
         // It means this number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number.
-        long unsigned int how_many_zeros {(number.size() - float_point_index) - (j.number.size() - j.float_point_index)};
+        auto how_many_zeros {(number.size() - float_point_index) - (j.number.size() - j.float_point_index)};
         for (int i{0}; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
     else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
     {
         // It means the second number has more decimals than this number, so we equalize the figure of this number to the second number.
-        long unsigned int how_many_zeros {(j.number.size() - j.float_point_index) - (number.size() - float_point_index)};
+        auto how_many_zeros {(j.number.size() - j.float_point_index) - (number.size() - float_point_index)};
         for (int i{0}; i<how_many_zeros; i++)
             number.push_back('0');
     }
     else if (j.float_point_index != 0 && float_point_index == 0)
     {
-        long unsigned int how_many_zeros {j.number.size() - j.float_point_index};
+        auto how_many_zeros {j.number.size() - j.float_point_index};
         for (int i{0}; i<how_many_zeros; i++)
             number.push_back('0');
     }
     else if (j.float_point_index == 0 && float_point_index != 0)
     {
-        long unsigned int how_many_zeros {number.size() - float_point_index};
+        auto how_many_zeros {number.size() - float_point_index};
         for (int i{0}; i<how_many_zeros; i++)
             j.number.push_back('0');
     }
@@ -773,7 +744,7 @@ jmp jmp::operator/(jmp& j)
         div_obj = jmp(number);
     else
     {
-        __int128_t num2 = atoint128_t(j.number);
+        int64_t num2 = std::stoull(j.number);
         std::string quotient = divide(number, num2);
         jmp jmp_quotient(quotient);
         jmp sub(JMP::to_string(jmp_quotient * j));
