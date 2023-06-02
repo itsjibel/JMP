@@ -206,6 +206,16 @@ namespace JMP
         return result;
     }
 
+    jmp sqrt(jmp& j)
+    {
+        jmp squareroot("0");
+        while (squareroot * squareroot < j)
+            squareroot++;
+
+        if (squareroot * squareroot != j) --squareroot;
+        return squareroot;
+    }
+
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
     long double   to_double (jmp j) { return std::stold(j.get_number()); }
     std::string   to_string (jmp j) { return j.get_number(); }

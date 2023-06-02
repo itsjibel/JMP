@@ -166,5 +166,7 @@ int main()
 
     std::cout<<JMP::cube(pow3)<<std::endl;
 
+    std::cout<<JMP::sqrt(pow3)<<std::endl;
+
     return 0;
 }
