@@ -162,5 +162,7 @@ int main()
     jmp pow3("2");
     std::cout<<pow3.powof(jmp("-20"))<<std::endl;
 
+    std::cout<<JMP::sqr(pow3)<<std::endl;
+
     return 0;
 }
