@@ -185,7 +185,7 @@ class jmp
 
 namespace JMP
 {
-    jmp abs(jmp& j)
+    jmp abs(jmp j)
     {
         j.is_negative = false;
         return j;
@@ -206,14 +206,21 @@ namespace JMP
         return result;
     }
 
-    jmp sqrt(jmp& j)
+    jmp sqrt(jmp& j, long long int precision)
     {
-        jmp squareroot("0");
-        while (squareroot * squareroot < j)
-            squareroot++;
+        jmp epsilon("1"), one_tenth("10");
+        for (long long int i=0; i<precision; i++)
+            epsilon /= one_tenth;
+        jmp two("2"), guess(j / two), previousGuess;
 
-        if (squareroot * squareroot != j) --squareroot;
-        return squareroot;
+        do
+        {
+            previousGuess = guess;
+            jmp a(j / guess);
+            guess = (guess + a) / two;
+        } while (JMP::abs(guess - previousGuess) > epsilon);
+
+        return guess;
     }
 
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
@@ -458,7 +465,7 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
     {
         // This is the same. Just for the second number instead of this number.
         auto difference_size_of_two_numbers {num2.size() - num1.size()};
-        for (auto i{num2.size() - 1}; i>0; i--)
+        for (auto i{(num2.size() == 1 ? 1 : num2.size() - 1)}; i>0; i--)
         {
             if (i >= difference_size_of_two_numbers)
                 result[i] += num1[i - (difference_size_of_two_numbers)] - '0';
@@ -468,6 +475,10 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
                 result[i] -= 10;
             }
         }
+
+        if (0 == difference_size_of_two_numbers)
+            result[0] += num1[0] - '0';
+
         if (result[0] > '9')
         {
             result[0] -= 10;
