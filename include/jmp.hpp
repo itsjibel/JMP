@@ -17,7 +17,7 @@ class jmp
         typedef unsigned long long int ulli;
         /// The main members of the class
         ulli float_point_index {0};
-        long long int division_precision {20}, precision {-1};
+        long long int division_precision {10}, precision {-1};
         std::string number {"0"};
         bool initialized {false};
 
@@ -208,16 +208,20 @@ namespace JMP
 
     jmp sqrt(jmp& j, long long int precision)
     {
-        jmp epsilon("1"), one_tenth("10");
+        jmp epsilon("1.0"), one_tenth("0.1");
         for (long long int i=0; i<precision; i++)
-            epsilon /= one_tenth;
+            epsilon *= one_tenth;
+        printf("epsilon = %s\n", epsilon.get_number().c_str());
         jmp two("2"), guess(j / two), previousGuess;
 
         do
         {
             previousGuess = guess;
             jmp a(j / guess);
+            printf ("a: %s = %s / %s\n", a.get_number().c_str(), j.get_number().c_str(), guess.get_number().c_str());
+            printf ("guess: %s = (%s + %s) / %s\n", ((guess + a) / two).get_number().c_str(), guess.get_number().c_str(), a.get_number().c_str(), two.get_number().c_str());
             guess = (guess + a) / two;
+            printf("%s > %s\n", (guess - previousGuess).get_number().c_str(), epsilon.get_number().c_str());
         } while (JMP::abs(guess - previousGuess) > epsilon);
 
         return guess;
@@ -395,27 +399,16 @@ void jmp::validation (const std::string& num)
 
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
-    // This function takes two strings that number and compares them in terms of size
-    // First of all, we check the simple things make the number bigger than other
-    // It's clear if the number std::string has a bigger length when is bigger than other
     auto num1size {num1.size()}, num2size {num2.size()};
-    if (num1size > num2size)
-        return 0;
-    else if (num2size > num1size)
-        return 1;
-    else
+    // We should check digit by digit to understand which number is bigger
+    int counter {0};
+    while (counter < num1size)
     {
-        // If the two std::string numbers have the same length then we should check digit by digit to-
-        // understand which number is bigger
-        int counter {0};
-        while (counter < num1size)
-        {
-            if (num1[counter] > num2[counter])
-                return 0;
-            else if (num2[counter] > num1[counter])
-                return 1;
-            counter++;
-        }
+        if (num1[counter] > num2[counter])
+            return 0;
+        else if (num2[counter] > num1[counter])
+            return 1;
+        counter++;
     }
     return 0;
 }
@@ -558,27 +551,16 @@ void jmp::equalizing_figures(jmp& j)
     {
         // It means this number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number.
-        auto how_many_zeros {(number.size() - float_point_index) - (j.number.size() - j.float_point_index)};
-        for (int i{0}; i<how_many_zeros; i++)
+        while (j.number.size() < number.size())
             j.number.push_back('0');
-    }
-    else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
-    {
-        // It means the second number has more decimals than this number, so we equalize the figure of this number to the second number.
-        auto how_many_zeros {(j.number.size() - j.float_point_index) - (number.size() - float_point_index)};
-        for (int i{0}; i<how_many_zeros; i++)
+    } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+        while (number.size() < j.number.size())
             number.push_back('0');
-    }
-    else if (j.float_point_index != 0 && float_point_index == 0)
-    {
-        auto how_many_zeros {j.number.size() - j.float_point_index};
-        for (int i{0}; i<how_many_zeros; i++)
+    } else if (j.float_point_index != 0 && float_point_index == 0) {
+        while (number.size() < j.number.size())
             number.push_back('0');
-    }
-    else if (j.float_point_index == 0 && float_point_index != 0)
-    {
-        auto how_many_zeros {number.size() - float_point_index};
-        for (int i{0}; i<how_many_zeros; i++)
+    } else if (j.float_point_index == 0 && float_point_index != 0) {
+        while (j.number.size() < number.size())
             j.number.push_back('0');
     }
 }
@@ -642,11 +624,9 @@ jmp jmp::operator+(jmp& j)
             sum_obj.float_point_index = temp_second_number_size;
         second_number_is_bigger = true;
     }
-
     // Get sum of the two filtered strings
     sum_obj.number = sum(number, j.number, this_number_is_bigger, second_number_is_bigger,
                          is_negative, j.is_negative, sum_obj.float_point_index);
-
     /* Trim the number means if we have a number such as '000012.32400' after the sum of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
@@ -674,6 +654,19 @@ jmp jmp::operator*(jmp& j)
     if (float_point_index != 0 && float_point_index < number.size())
         number.erase(number.begin() + float_point_index);
 
+    ulli number_of_removed_zeros_this_number {0}, number_of_removed_zeros_second_number {0};
+    while(j.number[0] == '0')
+    {
+        j.number.erase(j.number.begin());
+        number_of_removed_zeros_second_number++;
+    }
+
+    while(number[0] == '0')
+    {
+        number.erase(number.begin());
+        number_of_removed_zeros_this_number++;
+    }
+
     jmp mul_obj;
     if (j.number == "1")
         mul_obj = jmp(number);
@@ -681,6 +674,11 @@ jmp jmp::operator*(jmp& j)
         mul_obj = jmp(j.number);
     else
         mul_obj.number = multiply(number, j.number);
+
+    for (auto i=0; i<number_of_removed_zeros_second_number; i++)
+        j.number.insert(j.number.begin(), '0');
+    for (auto i=0; i<number_of_removed_zeros_this_number; i++)
+        number.insert(number.begin(), '0');
 
     ulli sum_of_decimals_of_two_numbers {
         (number.size() - (float_point_index == 0 ? number.size() : float_point_index)) +
@@ -937,14 +935,10 @@ bool jmp::operator<(jmp& j) const
     else if (is_negative == false && j.is_negative)
         return false;
 
-    bool which_number_is_bigger = which_string_number_is_bigger(number, j.number);
-    if (which_number_is_bigger == 1 && j.is_negative)
+    if (which_string_number_is_bigger(number, j.number) == 0)
         return false;
-    else if (which_number_is_bigger == 0 && is_negative == true)
+    else
         return true;
-    else if (which_number_is_bigger == 1 && j.is_negative == false)
-        return true;
-    return false;
 }
 
 bool jmp::operator<=(jmp& j) const
