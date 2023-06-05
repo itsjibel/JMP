@@ -211,17 +211,13 @@ namespace JMP
         jmp epsilon("1.0"), one_tenth("0.1");
         for (long long int i=0; i<precision; i++)
             epsilon *= one_tenth;
-        printf("epsilon = %s\n", epsilon.get_number().c_str());
         jmp two("2"), guess(j / two), previousGuess;
 
         do
         {
             previousGuess = guess;
             jmp a(j / guess);
-            printf ("a: %s = %s / %s\n", a.get_number().c_str(), j.get_number().c_str(), guess.get_number().c_str());
-            printf ("guess: %s = (%s + %s) / %s\n", ((guess + a) / two).get_number().c_str(), guess.get_number().c_str(), a.get_number().c_str(), two.get_number().c_str());
             guess = (guess + a) / two;
-            printf("%s > %s\n", (guess - previousGuess).get_number().c_str(), epsilon.get_number().c_str());
         } while (JMP::abs(guess - previousGuess) > epsilon);
 
         return guess;
@@ -753,11 +749,33 @@ jmp jmp::operator/(jmp& j)
         j.number.erase(j.number.begin());
     }
 
+    ulli how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
+    if (number.size() - (float_point_index == 0 ? number.size() : float_point_index) < j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index))
+    {    
+        if (float_point_index == 0)
+            float_point_index = number.size() - 1;
+        while (number.size() - float_point_index < j.number.size() - j.float_point_index)
+        {
+            number.push_back('0');
+            how_many_zero_added_this_num++;
+        }
+    }
+
+    if (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index) < number.size() - (float_point_index == 0 ? number.size() : float_point_index))
+    {    
+        if (j.float_point_index == 0)
+            j.float_point_index = j.number.size() - 1;
+        while (j.number.size() - j.float_point_index <= number.size() - float_point_index)
+        {
+            j.number.push_back('0');
+            how_many_zero_added_sec_num++;
+        }
+    }
+
     /* Set the float point index to zero to don't make a mistake in the calculation,
        and save them for restoring the numbers to default. */
     ulli temp_float_point_index {float_point_index}, j_temp_float_point_point = j.float_point_index;
     float_point_index = j.float_point_index = 0;
-
     jmp div_obj;
     /* If the number will divide by 1 when we are sure the result will be the number we have,
        so we equal the 'div_obj' to the number, if the number will not divide by 1, we do the division */
@@ -801,6 +819,16 @@ jmp jmp::operator/(jmp& j)
         div_obj = jmp(quotient);
     }
 
+    for (ulli i=0; i<how_many_zero_added_sec_num; i++)
+        j.number.pop_back();
+    if (j.number.size() - 1 == j.float_point_index)
+        j.float_point_index = 0;
+
+    for (ulli i=0; i<how_many_zero_added_this_num; i++)
+        number.pop_back();
+    if (number.size() - 1 == float_point_index)
+        float_point_index = 0;
+
     // Add the deleted zeros from numbers
     for (ulli i=0; i<number_of_deleted_zeros; i++)
         number.insert(number.begin(), '0');
@@ -822,13 +850,13 @@ jmp jmp::operator/(jmp& j)
     // Set the decimal of the division product
     auto decimal_difference {abs((j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) -
                                  (number.size() - (float_point_index != 0 ? float_point_index + 1 : number.size())))};
-    jmp one_tenth("0.1"), zero("0.0"), ten("10");
-
-    for (ulli i=0; i<decimal_difference; i++)
+    jmp one_tenth("0.1"), ten("10");
+    int a=(div_obj.number.size() - (div_obj.float_point_index != 0 ? div_obj.float_point_index : div_obj.number.size())) - decimal_difference;
+    for (int i=0; i<a / 3; i++)
         div_obj *= one_tenth;
     
     if (float_point_index == 0)
-        for (ulli i=0; i<(j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) * 2; i++)
+        for (ulli i=0; i<(j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) - how_many_zero_added_this_num; i++)
             div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
