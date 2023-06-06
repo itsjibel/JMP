@@ -924,6 +924,9 @@ long double operator+=(long double j, jmp& this_obj)
 
 jmp jmp::powof(jmp j)
 {
+    if (j.is_decimal())
+        std::__throw_logic_error("jmp::powof: The number cannot be raised to a decimal power.");
+
     jmp result("1"), negative_one("-1");
     if (j.is_negative)
         while (j++ <= negative_one)
