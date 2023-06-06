@@ -206,23 +206,6 @@ namespace JMP
         return result;
     }
 
-    jmp sqrt(jmp& j, long long int precision)
-    {
-        jmp epsilon("1.0"), one_tenth("0.1");
-        for (long long int i=0; i<precision; i++)
-            epsilon *= one_tenth;
-        jmp two("2"), guess(j / two), previousGuess;
-
-        do
-        {
-            previousGuess = guess;
-            jmp a(j / guess);
-            guess = (guess + a) / two;
-        } while (JMP::abs(guess - previousGuess) > epsilon);
-
-        return guess;
-    }
-
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
     long double   to_double (jmp j) { return std::stold(j.get_number()); }
     std::string   to_string (jmp j) { return j.get_number(); }
