@@ -749,11 +749,16 @@ jmp jmp::operator/(jmp& j)
         j.number.erase(j.number.begin());
     }
 
+    bool could_reset_fpi=false, could_reset_jfpi=false;
     ulli how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
     if (number.size() - (float_point_index == 0 ? number.size() : float_point_index) < j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index))
     {    
         if (float_point_index == 0)
+        {
             float_point_index = number.size() - 1;
+            could_reset_fpi = true;
+        }
+
         while (number.size() - float_point_index < j.number.size() - j.float_point_index)
         {
             number.push_back('0');
@@ -764,7 +769,10 @@ jmp jmp::operator/(jmp& j)
     if (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index) < number.size() - (float_point_index == 0 ? number.size() : float_point_index))
     {    
         if (j.float_point_index == 0)
+        {
             j.float_point_index = j.number.size() - 1;
+            could_reset_jfpi = true;
+        }
         while (j.number.size() - j.float_point_index <= number.size() - float_point_index)
         {
             j.number.push_back('0');
@@ -774,7 +782,7 @@ jmp jmp::operator/(jmp& j)
 
     /* Set the float point index to zero to don't make a mistake in the calculation,
        and save them for restoring the numbers to default. */
-    ulli temp_float_point_index {float_point_index}, j_temp_float_point_point = j.float_point_index;
+    ulli temp_float_point_index = could_reset_fpi ? 0 : float_point_index, j_temp_float_point_point = could_reset_jfpi ? 0 : j.float_point_index;
     float_point_index = j.float_point_index = 0;
     jmp div_obj;
     /* If the number will divide by 1 when we are sure the result will be the number we have,
