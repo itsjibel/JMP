@@ -148,8 +148,9 @@ class jmp
         bool is_decimal() const { return float_point_index != 0; }
         bool is_integer() const { return float_point_index == 0; }
         bool is_initialized() const { return initialized; }
-        ulli size()       const { return number.size(); }
-        ulli allocated()  const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
+        ulli size() const { return number.size(); }
+        ulli allocated() const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
+        ulli num_of_decimals() { return (number.size() - float_point_index == number.size() ? 0 : number.size() - float_point_index - 1); };
 
         /// Summation operators
         jmp operator+(jmp& j);
