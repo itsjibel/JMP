@@ -155,7 +155,7 @@ int main()
     jmp fact1("10");
     std::cout<<JMP::fact(fact1)<<std::endl;
 
-    jmp div1 = jmp("3.33"), div2 = jmp("1.5");
+    jmp div1 = jmp("923679.43267"), div2 = jmp("53453.984");
     div1.set_division_precision(100);
     std::cout<<div1/div2<<std::endl;
 
