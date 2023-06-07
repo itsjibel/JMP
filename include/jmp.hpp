@@ -844,12 +844,9 @@ jmp jmp::operator/(jmp& j)
                                  (number.size() - (float_point_index != 0 ? float_point_index + 1 : number.size())))};
     jmp one_tenth("0.1"), ten("10");
     int a=(div_obj.number.size() - (div_obj.float_point_index != 0 ? div_obj.float_point_index : div_obj.number.size())) - decimal_difference;
-    for (int i=0; i<a / 3; i++)
-        div_obj *= one_tenth;
-    
-    if (float_point_index == 0)
-        for (ulli i=0; i<(j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) - how_many_zero_added_this_num; i++)
-            div_obj *= ten;
+
+    for (ulli i=0; i<decimal_difference; i++)
+        div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
         div_obj.number.push_back('0');
