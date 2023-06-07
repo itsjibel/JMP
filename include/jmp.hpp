@@ -842,10 +842,9 @@ jmp jmp::operator/(jmp& j)
     // Set the decimal of the division product
     auto decimal_difference {abs((j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) -
                                  (number.size() - (float_point_index != 0 ? float_point_index + 1 : number.size())))};
-    jmp one_tenth("0.1"), ten("10");
-    int a=(div_obj.number.size() - (div_obj.float_point_index != 0 ? div_obj.float_point_index : div_obj.number.size())) - decimal_difference;
+    jmp ten("10");
 
-    for (ulli i=0; i<decimal_difference; i++)
+    for (ulli i=0; i<(how_many_zero_added_sec_num + how_many_zero_added_this_num) - decimal_difference; i++)
         div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
