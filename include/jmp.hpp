@@ -172,6 +172,10 @@ class jmp
         jmp operator/(jmp& j);
         jmp operator/=(jmp& j);
 
+        /// Modulus operators
+        jmp operator%(jmp& j);
+        jmp operator%=(jmp& j);
+
         /// Exponentiation function
         jmp powof(jmp j);
 
@@ -884,6 +888,11 @@ jmp jmp::operator/(jmp& j)
     return div_obj;
 }
 
+jmp jmp::operator%(jmp& j)
+{
+    return JMP::mod(*this, j);
+}
+
 jmp jmp::operator++()
 {
     jmp one("1");
@@ -933,6 +942,12 @@ jmp jmp::operator*=(jmp& num2_str)
 jmp jmp::operator/=(jmp& num2_str)
 {
     *this = *this / num2_str;
+    return *this;
+}
+
+jmp jmp::operator%=(jmp& num2_str)
+{
+    *this = *this % num2_str;
     return *this;
 }
 
