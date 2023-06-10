@@ -209,7 +209,7 @@ namespace JMP
 
     jmp mod(jmp dividend, jmp divisor)
     {
-        jmp quotient (dividend / divisor);
+        jmp quotient ((dividend / divisor).internal_conversion_to_int());
         jmp a(quotient * divisor), zero("0");
         jmp remainder (dividend - a);
         if (remainder < zero)
