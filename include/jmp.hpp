@@ -201,10 +201,20 @@ namespace JMP
             std::__throw_logic_error("JMP::fact: Factorial is only defined for natural numbers.");
 
         jmp result("1");
-        for (jmp i=jmp(1); i<=j; i++)
+        for (jmp i=jmp("1"); i<=j; i++)
             result *= i;
 
         return result;
+    }
+
+    jmp mod(jmp dividend, jmp divisor)
+    {
+        jmp quotient (dividend / divisor);
+        jmp a(quotient * divisor), zero("0");
+        jmp remainder (dividend - a);
+        if (remainder < zero)
+            remainder += divisor;
+        return remainder;
     }
 
     long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
@@ -382,13 +392,19 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
     auto num1size {num1.size()}, num2size {num2.size()};
     // We should check digit by digit to understand which number is bigger
     int counter {0};
-    while (counter < num1size)
-    {
-        if (num1[counter] > num2[counter])
-            return 0;
-        else if (num2[counter] > num1[counter])
-            return 1;
-        counter++;
+    if (num1size > num2size)
+        return 0;
+    else if (num1size < num2size)
+        return 1;
+    else {
+        while (counter < num1size)
+        {
+            if (num1[counter] > num2[counter])
+                return 0;
+            else if (num2[counter] > num1[counter])
+                return 1;
+            counter++;
+        }
     }
     return 0;
 }
@@ -629,9 +645,9 @@ jmp jmp::operator+(jmp& j)
 jmp jmp::operator*(jmp& j)
 {
     // Erase the float point from numbers to start the calculation
-    if (j.float_point_index != 0 && j.float_point_index < j.number.size())
+    if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
-    if (float_point_index != 0 && float_point_index < number.size())
+    if (float_point_index != 0)
         number.erase(number.begin() + float_point_index);
 
     ulli number_of_removed_zeros_this_number {0}, number_of_removed_zeros_second_number {0};
@@ -686,8 +702,11 @@ jmp jmp::operator*(jmp& j)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
         j.number.insert(j.number.begin() + j.float_point_index, '.');
+
     if (mul_obj.float_point_index != 0 && mul_obj.float_point_index != mul_obj.number.size())
         mul_obj.number.insert(mul_obj.number.begin() + mul_obj.float_point_index, '.');
+    if (mul_obj.float_point_index == mul_obj.number.size())
+        mul_obj.float_point_index = 0;
 
     // Remove the ending useless zeros after multiplication
     while (mul_obj.float_point_index != 0 && mul_obj.number[mul_obj.number.size() - 1] == '0' &&
@@ -848,7 +867,17 @@ jmp jmp::operator/(jmp& j)
         div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
-        div_obj.number.push_back('0');
+    {
+        div_obj.number.pop_back();
+        div_obj.float_point_index = 0;
+    }
+
+    if (div_obj.number[div_obj.number.size() - 1] == '0' && div_obj.number[div_obj.number.size() - 2] == '.')
+    {
+        div_obj.number.pop_back();
+        div_obj.number.pop_back();
+        div_obj.float_point_index = 0;
+    }
 
     div_obj.number = div_obj.number.substr(0, div_obj.number.find('.') + division_precision + 1);
 

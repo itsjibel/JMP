@@ -166,5 +166,8 @@ int main()
 
     std::cout<<JMP::cube(pow3)<<std::endl;
 
+    jmp four("4"), three("2");
+    std::cout<<JMP::mod(four, three)<<std::endl;
+
     return 0;
 }
