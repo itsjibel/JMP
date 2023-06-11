@@ -43,18 +43,6 @@ class jmp
         jmp(const std::string& num) { initialized = true; validation(num); }
         jmp(const char* num) { initialized = true; validation(num); }
 
-        jmp(long double num)
-        {
-            /// Counvert double to string
-            // Create an output std::string stream object
-            std::ostringstream strs;
-            // Insert the value of 'num' into the output stream
-            strs<<num;
-            // Retrieve the contents of the output stream as a std::string and return it
-            validation(strs.str());
-            initialized = true;
-        }
-
         jmp (const jmp& j)
         {
             number = j.number;
