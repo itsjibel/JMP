@@ -41,7 +41,8 @@ class jmp
         /// Constructors
         jmp() {}
         jmp(const std::string& num) { initialized = true; validation(num); }
-        jmp(const char* num)        { initialized = true; validation(num); }
+        jmp(const char* num) { initialized = true; validation(num); }
+
         jmp(long double num)
         {
             /// Counvert double to string
@@ -122,7 +123,7 @@ class jmp
             // Rounding the number in decimals
             if (precision == 0)
             {
-                jmp one(1);
+                jmp one("1");
                 if (number[float_point_index + 1] >= '5')
                     *this += one;
             } else {
@@ -921,12 +922,6 @@ jmp jmp::operator--(int)
     return temp;
 }
 
-jmp operator+(const long double j, jmp& this_obj)
-{
-    jmp num2(j);
-    return this_obj + num2;
-}
-
 jmp jmp::operator+=(jmp& num2_str)
 {
     *this = *this + num2_str;
@@ -955,12 +950,6 @@ jmp jmp::operator-=(jmp& j)
 {
     *this = *this - j;
     return *this;
-}
-
-long double operator+=(long double j, jmp& this_obj)
-{
-    j = JMP::to_double(j + this_obj);
-    return j;
 }
 
 jmp jmp::powof(jmp j)
