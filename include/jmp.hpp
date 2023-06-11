@@ -15,6 +15,7 @@ class jmp
 {
     private:
         typedef unsigned long long int ulli;
+
         /// The main members of the class
         ulli float_point_index {0};
         long long int division_precision {10}, precision {-1};
@@ -30,8 +31,7 @@ class jmp
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
         std::string sum(const std::string& num1, const std::string& num2,
-                        bool first_number_is_bigger, bool second_number_is_bigger,
-                        bool first_number_is_negative, bool second_number_is_negative,
+                        bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
         std::string divide(const std::string num1, int64_t num2);
@@ -40,9 +40,9 @@ class jmp
         bool is_negative {false};
         /// Constructors
         jmp() {}
-        explicit jmp(const std::string& num) { initialized = true; validation(num); }
-        explicit jmp(const char* num)        { initialized = true; validation(num); }
-        explicit jmp(long double num)
+        jmp(const std::string& num) { initialized = true; validation(num); }
+        jmp(const char* num)        { initialized = true; validation(num); }
+        jmp(long double num)
         {
             /// Counvert double to string
             // Create an output std::string stream object
@@ -213,7 +213,7 @@ namespace JMP
 
     jmp mod(jmp dividend, jmp divisor)
     {
-        jmp quotient ((dividend / divisor).round_precision(0));
+        jmp quotient((dividend / divisor).round_precision(0));
         jmp a(quotient * divisor), zero("0");
         jmp remainder (dividend - a);
         if (remainder < zero)
@@ -221,9 +221,9 @@ namespace JMP
         return remainder;
     }
 
-    long long int to_int    (jmp j) { return atoi(j.get_number().c_str()); }
-    long double   to_double (jmp j) { return std::stold(j.get_number()); }
-    std::string   to_string (jmp j) { return j.get_number(); }
+    long long int to_int (jmp j) { return atoi(j.get_number().c_str()); }
+    long double to_double (jmp j) { return std::stold(j.get_number()); }
+    std::string to_string (jmp j) { return j.get_number(); }
     jmp sqr (jmp& j) { return j*j; }
     jmp cube (jmp& j) { return j*j*j; }
 };
@@ -414,8 +414,7 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
 }
 
 std::string jmp::sum (const std::string& num1, const std::string& num2,
-                      bool first_number_is_bigger, bool second_number_is_bigger,
-                      bool first_number_is_negative, bool second_number_is_negative,
+                      bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                       ulli& sum_obj_float_point_index)
 {
     std::string result = first_number_is_bigger ? num1 : num2;
@@ -454,7 +453,7 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
             sum_obj_float_point_index = sum_obj_float_point_index != 0 ? sum_obj_float_point_index + 1 : 0;
         }
     }
-    else if (second_number_is_bigger && (first_number_is_negative == second_number_is_negative))
+    else if (!first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
         // This is the same. Just for the second number instead of this number.
         auto difference_size_of_two_numbers {num2.size() - num1.size()};
@@ -506,7 +505,7 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
         if (0 == difference_size_of_two_numbers)
             result[0] -= num2[0] - '0';
     }
-    else if (second_number_is_bigger && (is_negative != second_number_is_negative))
+    else if (!first_number_is_bigger && (is_negative != second_number_is_negative))
     {
         // This is the same. Just for the second number instead of this number.
         auto difference_size_of_two_numbers {num2.size() - num1.size()};
@@ -625,8 +624,8 @@ jmp jmp::operator+(jmp& j)
         second_number_is_bigger = true;
     }
     // Get sum of the two filtered strings
-    sum_obj.number = sum(number, j.number, this_number_is_bigger, second_number_is_bigger,
-                         is_negative, j.is_negative, sum_obj.float_point_index);
+    sum_obj.number = sum(number, j.number, this_number_is_bigger, is_negative, j.is_negative, sum_obj.float_point_index);
+
     /* Trim the number means if we have a number such as '000012.32400' after the sum of two numbers, we trim the number to '12.324'
      * (-999900 + 999912) = 000012  ---> 12
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
@@ -729,11 +728,9 @@ jmp jmp::operator-(jmp& j)
 
 jmp jmp::operator/(jmp& j)
 {
-    jmp check("0.0"), check2("0");
-    if (j == check || j == check2)
+    if (j.number == "0.0" || j.number == "0")
         std::__throw_logic_error("jmp::operator/: Can not do division operation for zero.");
 
-    bool first_time = true;
     /// Make ready the numbers for division
     /* Erase the float point from numbers to start the calculation
        and if the numbers for division is decimal we convert them to integer. */
@@ -756,9 +753,10 @@ jmp jmp::operator/(jmp& j)
         j.number.erase(j.number.begin());
     }
 
+    // Note: fpi is 'float point index'
     bool could_reset_fpi=false, could_reset_jfpi=false;
     ulli how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
-    if (number.size() - (float_point_index == 0 ? number.size() : float_point_index) < j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index))
+    if (num_of_decimals() < j.num_of_decimals())
     {    
         if (float_point_index == 0)
         {
@@ -773,13 +771,14 @@ jmp jmp::operator/(jmp& j)
         }
     }
 
-    if (j.number.size() - (j.float_point_index == 0 ? j.number.size() : j.float_point_index) < number.size() - (float_point_index == 0 ? number.size() : float_point_index))
+    if (j.num_of_decimals() < num_of_decimals())
     {    
         if (j.float_point_index == 0)
         {
             j.float_point_index = j.number.size() - 1;
             could_reset_jfpi = true;
         }
+
         while (j.number.size() - j.float_point_index <= number.size() - float_point_index)
         {
             j.number.push_back('0');
@@ -789,11 +788,14 @@ jmp jmp::operator/(jmp& j)
 
     /* Set the float point index to zero to don't make a mistake in the calculation,
        and save them for restoring the numbers to default. */
-    ulli temp_float_point_index = could_reset_fpi ? 0 : float_point_index, j_temp_float_point_point = could_reset_jfpi ? 0 : j.float_point_index;
+    ulli temp_float_point_index = could_reset_fpi ? 0 : float_point_index,
+         j_temp_float_point_point = could_reset_jfpi ? 0 : j.float_point_index;
     float_point_index = j.float_point_index = 0;
-    jmp div_obj;
+
     /* If the number will divide by 1 when we are sure the result will be the number we have,
        so we equal the 'div_obj' to the number, if the number will not divide by 1, we do the division */
+    jmp div_obj;
+
     if (j.number == "1" || j.number == "1.0")
         div_obj = jmp(number);
     else
@@ -802,10 +804,11 @@ jmp jmp::operator/(jmp& j)
         std::string quotient = divide(number, num2);
         jmp jmp_quotient(quotient);
         jmp sub(JMP::to_string(jmp_quotient * j));
-        jmp remaining = *this - sub, zero("0.0");
+        jmp remaining = *this - sub;
         ulli temp_remaining_size = remaining.number.size();
 
-        while (remaining != zero)
+        bool first_time = true;
+        while (remaining.get_number() != "0.0")
         {
             if (first_time)
             {
@@ -821,10 +824,7 @@ jmp jmp::operator/(jmp& j)
 
             quotient.append(divide(remaining.number, num2));
             if (quotient.size() - quotient.find('.') > division_precision)
-            {
-                quotient = quotient.substr(0, quotient.find('.') + division_precision + 1);
                 break;
-            }
             temp_remaining_size = remaining.number.size();
             jmp_quotient = jmp(quotient);
             jmp current_result = jmp_quotient * j;
@@ -844,15 +844,15 @@ jmp jmp::operator/(jmp& j)
     if (number.size() - 1 == float_point_index)
         float_point_index = 0;
 
-    // Add the deleted zeros from numbers
+    // Add the removed zeros from the beginning of the numbers
     for (ulli i=0; i<number_of_deleted_zeros; i++)
         number.insert(number.begin(), '0');
     for (ulli i=0; i<number_of_deleted_zeros_j; i++)
         j.number.insert(j.number.begin(), '0');
 
+    // Add float point to numbers
     float_point_index = temp_float_point_index;
     j.float_point_index = j_temp_float_point_point;
-    // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
