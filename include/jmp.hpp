@@ -112,7 +112,7 @@ class jmp
             if (precision == 0)
             {
                 jmp one("1");
-                if (number[float_point_index + 1] >= '5')
+                if (float_point_index != 0 && number[float_point_index + 1] >= '5')
                     *this += one;
             } else {
                 jmp number_add_after_rounding("0.1"), one_tenth("0.1");
@@ -125,7 +125,7 @@ class jmp
 
             if (precision >= -1)
             {
-                if (precision != -1)
+                if (float_point_index != 0 && precision != -1)
                     number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
                 float_point_index = precision == 0 ? 0 : float_point_index;
                 this->precision = precision;
@@ -210,9 +210,10 @@ namespace JMP
         return remainder;
     }
 
-    jmp GCD(jmp a, jmp b)
+    jmp GCD(jmp& a, jmp& b)
     {
-        return b.get_number() == "0" ? a : GCD(b, a % b);
+        jmp result(a % b);
+        return b.get_number() == "0.0" ? a : GCD(b, result);
     }
 
     long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }
