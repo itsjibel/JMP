@@ -4,7 +4,7 @@
 int main()
 {
     // Summation
-    jmp a("93893490.24848634"), b("67405843.137994968");
+    jmp a("93893490.248486348"), b("67405843.137994967");
     std::cout<<a + b<<std::endl;
 
     // Subtraction
