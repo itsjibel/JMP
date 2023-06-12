@@ -162,8 +162,8 @@ class jmp
         jmp operator/=(jmp& j);
 
         /// Modulus operators
-        jmp operator%(jmp& j);
-        jmp operator%=(jmp& j);
+        jmp operator%(const jmp& j);
+        jmp operator%=(const jmp& j);
 
         /// Exponentiation function
         jmp powof(jmp j);
@@ -210,11 +210,16 @@ namespace JMP
         return remainder;
     }
 
-    long long int to_int (jmp j) { return atoi(j.get_number().c_str()); }
-    long double to_double (jmp j) { return std::stold(j.get_number()); }
-    std::string to_string (jmp j) { return j.get_number(); }
-    jmp sqr (jmp& j) { return j*j; }
-    jmp cube (jmp& j) { return j*j*j; }
+    jmp GCD(jmp a, jmp b)
+    {
+        return b.get_number() == "0" ? a : GCD(b, a % b);
+    }
+
+    long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }
+    long double to_double(const jmp& j) { return std::stold(j.get_number()); }
+    std::string to_string(const jmp& j) { return j.get_number(); }
+    jmp sqr(jmp& j) { return j*j; }
+    jmp cube(jmp& j) { return j*j*j; }
 };
 
 void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)
@@ -877,7 +882,7 @@ jmp jmp::operator/(jmp& j)
     return div_obj;
 }
 
-jmp jmp::operator%(jmp& j)
+jmp jmp::operator%(const jmp& j)
 {
     return JMP::mod(*this, j);
 }
@@ -928,7 +933,7 @@ jmp jmp::operator/=(jmp& num2_str)
     return *this;
 }
 
-jmp jmp::operator%=(jmp& num2_str)
+jmp jmp::operator%=(const jmp& num2_str)
 {
     *this = *this % num2_str;
     return *this;
