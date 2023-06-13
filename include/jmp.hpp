@@ -175,6 +175,12 @@ class jmp
         bool operator<=(jmp& j) const;
         bool operator>(jmp& j) const;
         bool operator>=(jmp& j) const;
+
+        // Conversion operator
+        operator std::string() const
+        {
+            return (is_negative ? "-" : "") + number;
+        }
 };
 
 namespace JMP

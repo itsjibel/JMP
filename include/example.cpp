@@ -21,8 +21,12 @@ int main()
     std::cout<<a % b<<std::endl;
 
     // Calculate Greatest Common Denominator
-    jmp c("2.5"), d("3.75");
+    jmp c("-2.5"), d("3.75");
     std::cout<<JMP::GCD(c, d)<<std::endl;
+
+    // Put the jmp number into the string
+    std::string jmp_string = c;
+    std::cout<<jmp_string<<std::endl;
 
     return 0;
 }
