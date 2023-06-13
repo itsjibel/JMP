@@ -28,5 +28,15 @@ int main()
     std::string jmp_string = c;
     std::cout<<jmp_string<<std::endl;
 
+    // Get values from jmp array
+    jmp jarr[5] {"18", "Hello", "9", "World", "9"};
+    for (std::string itr : jarr)
+        std::cout<<itr<<"\t";
+    std::cout<<std::endl;
+    // or ...
+    for (auto i{0}; i<5; i++)
+        std::cout<<jarr[i]<<"\t";
+    std::cout<<std::endl;
+
     return 0;
 }
