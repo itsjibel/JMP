@@ -213,7 +213,7 @@ namespace JMP
     jmp GCD(jmp& a, jmp& b)
     {
         jmp result(a % b);
-        return b.get_number() == "0.0" ? a : GCD(b, result);
+        return result.get_number() == "0" || result.get_number() == "0.0" ? b : GCD(b, result);
     }
 
     long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }

@@ -20,5 +20,9 @@ int main()
     // Divisibility
     std::cout<<a % b<<std::endl;
 
+    // Calculate Greatest Common Denominator
+    jmp c("2.5"), d("3.75");
+    std::cout<<JMP::GCD(c, d)<<std::endl;
+
     return 0;
 }
