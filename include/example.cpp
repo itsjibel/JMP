@@ -4,7 +4,7 @@
 int main()
 {
     // Summation
-    jmp a("93893490.248486348"), b("67405843.137994967");
+    jmp a("93893457857857857585875790.234534535434548486348"), b("674054345345345242443453453843.13554343452457994967");
     std::cout<<a + b<<std::endl;
 
     // Subtraction
@@ -21,11 +21,10 @@ int main()
     std::cout<<a % b<<std::endl;
 
     // Calculate Greatest Common Denominator
-    jmp c("-2.5"), d("3.75");
-    std::cout<<JMP::GCD(c, d)<<std::endl;
+    // For now have some bugs in JMP::GCD function...
 
     // Put the jmp number into the string
-    std::string jmp_string = c;
+    std::string jmp_string = a;
     std::cout<<jmp_string<<std::endl;
 
     // Get values from jmp array
