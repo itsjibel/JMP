@@ -27,6 +27,7 @@ class jmp
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
+        std::string subtract(std::string num1, std::string num2);
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
@@ -34,7 +35,7 @@ class jmp
                         bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string num1, int64_t num2);
+        std::string divide(const std::string& num1, const std::string& num2);
 
     public:
         bool is_negative {false};
@@ -529,19 +530,27 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 }
 
 
-std::string jmp::divide(const std::string num1, int64_t num2)
-{
-    int64_t divisor = num2, index {0}, dividend {num1[index] - 48};
-    std::string result;
-    while (dividend < divisor)
-        dividend = dividend * 10 + (num1[++index] - '0');
+std::string jmp::divide(const std::string& dividend, const std::string& divisor) {
+    std::string quotient, currentDividend;
 
-    while (num1.size() > index)
+    for (char ch : dividend)
     {
-        result += (dividend / divisor) + '0';
-        dividend = (dividend % divisor) * 10 + num1[++index] - '0';
+        currentDividend += ch;
+        ulli num = 0;
+
+        while (currentDividend.length() >= divisor.length() && which_string_number_is_bigger(currentDividend, divisor) == 0)
+        {
+            currentDividend = subtract(currentDividend, divisor);
+            num++;
+        }
+
+        quotient += (num + '0');
     }
-    return result.length() == 0 ? "0" : result;
+
+    // Remove leading zeros from quotient
+    quotient.erase(0, quotient.find_first_not_of('0'));
+
+    return quotient.empty() ? "0" : quotient;
 }
 
 void jmp::equalizing_figures(jmp& j)
@@ -595,6 +604,38 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
     // If the float index is the last index of the number so we push back '0' to the number to have the valid number.
     if (j.float_point_index != 0 && j.float_point_index == j.number.size())
         j.number.append("0");
+}
+
+std::string jmp::subtract(std::string num1, std::string num2)
+{
+    int carry = 0;
+    std::string result;
+
+    while (num1.length() || carry)
+    {
+        int digit = carry + (num1.empty() ? 0 : num1.back() - '0') - (num2.empty() ? 0 : num2.back() - '0');
+
+        if (digit < 0)
+        {
+            digit += 10;
+            carry = -1;
+        } else
+            carry = 0;
+
+        result.push_back(digit + '0');
+
+        if (!num1.empty())
+            num1.pop_back();
+        if (!num2.empty())
+            num2.pop_back();
+    }
+
+    std::reverse(result.begin(), result.end());
+
+    // Remove leading zeros
+    result.erase(0, std::min(result.find_first_not_of('0'), result.size() - 1));
+
+    return result;
 }
 
 jmp jmp::operator+(jmp& j)
@@ -801,8 +842,7 @@ jmp jmp::operator/(jmp& j)
         div_obj = jmp(number);
     else
     {
-        int64_t num2 = std::stoull(j.number);
-        std::string quotient = divide(number, num2);
+        std::string quotient = divide(number, j.number);
         jmp jmp_quotient(quotient);
         jmp sub(JMP::to_string(jmp_quotient * j));
         jmp remaining = *this - sub;
@@ -823,7 +863,7 @@ jmp jmp::operator/(jmp& j)
             while (temp_remaining_size >= remaining.number.size())
                 remaining.number.push_back('0');
 
-            quotient.append(divide(remaining.number, num2));
+            quotient.append(divide(remaining.number, j.number));
             if (quotient.size() - quotient.find('.') > division_precision)
                 break;
             temp_remaining_size = remaining.number.size();
