@@ -4,7 +4,7 @@
 int main()
 {
     // Summation
-    jmp a("674054582345"), b("64426478392");
+    jmp a("6740482482648246823472847207420748293748204954582345"), b("944245535324924623946267942976295348050835478392");
     std::cout<<"Summation: "<<a + b<<std::endl;
 
     // Subtraction
@@ -21,7 +21,7 @@ int main()
     std::cout<<"Divisibility: "<<a % b<<std::endl;
 
     // Calculate Greatest Common Denominator
-    std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
+    //std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
 
     // Put the jmp number into the string
     std::string jmp_string = a;
