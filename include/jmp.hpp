@@ -35,7 +35,7 @@ class jmp
                         bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
         std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(const std::string& num1, const std::string& num2);
+        std::string divide(std::string& num1, std::string& num2);
 
     public:
         bool is_negative {false};
@@ -163,8 +163,8 @@ class jmp
         jmp operator/=(jmp& j);
 
         /// Modulus operators
-        jmp operator%(const jmp& j);
-        jmp operator%=(const jmp& j);
+        jmp operator%(jmp& j);
+        jmp operator%=(jmp& j);
 
         /// Exponentiation function
         jmp powof(jmp j);
@@ -207,20 +207,20 @@ namespace JMP
         return result;
     }
 
-    jmp mod(jmp dividend, jmp divisor)
+    jmp mod(jmp& dividend, jmp& divisor)
     {
         jmp quotient((dividend / divisor).round_precision(0));
-        jmp a(quotient * divisor), zero("0");
+        jmp a((quotient * divisor)), zero("0");
         jmp remainder (dividend - a);
         if (remainder < zero)
             remainder += divisor;
         return remainder;
     }
 
-    jmp GCD(jmp& a, jmp& b)
+    jmp gcd(jmp a, jmp b)
     {
-        jmp result(a % b);
-        return result.get_number() == "0" || result.get_number() == "0.0" ? b : GCD(b, result);
+        jmp zero("0"), float_zero("0.0");
+        return b == zero || b == float_zero ? a : gcd(b, a % b);
     }
 
     long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }
@@ -395,9 +395,8 @@ void jmp::validation (const std::string& num)
 
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
-    auto num1size {num1.size()}, num2size {num2.size()};
     // We should check digit by digit to understand which number is bigger
-    int counter {0};
+    ulli num1size {num1.size()}, num2size {num2.size()}, counter {0};
     if (num1size > num2size)
         return 0;
     else if (num1size < num2size)
@@ -530,13 +529,16 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 }
 
 
-std::string jmp::divide(const std::string& dividend, const std::string& divisor) {
-    std::string quotient, currentDividend;
+std::string jmp::divide(std::string& dividend, std::string& divisor)
+{
+    // Remove leading zeros from dividend
+    dividend.erase(0, dividend.find_first_not_of('0'));
 
+    std::string quotient, currentDividend;
     for (char ch : dividend)
     {
         currentDividend += ch;
-        ulli num = 0;
+        int num {0};
 
         while (currentDividend.length() >= divisor.length() && which_string_number_is_bigger(currentDividend, divisor) == 0)
         {
@@ -557,21 +559,19 @@ void jmp::equalizing_figures(jmp& j)
 {
     // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
     if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
-    {
         // It means this number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number.
         while (j.number.size() < number.size())
             j.number.push_back('0');
-    } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+    else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
         while (number.size() < j.number.size())
             number.push_back('0');
-    } else if (j.float_point_index != 0 && float_point_index == 0) {
+    else if (j.float_point_index != 0 && float_point_index == 0)
         while (number.size() < j.number.size())
             number.push_back('0');
-    } else if (j.float_point_index == 0 && float_point_index != 0) {
+    else if (j.float_point_index == 0 && float_point_index != 0)
         while (j.number.size() < number.size())
             j.number.push_back('0');
-    }
 }
 
 void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
@@ -608,34 +608,8 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
 
 std::string jmp::subtract(std::string num1, std::string num2)
 {
-    int carry = 0;
-    std::string result;
-
-    while (num1.length() || carry)
-    {
-        int digit = carry + (num1.empty() ? 0 : num1.back() - '0') - (num2.empty() ? 0 : num2.back() - '0');
-
-        if (digit < 0)
-        {
-            digit += 10;
-            carry = -1;
-        } else
-            carry = 0;
-
-        result.push_back(digit + '0');
-
-        if (!num1.empty())
-            num1.pop_back();
-        if (!num2.empty())
-            num2.pop_back();
-    }
-
-    std::reverse(result.begin(), result.end());
-
-    // Remove leading zeros
-    result.erase(0, std::min(result.find_first_not_of('0'), result.size() - 1));
-
-    return result;
+    jmp n1(num1), n2(num2);
+    return n1 - n2;
 }
 
 jmp jmp::operator+(jmp& j)
@@ -929,7 +903,7 @@ jmp jmp::operator/(jmp& j)
     return div_obj;
 }
 
-jmp jmp::operator%(const jmp& j)
+jmp jmp::operator%(jmp& j)
 {
     return JMP::mod(*this, j);
 }
@@ -980,7 +954,7 @@ jmp jmp::operator/=(jmp& num2_str)
     return *this;
 }
 
-jmp jmp::operator%=(const jmp& num2_str)
+jmp jmp::operator%=(jmp& num2_str)
 {
     *this = *this % num2_str;
     return *this;

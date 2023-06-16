@@ -4,24 +4,24 @@
 int main()
 {
     // Summation
-    jmp a("93893457857857857585875790.234534535434548486348"), b("674054345345345242443453453843.13554343452457994967");
-    std::cout<<a + b<<std::endl;
+    jmp a("674054582345"), b("64426478392");
+    std::cout<<"Summation: "<<a + b<<std::endl;
 
     // Subtraction
-    std::cout<<a - b<<std::endl;
+    std::cout<<"Subtraction: "<<a - b<<std::endl;
 
     // Multiplication
-    std::cout<<a * b<<std::endl;
+    std::cout<<"Multiplication: "<<a * b<<std::endl;
 
     // Division
-    a.set_division_precision(20);
-    std::cout<<a / b<<std::endl;
+    a.set_division_precision(15);
+    std::cout<<"Division: "<<a / b<<std::endl;
 
     // Divisibility
-    std::cout<<a % b<<std::endl;
+    std::cout<<"Divisibility: "<<a % b<<std::endl;
 
     // Calculate Greatest Common Denominator
-    // For now have some bugs in JMP::GCD function...
+    std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
 
     // Put the jmp number into the string
     std::string jmp_string = a;
