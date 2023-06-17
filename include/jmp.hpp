@@ -768,7 +768,7 @@ jmp jmp::operator/(jmp& j)
 
     // Note: fpi is 'float point index'
     bool could_reset_fpi=false, could_reset_jfpi=false;
-    ulli how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
+    long long int how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
     if (num_of_decimals() < j.num_of_decimals())
     {    
         if (float_point_index == 0)
@@ -820,7 +820,7 @@ jmp jmp::operator/(jmp& j)
         ulli temp_remaining_size = remaining.number.size();
 
         bool first_time = true;
-        while (remaining.get_number() != "0.0")
+        while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision)
         {
             if (first_time)
             {
@@ -839,9 +839,6 @@ jmp jmp::operator/(jmp& j)
             remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number));
-
-            if (quotient.size() - quotient.find('.') > division_precision)
-                break;
             temp_remaining_size = remaining.number.size();
             jmp_quotient = quotient;
             jmp current_result = jmp_quotient * j;
@@ -879,12 +876,13 @@ jmp jmp::operator/(jmp& j)
                           (is_negative == false && j.is_negative == true);
 
     // Set the decimal of the division product
-    auto decimal_difference {abs((j.number.size() - (j.float_point_index != 0 ? j.float_point_index + 1 : j.number.size())) -
-                                 (number.size() - (float_point_index != 0 ? float_point_index + 1 : number.size())))};
     jmp ten("10");
-
-    for (ulli i=0; i<(how_many_zero_added_sec_num + how_many_zero_added_this_num) - decimal_difference; i++)
-        div_obj *= ten;
+    if (!is_decimal() && j.is_decimal())
+        for (long long int i=0; i<how_many_zero_added_sec_num + how_many_zero_added_this_num; i++)
+            div_obj *= ten;
+    else
+        for (long long int i=0; i<how_many_zero_added_sec_num - how_many_zero_added_this_num; i++)
+            div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
     {
