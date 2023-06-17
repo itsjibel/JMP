@@ -3,8 +3,9 @@
 
 int main()
 {
-    // Summation
     jmp a("6740482482648246823472847207420748293748204954582345"), b("944245535324924623946267942976295348050835478392");
+
+    // Summation
     std::cout<<"Summation: "<<a + b<<std::endl;
 
     // Subtraction
@@ -14,7 +15,7 @@ int main()
     std::cout<<"Multiplication: "<<a * b<<std::endl;
 
     // Division
-    a.set_division_precision(15);
+    a.set_division_precision(20);
     std::cout<<"Division: "<<a / b<<std::endl;
 
     // Divisibility
