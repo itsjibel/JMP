@@ -531,9 +531,6 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 
 std::string jmp::divide(std::string& dividend, std::string& divisor)
 {
-    // Remove leading zeros from dividend
-    dividend.erase(0, dividend.find_first_not_of('0'));
-
     std::string quotient, currentDividend;
     for (char ch : dividend)
     {
@@ -832,21 +829,25 @@ jmp jmp::operator/(jmp& j)
             }
 
             if (remaining.float_point_index != 0)
+            {
                 remaining.number.erase(remaining.number.begin() + remaining.number.find('.'));
+                remaining.float_point_index = 0;
+            }
 
-            while (temp_remaining_size >= remaining.number.size())
-                remaining.number.push_back('0');
+            // Remove leading zeros from remaining
+            remaining.number.erase(0, remaining.number.find_first_not_of('0'));
+            remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number));
+
             if (quotient.size() - quotient.find('.') > division_precision)
                 break;
             temp_remaining_size = remaining.number.size();
-            jmp_quotient = jmp(quotient);
+            jmp_quotient = quotient;
             jmp current_result = jmp_quotient * j;
-            jmp n(number);
-            remaining = n - current_result;
+            remaining = *this - current_result;
         }
-        div_obj = jmp(quotient);
+        div_obj = quotient;
     }
 
     for (ulli i=0; i<how_many_zero_added_sec_num; i++)
