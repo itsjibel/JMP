@@ -25,7 +25,6 @@ class jmp
         /// The helper functions
         void validation (const std::string& num);
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
-        void equalizing_figures(jmp& j);
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
         std::string subtract(std::string num1, std::string num2);
 
@@ -552,25 +551,6 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
     return quotient.empty() ? "0" : quotient;
 }
 
-void jmp::equalizing_figures(jmp& j)
-{
-    // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
-    if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
-        // It means this number has more decimals than second number
-        // Now we need to know how many '0' decimals we should push back to the second number.
-        while (j.number.size() < number.size())
-            j.number.push_back('0');
-    else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index))
-        while (number.size() < j.number.size())
-            number.push_back('0');
-    else if (j.float_point_index != 0 && float_point_index == 0)
-        while (number.size() < j.number.size())
-            number.push_back('0');
-    else if (j.float_point_index == 0 && float_point_index != 0)
-        while (j.number.size() < number.size())
-            j.number.push_back('0');
-}
-
 void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
 {
     // Erase the useless beginning zeros after subtraction
@@ -618,8 +598,39 @@ jmp jmp::operator+(jmp& j)
         number.erase(number.begin() + float_point_index);
 
     jmp sum_obj;
-    ulli temp_number_size {number.size()}, temp_second_number_size {j.number.size()};
-    equalizing_figures(j);
+    ulli temp_number_size {number.size()}, temp_second_number_size {j.number.size()},
+         how_many_0_added_this_num {0}, how_many_0_added_j_num {0};
+
+    // If two numbers do not have the same decimals, we add '0' decimals to the end of that number that has lower decimals.
+    if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) > (j.number.size() - j.float_point_index))
+    {
+        // It means this number has more decimals than second number
+        // Now we need to know how many '0' decimals we should push back to the second number.
+        while (j.number.size() < number.size())
+        {
+            j.number.push_back('0');
+            how_many_0_added_j_num++;
+        }
+    } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
+        while (number.size() < j.number.size())
+        {
+            number.push_back('0');
+            how_many_0_added_this_num++;
+        }
+    } else if (j.float_point_index != 0 && float_point_index == 0) {
+        while (number.size() < j.number.size())
+        {
+            number.push_back('0');
+            how_many_0_added_this_num++;
+        }
+    } else if (j.float_point_index == 0 && float_point_index != 0) {
+        while (j.number.size() < number.size())
+        {
+            j.number.push_back('0');
+            how_many_0_added_j_num++;
+        }
+    } 
+
     // Check which number is bigger, and we equal the sum object number to the biggest number
     bool this_number_is_bigger {false}, second_number_is_bigger {false};
     if (which_string_number_is_bigger(number, j.number) == 0)
@@ -644,7 +655,13 @@ jmp jmp::operator+(jmp& j)
      * (-0.2222 + 12.2222) = 12.0000 ---> 12
      * (-9900.22 + 9912.22) = 0012.00 ---> 12 */
     trim_the_number(sum_obj, (this_number_is_bigger && is_negative) || (second_number_is_bigger && j.is_negative));
-    
+
+    // Remove added zeros from the tail of the numbers
+    while (how_many_0_added_this_num-- > 0)
+        number.pop_back();
+    while (how_many_0_added_j_num-- > 0)
+        j.number.pop_back();
+
     // Add float point to numbers
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
@@ -835,13 +852,10 @@ jmp jmp::operator/(jmp& j)
             // Remove leading zeros from remaining
             remaining.number.erase(0, remaining.number.find_first_not_of('0'));
 
-            if (j_temp_float_point_point == 0 || temp_float_point_index == 0)
+            if (temp_remaining_size - remaining.number.size() > 2)
                 remaining.number.push_back('0');
-            else
-                if (temp_remaining_size - remaining.number.size() == 2)
-                    remaining.number.push_back('0');
-                else while (temp_remaining_size >= remaining.number.size())
-                    remaining.number.push_back('0');
+            else while (temp_remaining_size >= remaining.number.size())
+                remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number));
             temp_remaining_size = remaining.number.size();
