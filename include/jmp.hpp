@@ -782,9 +782,7 @@ jmp jmp::operator/(jmp& j)
             number.push_back('0');
             how_many_zero_added_this_num++;
         }
-    }
-
-    if (j.num_of_decimals() < num_of_decimals())
+    } else if (j.num_of_decimals() < num_of_decimals())
     {    
         if (j.float_point_index == 0)
         {
@@ -842,7 +840,8 @@ jmp jmp::operator/(jmp& j)
             temp_remaining_size = remaining.number.size();
             jmp_quotient = quotient;
             jmp current_result = jmp_quotient * j;
-            remaining = *this - current_result;
+            jmp n(number);
+            remaining = n - current_result;
         }
         div_obj = quotient;
     }
