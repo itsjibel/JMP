@@ -769,8 +769,8 @@ jmp jmp::operator/(jmp& j)
     // Note: fpi is 'float point index'
     bool could_reset_fpi=false, could_reset_jfpi=false;
     long long int how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
-    if (num_of_decimals() < j.num_of_decimals())
-    {    
+    if (num_of_decimals() + (float_point_index == 0 ? 0 : 1) < j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1))
+    {
         if (float_point_index == 0)
         {
             float_point_index = number.size() - 1;
@@ -782,7 +782,7 @@ jmp jmp::operator/(jmp& j)
             number.push_back('0');
             how_many_zero_added_this_num++;
         }
-    } else if (j.num_of_decimals() < num_of_decimals())
+    } else if (j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1) < num_of_decimals() + (float_point_index == 0 ? 0 : 1))
     {    
         if (j.float_point_index == 0)
         {
@@ -818,7 +818,7 @@ jmp jmp::operator/(jmp& j)
         long long int temp_remaining_size = remaining.number.size();
 
         bool first_time = true;
-        while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision)
+        while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision + 1)
         {
             if (first_time)
             {
@@ -834,17 +834,20 @@ jmp jmp::operator/(jmp& j)
 
             // Remove leading zeros from remaining
             remaining.number.erase(0, remaining.number.find_first_not_of('0'));
-            if (temp_remaining_size - remaining.number.size() == 2)
+
+            if (j_temp_float_point_point == 0 || temp_float_point_index == 0)
                 remaining.number.push_back('0');
-            else while (temp_remaining_size >= remaining.number.size())
-                remaining.number.push_back('0');
+            else
+                if (temp_remaining_size - remaining.number.size() == 2)
+                    remaining.number.push_back('0');
+                else while (temp_remaining_size >= remaining.number.size())
+                    remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number));
             temp_remaining_size = remaining.number.size();
             jmp_quotient = quotient;
             jmp current_result = jmp_quotient * j;
-            jmp n(number);
-            remaining = n - current_result;
+            remaining = *this - current_result;
         }
         div_obj = quotient;
     }
@@ -880,11 +883,7 @@ jmp jmp::operator/(jmp& j)
     // Set the decimal of the division product
     jmp ten("10");
     if (!is_decimal() && j.is_decimal())
-        for (long long int i=0; i<how_many_zero_added_sec_num + how_many_zero_added_this_num; i++)
-            div_obj *= ten;
-    else
-        for (long long int i=0; i<how_many_zero_added_sec_num - how_many_zero_added_this_num; i++)
-            div_obj *= ten;
+        div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
     {
