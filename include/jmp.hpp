@@ -815,7 +815,7 @@ jmp jmp::operator/(jmp& j)
         jmp jmp_quotient(quotient);
         jmp sub(JMP::to_string(jmp_quotient * j));
         jmp remaining = *this - sub;
-        ulli temp_remaining_size = remaining.number.size();
+        long long int temp_remaining_size = remaining.number.size();
 
         bool first_time = true;
         while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision)
@@ -834,7 +834,10 @@ jmp jmp::operator/(jmp& j)
 
             // Remove leading zeros from remaining
             remaining.number.erase(0, remaining.number.find_first_not_of('0'));
-            remaining.number.push_back('0');
+            if (temp_remaining_size - remaining.number.size() == 2)
+                remaining.number.push_back('0');
+            else while (temp_remaining_size >= remaining.number.size())
+                remaining.number.push_back('0');
 
             quotient.append(divide(remaining.number, j.number));
             temp_remaining_size = remaining.number.size();
