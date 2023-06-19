@@ -606,25 +606,25 @@ jmp jmp::operator+(jmp& j)
     {
         // It means this number has more decimals than second number
         // Now we need to know how many '0' decimals we should push back to the second number.
-        while (j.number.size() < number.size())
+        while (j.num_of_decimals() < num_of_decimals())
         {
             j.number.push_back('0');
             how_many_0_added_j_num++;
         }
     } else if (j.float_point_index != 0 && float_point_index != 0 && (number.size() - float_point_index) < (j.number.size() - j.float_point_index)) {
-        while (number.size() < j.number.size())
+        while (num_of_decimals() < j.num_of_decimals())
         {
             number.push_back('0');
             how_many_0_added_this_num++;
         }
     } else if (j.float_point_index != 0 && float_point_index == 0) {
-        while (number.size() < j.number.size())
+        while (how_many_0_added_this_num < j.number.size() - j.float_point_index)
         {
             number.push_back('0');
             how_many_0_added_this_num++;
         }
     } else if (j.float_point_index == 0 && float_point_index != 0) {
-        while (j.number.size() < number.size())
+        while (how_many_0_added_j_num < number.size() - float_point_index)
         {
             j.number.push_back('0');
             how_many_0_added_j_num++;
@@ -799,8 +799,7 @@ jmp jmp::operator/(jmp& j)
             number.push_back('0');
             how_many_zero_added_this_num++;
         }
-    } else if (j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1) < num_of_decimals() + (float_point_index == 0 ? 0 : 1))
-    {    
+    } else if (j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1) < num_of_decimals() + (float_point_index == 0 ? 0 : 1)) {    
         if (j.float_point_index == 0)
         {
             j.float_point_index = j.number.size() - 1;
@@ -830,9 +829,9 @@ jmp jmp::operator/(jmp& j)
     {
         std::string quotient = divide(number, j.number);
         jmp jmp_quotient(quotient);
-        jmp sub(JMP::to_string(jmp_quotient * j));
-        jmp remaining = *this - sub;
-        long long int temp_remaining_size = remaining.number.size();
+        jmp current_result(JMP::to_string(jmp_quotient * j));
+        jmp remaining = *this - current_result;
+        ulli temp_remaining_size = remaining.number.size(), counter {1};
 
         bool first_time = true;
         while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision + 1)
@@ -844,23 +843,24 @@ jmp jmp::operator/(jmp& j)
             }
 
             if (remaining.float_point_index != 0)
-            {
                 remaining.number.erase(remaining.number.begin() + remaining.number.find('.'));
-                remaining.float_point_index = 0;
-            }
 
             // Remove leading zeros from remaining
             remaining.number.erase(0, remaining.number.find_first_not_of('0'));
 
-            if (temp_remaining_size - remaining.number.size() > 2)
-                remaining.number.push_back('0');
-            else while (temp_remaining_size >= remaining.number.size())
-                remaining.number.push_back('0');
+            counter += temp_remaining_size + remaining.number.size();
+            if (j_temp_float_point_point != 0 && temp_float_point_index != 0)
+                for (ulli i{temp_remaining_size - remaining.number.size()}; i<counter; i++)
+                    remaining.number.push_back('0');
+            else
+                for (ulli i{0}; i<counter; i++)
+                    remaining.number.push_back('0');
+            counter++;
 
             quotient.append(divide(remaining.number, j.number));
             temp_remaining_size = remaining.number.size();
             jmp_quotient = quotient;
-            jmp current_result = jmp_quotient * j;
+            current_result = jmp_quotient * j;
             remaining = *this - current_result;
         }
         div_obj = quotient;
@@ -896,7 +896,7 @@ jmp jmp::operator/(jmp& j)
 
     // Set the decimal of the division product
     jmp ten("10");
-    if (!is_decimal() && j.is_decimal())
+    if ((is_decimal() && j.is_decimal()) || (!is_decimal() && j.is_decimal()))
         div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
