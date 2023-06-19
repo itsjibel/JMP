@@ -816,7 +816,7 @@ jmp jmp::operator/(jmp& j)
     /* Set the float point index to zero to don't make a mistake in the calculation,
        and save them for restoring the numbers to default. */
     ulli temp_float_point_index = could_reset_fpi ? 0 : float_point_index,
-         j_temp_float_point_point = could_reset_jfpi ? 0 : j.float_point_index;
+         j_temp_float_point_index = could_reset_jfpi ? 0 : j.float_point_index;
     float_point_index = j.float_point_index = 0;
 
     /* If the number will divide by 1 when we are sure the result will be the number we have,
@@ -849,7 +849,7 @@ jmp jmp::operator/(jmp& j)
             remaining.number.erase(0, remaining.number.find_first_not_of('0'));
 
             counter += temp_remaining_size + remaining.number.size();
-            if (j_temp_float_point_point != 0 && temp_float_point_index != 0)
+            if (j_temp_float_point_index != 0 && temp_float_point_index != 0)
                 for (ulli i{temp_remaining_size - remaining.number.size()}; i<counter; i++)
                     remaining.number.push_back('0');
             else
@@ -884,7 +884,7 @@ jmp jmp::operator/(jmp& j)
 
     // Add float point to numbers
     float_point_index = temp_float_point_index;
-    j.float_point_index = j_temp_float_point_point;
+    j.float_point_index = j_temp_float_point_index;
     if (float_point_index != 0)
         number.insert(number.begin() + float_point_index, '.');
     if (j.float_point_index != 0)
