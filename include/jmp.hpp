@@ -790,7 +790,7 @@ jmp jmp::operator/(jmp& j)
     {
         if (float_point_index == 0)
         {
-            float_point_index = number.size() - 1;
+            float_point_index = number.size();
             could_reset_fpi = true;
         }
 
@@ -802,7 +802,7 @@ jmp jmp::operator/(jmp& j)
     } else if (j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1) < num_of_decimals() + (float_point_index == 0 ? 0 : 1)) {    
         if (j.float_point_index == 0)
         {
-            j.float_point_index = j.number.size() - 1;
+            j.float_point_index = j.number.size();
             could_reset_jfpi = true;
         }
 
@@ -896,7 +896,7 @@ jmp jmp::operator/(jmp& j)
 
     // Set the decimal of the division product
     jmp ten("10");
-    if ((is_decimal() && j.is_decimal()) || (!is_decimal() && j.is_decimal()))
+    if ((is_decimal() && j.is_decimal()))
         div_obj *= ten;
 
     if (div_obj.number[div_obj.number.size() - 1] == '.')
