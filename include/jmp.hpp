@@ -899,15 +899,11 @@ jmp jmp::operator/(jmp& j)
     if ((is_decimal() && j.is_decimal()))
         div_obj *= ten;
 
+    while (div_obj.is_decimal() && div_obj.number.back() == '0')
+        div_obj.number.pop_back();
+
     if (div_obj.number[div_obj.number.size() - 1] == '.')
     {
-        div_obj.number.pop_back();
-        div_obj.float_point_index = 0;
-    }
-
-    if (div_obj.number[div_obj.number.size() - 1] == '0' && div_obj.number[div_obj.number.size() - 2] == '.')
-    {
-        div_obj.number.pop_back();
         div_obj.number.pop_back();
         div_obj.float_point_index = 0;
     }
