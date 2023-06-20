@@ -746,6 +746,12 @@ jmp jmp::operator*(jmp& j)
            (mul_obj.float_point_index <= mul_obj.number.size() - 1))
         mul_obj.number.erase(mul_obj.number.begin() + mul_obj.number.size()  - 1);
 
+    if (mul_obj.number.back() == '.')
+    {
+        mul_obj.number.pop_back();
+        mul_obj.float_point_index = 0;
+    }
+
     return mul_obj;
 }
 
