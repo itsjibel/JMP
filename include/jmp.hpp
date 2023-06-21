@@ -26,7 +26,7 @@ class jmp
         void validation (const std::string& num);
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
-        std::string subtract(std::string num1, std::string num2);
+        std::string subtract(std::string& num1, std::string& num2);
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
@@ -583,10 +583,34 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
         j.number.append("0");
 }
 
-std::string jmp::subtract(std::string num1, std::string num2)
+std::string jmp::subtract(std::string& num1, std::string& num2)
 {
-    jmp n1(num1), n2(num2);
-    return n1 - n2;
+    std::string result;
+    int len1 = num1.length(), len2 = num2.length();
+    int carry = 0;
+
+    // Perform subtraction digit by digit
+    for (int i = len1 - 1, j = len2 - 1; i >= 0 || j >= 0 || carry; i--, j--)
+    {
+        int digit1 = i >= 0 ? num1[i] - '0' : 0;
+        int digit2 = j >= 0 ? num2[j] - '0' : 0;
+        int diff = digit1 - digit2 - carry;
+
+        if (diff < 0)
+        {
+            diff += 10;
+            carry = 1;
+        } else
+            carry = 0;
+
+        result.insert(result.begin(), diff + '0');
+    }
+
+    // Remove leading zeros
+    while (result.length() > 1 && result[0] == '0')
+        result.erase(result.begin());
+
+    return result;
 }
 
 jmp jmp::operator+(jmp& j)
