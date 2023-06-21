@@ -530,25 +530,56 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 
 std::string jmp::divide(std::string& dividend, std::string& divisor)
 {
-    std::string quotient, currentDividend;
-    for (char ch : dividend)
+    auto how_much_forward {(dividend.length() >= divisor.length() ? divisor.length() : dividend.length())};
+    std::string quotient, remaining {dividend}, a;
+    bool can_add_fpi = true;
+    auto temp_division_precision = division_precision;
+
+    while (remaining.size() < divisor.size())
     {
-        currentDividend += ch;
-        int num {0};
-
-        while (currentDividend.length() >= divisor.length() && which_string_number_is_bigger(currentDividend, divisor) == 0)
-        {
-            currentDividend = subtract(currentDividend, divisor);
-            num++;
-        }
-
-        quotient += (num + '0');
+        can_add_fpi = false;
+        remaining.push_back('0');
+        quotient.push_back('0');
     }
 
-    // Remove leading zeros from quotient
-    quotient.erase(0, quotient.find_first_not_of('0'));
+    if (!can_add_fpi)
+    {
+        quotient.insert(quotient.begin() + 1, '.');
+    }
 
-    return quotient.empty() ? "0" : quotient;
+    for (int i{0}; i<divisor.size(); i++)
+        a.push_back(remaining.at(i));
+
+    while (quotient.size() - (quotient.find('.') != std::string::npos ? quotient.find('.') : quotient.size()) <= division_precision
+           && a != "0")
+    {
+        char num {0};
+        while (which_string_number_is_bigger(a, divisor) != 1)
+        {
+            num++;
+            a = subtract(a, divisor);
+        }
+
+        if ((quotient.empty() && num == 0) == false)
+            quotient.push_back('0' + num);
+
+        if (a != "0")
+            if (how_much_forward < dividend.size())
+                a.push_back(dividend.at(how_much_forward));
+            else {
+                if (can_add_fpi)
+                {
+                    if (quotient.empty())
+                        quotient.push_back('0');
+                    quotient.push_back('.');
+                    can_add_fpi = false;
+                }
+                a.push_back('0');
+            }
+        how_much_forward++;
+    }
+
+    return quotient;
 }
 
 void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
@@ -856,45 +887,7 @@ jmp jmp::operator/(jmp& j)
     if (j.number == "1" || j.number == "1.0")
         div_obj = jmp(number);
     else
-    {
-        std::string quotient = divide(number, j.number);
-        jmp jmp_quotient(quotient);
-        jmp current_result(JMP::to_string(jmp_quotient * j));
-        jmp remaining = *this - current_result;
-        ulli temp_remaining_size = remaining.number.size(), counter {1};
-
-        bool first_time = true;
-        while (remaining.get_number() != "0.0" && quotient.size() - quotient.find('.') <= division_precision + 1)
-        {
-            if (first_time)
-            {
-                first_time = false;
-                quotient.append(".");
-            }
-
-            if (remaining.float_point_index != 0)
-                remaining.number.erase(remaining.number.begin() + remaining.number.find('.'));
-
-            // Remove leading zeros from remaining
-            remaining.number.erase(0, remaining.number.find_first_not_of('0'));
-
-            counter += temp_remaining_size + remaining.number.size();
-            if (j_temp_float_point_index != 0 && temp_float_point_index != 0)
-                for (ulli i{temp_remaining_size - remaining.number.size()}; i<counter; i++)
-                    remaining.number.push_back('0');
-            else
-                for (ulli i{0}; i<counter; i++)
-                    remaining.number.push_back('0');
-            counter++;
-
-            quotient.append(divide(remaining.number, j.number));
-            temp_remaining_size = remaining.number.size();
-            jmp_quotient = quotient;
-            current_result = jmp_quotient * j;
-            remaining = *this - current_result;
-        }
-        div_obj = quotient;
-    }
+        div_obj = divide(number, j.number);
 
     for (ulli i=0; i<how_many_zero_added_sec_num; i++)
         j.number.pop_back();
