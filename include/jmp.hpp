@@ -218,6 +218,8 @@ namespace JMP
 
     jmp gcd(jmp a, jmp b)
     {
+        if (a.is_decimal() || b.is_decimal())
+            std::__throw_logic_error("JMP::gcd: Can not calculate gcd of two decimal jmp numbers.");
         jmp zero("0"), float_zero("0.0");
         return b == zero || b == float_zero ? a : gcd(b, a % b);
     }
@@ -840,8 +842,8 @@ jmp jmp::operator/(jmp& j)
 
     while (j.number[0] == '0')
     {
-        number_of_deleted_zeros_j++;
         j.number.erase(j.number.begin());
+        number_of_deleted_zeros_j++;
     }
 
     // Note: fpi is 'float point index'
@@ -867,7 +869,7 @@ jmp jmp::operator/(jmp& j)
             could_reset_jfpi = true;
         }
 
-        while (j.number.size() - j.float_point_index <= number.size() - float_point_index)
+        while (j.number.size() - j.float_point_index < number.size() - float_point_index)
         {
             j.number.push_back('0');
             how_many_zero_added_sec_num++;
@@ -918,9 +920,9 @@ jmp jmp::operator/(jmp& j)
                           (is_negative == false && j.is_negative == true);
 
     // Set the decimal of the division product
-    jmp ten("10");
-    if ((is_decimal() && j.is_decimal()))
-        div_obj *= ten;
+    jmp one_thenth("0.1");
+    for (ulli i {0}; i<abs(number_of_deleted_zeros - number_of_deleted_zeros_j); i++)
+        div_obj *= one_thenth;
 
     while (div_obj.is_decimal() && div_obj.number.back() == '0')
         div_obj.number.pop_back();
