@@ -142,12 +142,14 @@ class jmp
         ulli num_of_decimals() { return (number.size() - float_point_index == number.size() ? 0 : number.size() - float_point_index - 1); };
 
         /// Summation operators
+        jmp operator+();
         jmp operator+(jmp& j);
         jmp operator+=(jmp& j);
         jmp operator++();
         jmp operator++(int);
 
         /// Subtraction operators
+        jmp operator-();
         jmp operator-(jmp& j);
         jmp operator-=(jmp& j);
         jmp operator--(int);
@@ -646,6 +648,11 @@ std::string jmp::subtract(std::string& num1, std::string& num2)
     return result;
 }
 
+jmp jmp::operator+()
+{
+    return JMP::abs(*this);
+}
+
 jmp jmp::operator+(jmp& j)
 {
     // Erase the float point from numbers to start the calculation
@@ -810,6 +817,13 @@ jmp jmp::operator*(jmp& j)
     }
 
     return mul_obj;
+}
+
+jmp jmp::operator-()
+{
+    jmp negative(*this);
+    negative.is_negative = true;
+    return negative;
 }
 
 jmp jmp::operator-(jmp& j)
