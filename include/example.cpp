@@ -22,7 +22,7 @@ int main()
     std::cout<<"Divisibility: "<<a % b<<std::endl;
 
     // Calculate Greatest Common Denominator
-    //std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
+    std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
 
     // Put the jmp number into the string
     std::string jmp_string = a;
