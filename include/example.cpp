@@ -25,8 +25,10 @@ int main()
     std::cout<<"GCD: "<<JMP::gcd(a, b)<<std::endl;
 
     // Calculate exponentiation of two jmp numbers
-    jmp c("2"), d("-3");
-    std::cout<<"Exponentiation: "<<c.powof(d)<<std::endl;
+    jmp c("2"), d("-10"), ten("10");
+    std::cout<<"Exponentiation one: "<<c.powof(d)<<std::endl;
+    d = JMP::abs(d * ten);
+    std::cout<<"Exponentiation two: "<<c.powof(d)<<std::endl;
 
     return 0;
 }
