@@ -171,12 +171,12 @@ class jmp
         jmp powof(jmp j);
 
         /// Conditional operators
-        bool operator==(jmp& j) const;
-        bool operator!=(jmp& j) const;
-        bool operator<(jmp& j) const;
-        bool operator<=(jmp& j) const;
-        bool operator>(jmp& j) const;
-        bool operator>=(jmp& j) const;
+        bool operator==(jmp& j);
+        bool operator!=(jmp& j);
+        bool operator<(jmp& j);
+        bool operator<=(jmp& j);
+        bool operator>(jmp& j);
+        bool operator>=(jmp& j);
 
         // Conversion operator
         operator std::string() const
@@ -1030,17 +1030,17 @@ jmp jmp::powof(jmp j)
     return result;
 }
 
-bool jmp::operator==(jmp& j) const
+bool jmp::operator==(jmp& j)
 {
     return (is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number ? true : false;
 }
 
-bool jmp::operator!=(jmp& j) const
+bool jmp::operator!=(jmp& j)
 {
     return (is_negative ? "-" : "") + number != (j.is_negative ? "-" : "") + j.number ? true : false;
 }
 
-bool jmp::operator<(jmp& j) const
+bool jmp::operator<(jmp& j)
 {
     if (*this == j)
         return false;
@@ -1050,7 +1050,36 @@ bool jmp::operator<(jmp& j) const
     else if (is_negative == false && j.is_negative)
         return false;
 
-    if (which_string_number_is_bigger(number, j.number) == 0)
+    if (float_point_index != 0)
+        number.erase(number.begin() + float_point_index);
+    if (j.float_point_index != 0)
+        j.number.erase(j.number.begin() + j.float_point_index);
+
+    long long int how_many_zeros_removed {0}, j_how_many_zeros_removed {0};
+    while (number[0] == '0')
+    {
+        how_many_zeros_removed++;
+        number.erase(number.begin());
+    }
+    while (j.number[0] == '0')
+    {
+        j_how_many_zeros_removed++;
+        j.number.erase(j.number.begin());
+    }
+
+    bool result = which_string_number_is_bigger(number, j.number);
+
+    while (how_many_zeros_removed-- > 0)
+        number.insert(number.begin(), '0');
+    while (j_how_many_zeros_removed-- > 0)
+        j.number.insert(j.number.begin(), '0');
+
+    if (float_point_index != 0)
+        number.insert(number.begin() + float_point_index, '.');
+    if (j.float_point_index != 0)
+        j.number.insert(j.number.begin() + j.float_point_index, '.');
+
+    if (result == 0)
     {
         if (is_negative && j.is_negative)
             return true;
@@ -1064,17 +1093,17 @@ bool jmp::operator<(jmp& j) const
     }
 }
 
-bool jmp::operator<=(jmp& j) const
+bool jmp::operator<=(jmp& j)
 {
     return *this < j || *this == j ? true : false;
 }
 
-bool jmp::operator>(jmp& j) const
+bool jmp::operator>(jmp& j)
 {
     return *this < j == false && *this != j ? true : false;
 }
 
-bool jmp::operator>=(jmp& j) const
+bool jmp::operator>=(jmp& j)
 {
     return *this > j || *this == j ? true : false;
 }
