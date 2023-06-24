@@ -30,5 +30,11 @@ int main()
     d = JMP::abs(d * ten);
     std::cout<<"Exponentiation two: "<<c.powof(d)<<std::endl;
 
+    // Calculate the cube of the jmp number
+    std::cout<<"Cube: "<<JMP::cube(d)<<std::endl;
+
+    // Calculate the square of the jmp number
+    std::cout<<"Square: "<<JMP::sqr(d)<<std::endl;
+
     return 0;
 }
