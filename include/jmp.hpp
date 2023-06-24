@@ -18,7 +18,7 @@ class jmp
 
         /// The main members of the class
         ulli float_point_index {0};
-        long long int division_precision {10}, precision {-1}, square_root_precision {10};
+        long long int division_precision {10}, precision {-1};
         std::string number {"0"};
         bool initialized {false};
 
@@ -42,7 +42,6 @@ class jmp
         jmp() {}
         jmp(const std::string& num) { initialized = true; validation(num); }
         jmp(const char* num) { initialized = true; validation(num); }
-
         jmp (const jmp& j)
         {
             number = j.number;
@@ -113,7 +112,7 @@ class jmp
 
         void set_division_precision (long long int precision)
         {
-            division_precision = precision >= 0 ? precision : 20;
+            division_precision = precision >= 0 ? precision : 10;
         }
 
         jmp round_precision (long long int precision)
@@ -238,12 +237,18 @@ namespace JMP
 
     jmp sqrt(jmp& j)
     {
-        jmp x(j), y("1"), precision("1"), two("2"), ten("10");
-        for (unsigned long long int i{0}; i<j.get_division_precision(); i++)
-            precision /= ten;
+        jmp x(j), y("1"), sqrt_precision("1"), two("2"), ten("10");
 
-        // Iterate until the difference between x and y is less than the precision value
-        while (x - y > precision)
+        x.set_division_precision(j.get_division_precision());
+        two.set_division_precision(j.get_division_precision());
+        y.set_division_precision(j.get_division_precision());
+        sqrt_precision.set_division_precision(j.get_division_precision());
+
+        for (unsigned long long int i{0}; i<j.get_division_precision(); i++)
+            sqrt_precision /= ten;
+
+        // Iterate until the difference between x and y is less than the sqrt precision value
+        while (x - y > sqrt_precision)
         {
             x = (x + y) / two;
             y = j / x;
@@ -563,7 +568,6 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
     auto how_much_forward {(dividend.length() >= divisor.length() ? divisor.length() : dividend.length())};
     std::string quotient, remaining {dividend}, a;
     bool can_add_fpi = true;
-    auto temp_division_precision = division_precision;
 
     while (remaining.size() < divisor.size())
     {
@@ -761,6 +765,7 @@ jmp jmp::operator+(jmp& j)
         sum_obj.number.insert(sum_obj.number.begin() + sum_obj.float_point_index, '.');
 
     sum_obj.is_negative = (j.is_negative && second_number_is_bigger) || (is_negative && this_number_is_bigger);
+    sum_obj.division_precision = division_precision;
 
     return sum_obj;
 }
@@ -841,6 +846,7 @@ jmp jmp::operator*(jmp& j)
         mul_obj.number.pop_back();
         mul_obj.float_point_index = 0;
     }
+    mul_obj.division_precision = division_precision;
 
     return mul_obj;
 }
@@ -974,6 +980,7 @@ jmp jmp::operator/(jmp& j)
     }
 
     div_obj.number = div_obj.number.substr(0, div_obj.number.find('.') + division_precision + 1);
+    div_obj.division_precision = division_precision;
 
     return div_obj;
 }
