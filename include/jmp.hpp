@@ -18,7 +18,7 @@ class jmp
 
         /// The main members of the class
         ulli float_point_index {0};
-        long long int division_precision {10}, precision {-1};
+        long long int division_precision {10}, precision {-1}, square_root_precision {10};
         std::string number {"0"};
         bool initialized {false};
 
@@ -71,6 +71,16 @@ class jmp
         std::string get_number() const
         {
             return number;
+        }
+
+        ulli get_division_precision() const
+        {
+            return division_precision;
+        }
+
+        long long int get_precision() const
+        {
+            return precision;
         }
 
         // Conversion functions
@@ -224,6 +234,22 @@ namespace JMP
             std::__throw_logic_error("JMP::gcd: Can not calculate gcd of two decimal jmp numbers.");
         jmp zero("0"), float_zero("0.0");
         return b == zero || b == float_zero ? a : gcd(b, a % b);
+    }
+
+    jmp sqrt(jmp& j)
+    {
+        jmp x(j), y("1"), precision("1"), two("2"), ten("10");
+        for (unsigned long long int i{0}; i<j.get_division_precision(); i++)
+            precision /= ten;
+
+        // Iterate until the difference between x and y is less than the precision value
+        while (x - y > precision)
+        {
+            x = (x + y) / two;
+            y = j / x;
+        }
+
+        return x;
     }
 
     long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }

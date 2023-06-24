@@ -36,5 +36,8 @@ int main()
     // Calculate the square of the jmp number
     std::cout<<"Square: "<<JMP::sqr(d)<<std::endl;
 
+    // Calculate the square root of the jmp number
+    std::cout<<"Square root: "<<JMP::sqrt(ten)<<std::endl;
+
     return 0;
 }
