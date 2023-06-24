@@ -1051,9 +1051,17 @@ bool jmp::operator<(jmp& j) const
         return false;
 
     if (which_string_number_is_bigger(number, j.number) == 0)
-        return false;
-    else
-        return true;
+    {
+        if (is_negative && j.is_negative)
+            return true;
+        else
+            return false;
+    } else {
+        if (is_negative && j.is_negative)
+            return false;
+        else
+            return true;
+    }
 }
 
 bool jmp::operator<=(jmp& j) const
