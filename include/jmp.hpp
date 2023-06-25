@@ -15,10 +15,11 @@ class jmp
 {
     private:
         typedef unsigned long long int ulli;
+        typedef long long int lli;
 
         /// The main members of the class
         ulli float_point_index {0};
-        long long int division_precision {10}, precision {-1};
+        lli division_precision {10}, precision {-1};
         std::string number {"0"};
         bool initialized {false};
 
@@ -77,7 +78,7 @@ class jmp
             return division_precision;
         }
 
-        long long int get_precision() const
+        lli get_precision() const
         {
             return precision;
         }
@@ -98,7 +99,7 @@ class jmp
             return *this;
         }
 
-        jmp set_precision (long long int precision)
+        jmp set_precision (lli precision)
         {
             if (precision >= -1)
             {
@@ -110,12 +111,12 @@ class jmp
             return *this;
         }
 
-        void set_division_precision (long long int precision)
+        void set_division_precision (lli precision)
         {
             division_precision = precision >= 0 ? precision : 10;
         }
 
-        jmp round_precision (long long int precision)
+        jmp round_precision (lli precision)
         {
             // Rounding the number in decimals
             if (precision == 0)
@@ -430,7 +431,8 @@ void jmp::validation (const std::string& num)
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
     // We should check digit by digit to understand which number is bigger
-    unsigned long int num1size {num1.size()}, num2size {num2.size()}, counter {0};
+    const unsigned long int num1size {num1.size()}, num2size {num2.size()};
+    unsigned long int counter {0};
     if (num1size > num2size)
         return 0;
     else if (num1size < num2size)
@@ -899,7 +901,7 @@ jmp jmp::operator/(jmp& j)
 
     // Note: fpi is 'float point index'
     bool could_reset_fpi=false, could_reset_jfpi=false;
-    long long int how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
+    lli how_many_zero_added_this_num {0}, how_many_zero_added_sec_num {0};
     if (num_of_decimals() + (float_point_index == 0 ? 0 : 1) < j.num_of_decimals() + (j.float_point_index == 0 ? 0 : 1))
     {
         if (float_point_index == 0)
@@ -1093,7 +1095,7 @@ bool jmp::operator<(jmp& j)
     if (j.float_point_index != 0)
         j.number.erase(j.number.begin() + j.float_point_index);
 
-    long long int how_many_zeros_removed {0}, j_how_many_zeros_removed {0};
+    lli how_many_zeros_removed {0}, j_how_many_zeros_removed {0};
     while (number[0] == '0')
     {
         how_many_zeros_removed++;
