@@ -26,7 +26,7 @@ class jmp
         void validation (const std::string& num);
         bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
-        std::string subtract(std::string& num1, std::string& num2);
+        std::string subtract(const std::string& num1, const std::string& num2);
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
@@ -430,7 +430,7 @@ void jmp::validation (const std::string& num)
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
     // We should check digit by digit to understand which number is bigger
-    ulli num1size {num1.size()}, num2size {num2.size()}, counter {0};
+    unsigned long int num1size {num1.size()}, num2size {num2.size()}, counter {0};
     if (num1size > num2size)
         return 0;
     else if (num1size < num2size)
@@ -566,6 +566,7 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
 std::string jmp::divide(std::string& dividend, std::string& divisor)
 {
     auto how_much_forward {(dividend.length() >= divisor.length() ? divisor.length() : dividend.length())};
+    ulli how_many_decimals_calculated {0};
     std::string quotient, remaining {dividend}, a;
     bool can_add_fpi = true;
 
@@ -579,13 +580,13 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
     if (!can_add_fpi)
     {
         quotient.insert(quotient.begin() + 1, '.');
+        how_many_decimals_calculated += quotient.size() - 2;
     }
 
     for (int i{0}; i<divisor.size(); i++)
         a.push_back(remaining.at(i));
 
-    while (quotient.size() - (quotient.find('.') != std::string::npos ? quotient.find('.') : quotient.size()) <= division_precision
-           && a != "0")
+    while (how_many_decimals_calculated <= division_precision && a != "0")
     {
         char num {0};
         while (which_string_number_is_bigger(a, divisor) != 1)
@@ -598,6 +599,7 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
             quotient.push_back('0' + num);
 
         if (a != "0")
+        {
             if (how_much_forward < dividend.size())
                 a.push_back(dividend.at(how_much_forward));
             else {
@@ -610,6 +612,11 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
                 }
                 a.push_back('0');
             }
+        }
+
+        if (!can_add_fpi)
+            how_many_decimals_calculated++;
+
         how_much_forward++;
     }
 
@@ -648,32 +655,30 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
         j.number.append("0");
 }
 
-std::string jmp::subtract(std::string& num1, std::string& num2)
+std::string jmp::subtract(const std::string& num1, const std::string& num2)
 {
     std::string result;
-    int len1 = num1.length(), len2 = num2.length();
-    int carry = 0;
+    result.reserve(std::max(num1.size(), num2.size()));
+    long int n = num1.size() - 1, j = num2.size() - 1;
+    bool borrow {0};
 
-    // Perform subtraction digit by digit
-    for (int i = len1 - 1, j = len2 - 1; i >= 0 || j >= 0 || carry; i--, j--)
+    while (n >= 0 || j >= 0 || borrow)
     {
-        int digit1 = i >= 0 ? num1[i] - '0' : 0;
-        int digit2 = j >= 0 ? num2[j] - '0' : 0;
-        int diff = digit1 - digit2 - carry;
-
-        if (diff < 0)
+        char digit = (n >= 0 ? num1[n--] - 48 : 0) - (j >= 0 ? num2[j--] - 48 : 0) - borrow;
+        if (digit < 0)
         {
-            diff += 10;
-            carry = 1;
+            digit += 10;
+            borrow = 1;
         } else
-            carry = 0;
+            borrow = 0;
 
-        result.insert(result.begin(), diff + '0');
+        result.push_back(digit + 48);
     }
 
-    // Remove leading zeros
-    while (result.length() > 1 && result[0] == '0')
-        result.erase(result.begin());
+    std::reverse(result.begin(), result.end());
+
+    // Remove leading zeros from the result
+    result.erase(0, std::min(result.find_first_not_of(48), result.size() - 1));
 
     return result;
 }
