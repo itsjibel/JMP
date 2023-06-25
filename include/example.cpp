@@ -39,5 +39,8 @@ int main()
     // Calculate the square root of the jmp number
     std::cout<<"Square root: "<<JMP::sqrt(ten)<<std::endl;
 
+    // Calculate the factorial of the jmp number
+    std::cout<<"Factorial: "<<JMP::fact(d)<<std::endl;
+
     return 0;
 }
