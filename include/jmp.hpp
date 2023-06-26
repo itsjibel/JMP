@@ -431,21 +431,17 @@ void jmp::validation (const std::string& num)
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
     // We should check digit by digit to understand which number is bigger
-    unsigned long int num1size {num1.size()}, num2size {num2.size()}, counter {0};
+    unsigned long int num1size {num1.size()}, num2size {num2.size()};
     if (num1size > num2size)
         return 0;
     else if (num1size < num2size)
         return 1;
-    else {
-        while (counter < num1size)
-        {
+    else
+        for (unsigned long int counter {0}; counter < num1size; counter++)
             if (num1[counter] > num2[counter])
                 return 0;
             else if (num2[counter] > num1[counter])
                 return 1;
-            counter++;
-        }
-    }
     return 0;
 }
 
