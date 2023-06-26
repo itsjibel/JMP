@@ -104,7 +104,7 @@ class jmp
             if (precision >= -1)
             {
                 this->precision = precision;
-                if (precision != -1)
+                if (float_point_index != 0 && precision != -1)
                     number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
                 float_point_index = precision == 0 ? 0 : float_point_index;
             }
@@ -118,7 +118,7 @@ class jmp
 
         jmp round_precision (lli precision)
         {
-            // Rounding the number in decimals
+            // First, add the required number to number to round it
             if (precision == 0)
             {
                 jmp one("1");
@@ -132,14 +132,9 @@ class jmp
                 if (number[float_point_index + precision + 1] >= '5')
                     *this += number_add_after_rounding;
             }
-
-            if (precision >= -1)
-            {
-                if (float_point_index != 0 && precision != -1)
-                    number = number.substr(0, float_point_index + precision + (precision == 0 ? 0 : 1));
-                float_point_index = precision == 0 ? 0 : float_point_index;
-                this->precision = precision;
-            }
+            /* Now we added or have not added the required number to our JMP number.
+               number. It's time just to use the 'set_precision' function to set the number precision. */
+            set_precision(precision);
             return *this;
         }
 
@@ -148,7 +143,6 @@ class jmp
         bool is_integer() const { return float_point_index == 0; }
         bool is_initialized() const { return initialized; }
         ulli size() const { return number.size(); }
-        ulli allocated() const { return (number.capacity() * sizeof(char)) + sizeof(ulli) + sizeof(bool) * 2; }
         ulli num_of_decimals() { return (number.size() - float_point_index == number.size() ? 0 : number.size() - float_point_index - 1); };
 
         /// Summation operators
@@ -205,8 +199,6 @@ namespace JMP
         jmp zero("0");
         if (j.is_decimal() || j < zero)
             std::__throw_logic_error("JMP::fact: Factorial is only defined for natural numbers.");
-        if (j == zero)
-            return "1";
 
         jmp result("1");
         for (jmp i="1"; i<=j; i++)
@@ -229,8 +221,8 @@ namespace JMP
     {
         if (a.is_decimal() || b.is_decimal())
             std::__throw_logic_error("JMP::gcd: Can not calculate gcd of two decimal jmp numbers.");
-        jmp zero("0"), float_zero("0.0");
-        return b == zero || b == float_zero ? a : gcd(b, a % b);
+        jmp zero("0");
+        return b == zero ? a : gcd(b, a % b);
     }
 
     jmp sqrt(jmp& j)
@@ -1067,7 +1059,27 @@ jmp jmp::operator-=(jmp& j)
 
 bool jmp::operator==(jmp& j)
 {
-    return (is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number ? true : false;
+    bool result = false, tail_zeros_removed_from_this = false, tail_zeros_removed_from_j = false;
+    // Remove unnecessary tail zeros for comparison numbers
+    if (number.back() == '0' && is_decimal())
+    {
+        // Remove zero and float point index
+        number.erase(number.end() - 2, number.end());
+        tail_zeros_removed_from_this = true;
+    }
+    if (j.number.back() == '0' && j.is_decimal())
+    {
+        j.number.erase(j.number.end() - 2, j.number.end());
+        tail_zeros_removed_from_j = true;
+    }
+    // Save the result
+    result = (is_negative ? "-" : "") + number == (j.is_negative ? "-" : "") + j.number;
+    // Back numbers to the default
+    if (tail_zeros_removed_from_this)
+        number.append(".0");
+    if (tail_zeros_removed_from_j)
+        j.number.append(".0");
+    return result;
 }
 
 bool jmp::operator!=(jmp& j)
