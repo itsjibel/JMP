@@ -26,9 +26,9 @@ int main()
 
     // Calculate exponentiation of two jmp numbers
     jmp c("2"), d("-10"), ten("10");
-    std::cout<<"Exponentiation one: "<<c.powof(d)<<std::endl;
+    std::cout<<"Exponentiation one: "<<JMP::pow(c, d)<<std::endl;
     d = JMP::abs(d * ten);
-    std::cout<<"Exponentiation two: "<<c.powof(d)<<std::endl;
+    std::cout<<"Exponentiation two: "<<JMP::pow(c, d)<<std::endl;
 
     // Calculate the cube of the jmp number
     std::cout<<"Cube: "<<JMP::cube(d)<<std::endl;

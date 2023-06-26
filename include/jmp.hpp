@@ -177,9 +177,6 @@ class jmp
         jmp operator%(jmp& j);
         jmp operator%=(jmp& j);
 
-        /// Exponentiation function
-        jmp powof(jmp j);
-
         /// Conditional operators
         bool operator==(jmp& j);
         bool operator!=(jmp& j);
@@ -206,13 +203,13 @@ namespace JMP
     jmp fact(jmp& j)
     {
         jmp zero("0");
-        if (j == zero)
-            return jmp("1");
         if (j.is_decimal() || j < zero)
             std::__throw_logic_error("JMP::fact: Factorial is only defined for natural numbers.");
+        if (j == zero)
+            return "1";
 
         jmp result("1");
-        for (jmp i=jmp("1"); i<=j; i++)
+        for (jmp i="1"; i<=j; i++)
             result *= i;
 
         return result;
@@ -241,7 +238,6 @@ namespace JMP
         jmp x(j), y("1"), sqrt_precision("1"), two("2"), ten("10");
 
         x.set_division_precision(j.get_division_precision());
-        two.set_division_precision(j.get_division_precision());
         y.set_division_precision(j.get_division_precision());
         sqrt_precision.set_division_precision(j.get_division_precision());
 
@@ -256,6 +252,21 @@ namespace JMP
         }
 
         return x;
+    }
+
+    jmp pow(jmp& base, jmp exponent)
+    {
+        if (exponent.is_decimal())
+            std::__throw_logic_error("JMP::pow: The number cannot be raised to a decimal power.");
+
+        jmp result("1"), negative_one("-1");
+        if (exponent.is_negative)
+            while (exponent++ <= negative_one)
+                result /= base;
+        else
+            while (--exponent > negative_one)
+                result *= base;
+        return result;
     }
 
     long long int to_int(const jmp& j) { return atoi(j.get_number().c_str()); }
@@ -431,8 +442,7 @@ void jmp::validation (const std::string& num)
 bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
 {
     // We should check digit by digit to understand which number is bigger
-    const unsigned long int num1size {num1.size()}, num2size {num2.size()};
-    unsigned long int counter {0};
+    unsigned long int num1size {num1.size()}, num2size {num2.size()}, counter {0};
     if (num1size > num2size)
         return 0;
     else if (num1size < num2size)
@@ -569,13 +579,13 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
 {
     auto how_much_forward {(dividend.length() >= divisor.length() ? divisor.length() : dividend.length())};
     ulli how_many_decimals_calculated {0};
-    std::string quotient, remaining {dividend}, a;
+    std::string quotient, hypothetical_number {dividend}, detached_part;
     bool can_add_fpi = true;
 
-    while (remaining.size() < divisor.size())
+    while (hypothetical_number.size() < divisor.size())
     {
         can_add_fpi = false;
-        remaining.push_back('0');
+        hypothetical_number.push_back('0');
         quotient.push_back('0');
     }
 
@@ -586,24 +596,24 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
     }
 
     for (int i{0}; i<divisor.size(); i++)
-        a.push_back(remaining.at(i));
+        detached_part.push_back(hypothetical_number.at(i));
 
-    while (how_many_decimals_calculated <= division_precision && a != "0")
+    while (how_many_decimals_calculated <= division_precision && detached_part != "0")
     {
         char num {0};
-        while (which_string_number_is_bigger(a, divisor) != 1)
+        while (which_string_number_is_bigger(detached_part, divisor) != 1)
         {
             num++;
-            a = subtract(a, divisor);
+            detached_part = subtract(detached_part, divisor);
         }
 
         if ((quotient.empty() && num == 0) == false)
             quotient.push_back('0' + num);
 
-        if (a != "0")
+        if (detached_part != "0")
         {
             if (how_much_forward < dividend.size())
-                a.push_back(dividend.at(how_much_forward));
+                detached_part.push_back(dividend.at(how_much_forward));
             else {
                 if (can_add_fpi)
                 {
@@ -612,7 +622,7 @@ std::string jmp::divide(std::string& dividend, std::string& divisor)
                     quotient.push_back('.');
                     can_add_fpi = false;
                 }
-                a.push_back('0');
+                detached_part.push_back('0');
             }
         }
 
@@ -1053,21 +1063,6 @@ jmp jmp::operator-=(jmp& j)
 {
     *this = *this - j;
     return *this;
-}
-
-jmp jmp::powof(jmp j)
-{
-    if (j.is_decimal())
-        std::__throw_logic_error("jmp::powof: The number cannot be raised to a decimal power.");
-
-    jmp result("1"), negative_one("-1");
-    if (j.is_negative)
-        while (j++ <= negative_one)
-            result /= *this;
-    else
-        while (--j > negative_one)
-            result *= *this;
-    return result;
 }
 
 bool jmp::operator==(jmp& j)
