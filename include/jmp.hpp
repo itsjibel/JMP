@@ -16,32 +16,33 @@ class jmp
     private:
         typedef unsigned long long int ulli;
         typedef long long int lli;
+        typedef std::string str;
 
         /// The main members of the class
         ulli float_point_index {0};
         lli division_precision {10}, precision {-1};
-        std::string number {"0"};
+        str number {"0"};
         bool initialized {false};
 
         /// The helper functions
-        void validation (const std::string& num);
-        bool which_string_number_is_bigger(const std::string& num1, const std::string& num2) const;
+        void validation (const str& num);
+        bool which_string_number_is_bigger(const str& num1, const str& num2) const;
         void trim_the_number(jmp& j, const bool bigger_number_is_negative);
-        std::string subtract(const std::string& num1, const std::string& num2);
+        str subtract(const str& num1, const str& num2);
 
         /// Arithmetic functions
         void FFT(std::complex<double>* a, ulli& n, const bool invert);
-        std::string sum(const std::string& num1, const std::string& num2,
+        str sum(const str& num1, const str& num2,
                         bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                         ulli& sum_obj_float_point_index);
-        std::string multiply(const std::string& num1, const std::string& num2);
-        std::string divide(std::string& num1, std::string& num2);
+        str multiply(const str& num1, const str& num2);
+        str divide(str& num1, str& num2);
 
     public:
         bool is_negative {false};
         /// Constructors
         jmp() {}
-        jmp(const std::string& num) { initialized = true; validation(num); }
+        jmp(const str& num) { initialized = true; validation(num); }
         jmp(const char* num) { initialized = true; validation(num); }
         jmp (const jmp& j)
         {
@@ -68,7 +69,7 @@ class jmp
         }
 
         // Getter functions
-        std::string get_number() const
+        str get_number() const
         {
             return number;
         }
@@ -91,7 +92,7 @@ class jmp
             return *this;
         }
 
-        jmp append (const std::string& num)
+        jmp append (const str& num)
         {
             if (!num.empty() && std::find_if(num.begin(), 
                  num.end(), [](unsigned char c) { return !std::isdigit(c); }) == num.end())
@@ -180,7 +181,7 @@ class jmp
         bool operator>=(jmp& j);
 
         // Conversion operator
-        operator std::string() const
+        operator str() const
         {
             return (is_negative ? "-" : "") + number;
         }
@@ -317,7 +318,7 @@ void jmp::FFT(std::complex<double>* a, ulli& n, const bool invert)
     }
 }
 
-std::string jmp::multiply(const std::string& num1, const std::string& num2)
+std::string jmp::multiply(const str& num1, const str& num2)
 {
     const ulli size1 {num1.size()}, size2 {num2.size()};
     ulli n {1};
@@ -344,9 +345,9 @@ std::string jmp::multiply(const std::string& num1, const std::string& num2)
     FFT(a.get(), n, true);
 
     ulli carry {0};
-    std::string result;
+    str result;
 
-    // Construct the result std::string by rounding the real parts and performing carry propagation
+    // Construct the result str by rounding the real parts and performing carry propagation
     for (ulli i{0}; i<n; ++i)
     {
         ulli digit {static_cast<ulli>(a[i].real() + 0.5) + carry};
@@ -370,7 +371,7 @@ std::string jmp::multiply(const std::string& num1, const std::string& num2)
     return result;
 }
 
-void jmp::validation (const std::string& num)
+void jmp::validation (const str& num)
 {
     number = num;
     // If number is empty so is not valid
@@ -379,7 +380,7 @@ void jmp::validation (const std::string& num)
         number = "0";
         return;
     }
-    // We erase the number sign to just check that this number std::string indexes are number or aren't a number
+    // We erase the number sign to just check that this number str indexes are number or aren't a number
     if (number[0] == '-')
     {
         number.erase(number.begin());
@@ -428,7 +429,7 @@ void jmp::validation (const std::string& num)
         number = number.substr(0, float_point_index + precision + (precision != 0 ? 1 : 0));
 }
 
-bool jmp::which_string_number_is_bigger(const std::string& num1, const std::string& num2) const
+bool jmp::which_string_number_is_bigger(const str& num1, const str& num2) const
 {
     // We should check digit by digit to understand which number is bigger
     unsigned long int num1size {num1.size()}, num2size {num2.size()};
@@ -445,11 +446,11 @@ bool jmp::which_string_number_is_bigger(const std::string& num1, const std::stri
     return 0;
 }
 
-std::string jmp::sum (const std::string& num1, const std::string& num2,
+std::string jmp::sum (const str& num1, const str& num2,
                       bool first_number_is_bigger, bool first_number_is_negative, bool second_number_is_negative,
                       ulli& sum_obj_float_point_index)
 {
-    std::string result = first_number_is_bigger ? num1 : num2;
+    str result = first_number_is_bigger ? num1 : num2;
 
     if (first_number_is_bigger && (first_number_is_negative == second_number_is_negative))
     {
@@ -559,12 +560,11 @@ std::string jmp::sum (const std::string& num1, const std::string& num2,
     return std::move(result);
 }
 
-
-std::string jmp::divide(std::string& dividend, std::string& divisor)
+std::string jmp::divide(str& dividend, str& divisor)
 {
     auto how_much_forward {(dividend.length() >= divisor.length() ? divisor.length() : dividend.length())};
     ulli how_many_decimals_calculated {0};
-    std::string quotient, hypothetical_number {dividend}, detached_part;
+    str quotient, hypothetical_number {dividend}, detached_part;
     bool can_add_fpi = true;
 
     while (hypothetical_number.size() < divisor.size())
@@ -652,9 +652,9 @@ void jmp::trim_the_number(jmp& j, const bool bigger_number_is_negative)
         j.number.append("0");
 }
 
-std::string jmp::subtract(const std::string& num1, const std::string& num2)
+std::string jmp::subtract(const str& num1, const str& num2)
 {
-    std::string result;
+    str result;
     result.reserve(std::max(num1.size(), num2.size()));
     long int n = num1.size() - 1, j = num2.size() - 1;
     bool borrow {0};
