@@ -383,27 +383,24 @@ void jmp::validation (const std::string& num)
     if (number[0] == '-')
     {
         number.erase(number.begin());
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
         is_negative = true;
-    } else if (number[0] == '+') {
+    } else if (number[0] == '+')
         number.erase(number.begin());
-        float_point_index = float_point_index > 0 ? float_point_index - 1 : 0;
-    }
 
-    bool valid {true}, number_of_dots {0};
+    bool valid {true}, float_point_found {false};
     for (ulli i{0}; i<number.size(); i++)
     {
-        /* If the number character is '.', so we add 1 to number_of_dots to know how many dots we have in-
-           the number characters, then update the float_point_index to know-
-           where is the point index in the number */
+        /* If the number character is '.', so we set float_point_found true to if another one detected
+           we know number is not valid because we already have found the float point,
+           then update the float_point_index to know where is the point index in the number */
         if (number[i] == '.')
         {
-            if (number_of_dots == 1)
+            if (float_point_found == 1)
             {
                 valid = false;
                 break;
             }
-            number_of_dots = 1;
+            float_point_found = true;
             float_point_index = i;
         } else if (number[i] < '0' || number[i] > '9') {
             /* If the number character is not in the range 0-9 and the number character is not '.'-
