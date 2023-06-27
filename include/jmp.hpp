@@ -4,6 +4,8 @@ Copyleft(🄯) All uses of this library are free.
   * This library is for challenging my (or your) C++ knowledge to write the good Multiple Precision Arithmetic Library,
     all advice or help would be appreciated.
 
+Github address: https://github.com/itsjibel/JMP
+
 Authors:
   * Jibel Sadeghi <itsjibel@gmail.com> */
 
