@@ -597,8 +597,14 @@ std::string jmp::divide(str& dividend, str& divisor)
         if ((quotient.empty() && num == 0) == false)
             quotient.push_back('0' + num);
 
-        if (detached_part != "0")
+        if (detached_part != "0" || (how_much_forward < dividend.size() == true && detached_part == "0"))
         {
+            if (detached_part == "0")
+            {
+                quotient.push_back('0');
+                continue;
+            }
+
             if (how_much_forward < dividend.size())
                 detached_part.push_back(dividend.at(how_much_forward));
             else {
